@@ -1,0 +1,262 @@
+
+--- Job MPC_simplified.gms Start 09/17/21 17:30:19 35.2.0 r33388c4 WEX-WEI x86 64bit/MS Windows
+--- Applying:
+    C:\Program Files\GAMS-35\gmsprmNT.txt
+--- GAMS Parameters defined
+    Input "C:\Users\ansel\OneDrive\PhD\2 - Where to place new power generation\Three node models\MPC_simplified.gms"
+    PageSize 0
+    ScrDir "C:\Users\ansel\OneDrive\PhD\2 - Where to place new power generation\Three node models\225c\"
+    SysDir "C:\Program Files\GAMS-35\"
+    LogOption 3
+    ErrMsg 1
+    ErrorLog 99
+    IDE 1
+    LstTitleLeftAligned 1
+Licensee: GAMS Community License for Anselm Eicke        G210709|0002AO-GEN
+          Hertie School of Governance GmbH                           CL1515
+          C:\Users\ansel\OneDrive\Dokumente\GAMS\gamslice.txt
+          Anselm Eicke, eicke@hertie-school.org                            
+          Community license for demonstration and instructional purposes only
+GAMS 35.2.0   Copyright (C) 1987-2021 GAMS Development. All rights reserved
+--- Starting compilation
+--- MPC_simplified.gms(48) 3 Mb
+--- GDXin=C:\Users\ansel\OneDrive\PhD\2 - Where to place new power generation\Three node models\in.gdx
+--- GDX File ($gdxIn) C:\Users\ansel\OneDrive\PhD\2 - Where to place new power generation\Three node models\in.gdx
+--- MPC_simplified.gms(147) 3 Mb
+--- Starting execution: elapsed 0:00:00.029
+--- MPC_simplified.gms(73) 4 Mb
+--- Generating MCP model LOCI
+--- MPC_simplified.gms(141) 6 Mb
+---   396 rows  396 columns  2,168 non-zeroes
+---   0 nl-code  0 nl-non-zeroes
+--- MPC_simplified.gms(141) 4 Mb
+--- Executing PATH (Solvelink=2): elapsed 0:00:00.057
+Reading dictionary...
+Reading row data...
+Evaluating functions...
+Checking model...
+Calculating Jacobian...
+
+PATH             35.2.0 r33388c4 Released Jun 02, 2021 WEI x86 64bit/MS Window
+
+*** This solver runs with a community license. No commercial use.
+396 row/cols, 2168 non-zeros, 1.38% dense.
+
+Path 5.0.02 (Wed Jun  2 14:31:08 2021)
+Written by Todd Munson, Steven Dirkse, Youngdae Kim, and Michael Ferris
+
+Zero:     0 Single:   170 Double:     0
+MCPR: One:    0 Two:    0 Thr:    0 Qua:    0 WBd:    0 Fix:    2 IFx:    0
+Preprocessed size   : 198
+
+INITIAL POINT STATISTICS
+Maximum of X. . . . . . . . . .  0.0000e+00 var: (mu_G_max(1,base,west))
+Maximum of F. . . . . . . . . .  3.2500e+02 eqn: (KKT_GEN(1,wind,west))
+Maximum of Grad F . . . . . . .  1.6361e+02 eqn: (KKT_GEN(3,base,west))
+                                            var: (GEN(3,base,west))
+
+INITIAL JACOBIAN NORM STATISTICS
+Maximum Row Norm. . . . . . . .  1.6330e+03 eqn: (KKT_GEN(2,base,west))
+Minimum Row Norm. . . . . . . .  1.0100e+00 eqn: (gen_max(2,solar,west))
+Maximum Column Norm . . . . . .  1.6330e+03 var: (GEN(2,base,west))
+Minimum Column Norm . . . . . .  1.0100e+00 var: (mu_G_max(2,solar,west))
+
+Crash Log
+major  func  diff  size  residual    step       prox   (label)
+    0     0             5.4479e+03             0.0e+00 (KKT_GEN(1,wind,west))
+pn_search terminated: no progress.
+
+Major Iteration Log
+major minor  func  grad  residual    step  type prox    inorm  (label)
+    0     0    13     1 5.4479e+03           I 1.0e+01 6.5e+02 (KKT_GEN(1,wind,)
+    1    11    14     2 5.4479e+03  1.0e+00 RO 4.0e+00 6.5e+02 (KKT_GEN(1,wind,)
+    2    22    15     3 5.4479e+03  1.0e+00 RO 1.6e+00 6.5e+02 (KKT_GEN(1,wind,)
+    3    29    16     4 5.4479e+03  1.0e+00 RO 6.4e-01 6.5e+02 (KKT_GEN(1,wind,)
+    4    42    17     5 5.4479e+03  1.0e+00 RO 2.6e-01 6.5e+02 (KKT_GEN(1,wind,)
+    5   319    18     6 5.4479e+03  1.0e+00 RO 1.0e-01 6.5e+02 (KKT_GEN(1,wind,)
+    6    11    26     7 4.9638e+03  6.9e-02 RG 4.1e-02 1.3e+03 (KKT_CAP(peak,we)
+    7    48    27     8 4.9638e+03  1.0e+00 RO 1.6e-02 1.3e+03 (KKT_CAP(peak,we)
+    8    25    28     9 4.9638e+03  1.0e+00 RO 6.6e-03 1.3e+03 (KKT_CAP(peak,we)
+    9    20    29    10 4.9638e+03  1.0e+00 RO 2.6e-03 1.3e+03 (KKT_CAP(peak,we)
+   10    66    30    11 4.9638e+03  1.0e+00 CO 1.0e-03 1.3e+03 (KKT_CAP(peak,so)
+   11    11    32    12 5.1599e+03  8.0e-01 RB 4.2e-04 6.1e+02 (KKT_GEN(8,wind,)
+   12   209    37    13 4.5583e+03  4.1e-01 CG 1.6e-02 1.4e+03 (KKT_CAP(wind,we)
+   13   116    38    14 4.5583e+03  1.0e+00 RO 6.6e-03 1.4e+03 (KKT_CAP(wind,we)
+   14   117    39    15 4.5583e+03  1.0e+00 RO 2.6e-03 1.4e+03 (KKT_CAP(wind,we)
+   15   454    40    16 4.5583e+03  1.0e+00 RO 1.0e-03 1.4e+03 (KKT_CAP(wind,we)
+   16    11    42    17 4.7798e+03  8.0e-01 RB 4.2e-04 5.2e+02 (KKT_GEN(1,base,)
+
+Minor Iteration Log
+minor      t          z     w     v   art ckpts  enter    leave
+  500 -1.7411e+05    88    99    10     0     9 z[   51] w[  141]
+
+Major Iteration Log
+major minor  func  grad  residual    step  type prox    inorm  (label)
+   17   792    43    18 4.7798e+03  1.0e+00 IO 1.7e-04 5.2e+02 (KKT_GEN(3,base,)
+   18   291    51    19 3.4446e+03  6.9e-02 CG 1.0e-03 1.0e+03 (KKT_CAP(wind,we)
+   19   134    52    20 3.4446e+03  1.0e+00 RO 1.0e+01 1.0e+03 (KKT_CAP(wind,we)
+   20   114    53    21 3.4446e+03  1.0e+00 RO 4.0e+00 1.0e+03 (KKT_CAP(wind,we)
+   21    99    54    22 4.0774e+03  1.0e+00 RM 1.6e+00 5.2e+02 (KKT_GEN(1,base,)
+   22    38    55    23 4.0774e+03  1.0e+00 RO 6.4e-01 5.2e+02 (KKT_GEN(1,base,)
+   23    42    56    24 4.0774e+03  1.0e+00 RO 2.6e-01 5.2e+02 (KKT_GEN(1,base,)
+   24    44    62    25 3.3496e+03  2.6e-01 RG 4.0e+00 4.3e+02 (KKT_GEN(10,peak)
+   25   132    63    26 3.3496e+03  1.0e+00 RO 1.6e+00 4.3e+02 (KKT_GEN(10,peak)
+   26   105    64    27 4.3994e+03  1.0e+00 RM 6.4e-01 5.7e+02 (KKT_GEN(1,wind,)
+   27    28    65    28 4.3994e+03  1.0e+00 RO 2.6e-01 5.7e+02 (KKT_GEN(1,wind,)
+   28    32    66    29 4.3994e+03  1.0e+00 RD 1.0e-01 5.7e+02 (KKT_GEN(7,wind,)
+   29    59    67    30 4.3994e+03  1.0e+00 RD 4.1e-02 5.7e+02 (KKT_GEN(7,wind,)
+   30   237    75    31 3.1292e+03  6.9e-02 RG 4.0e+00 6.8e+02 (KKT_CAP(base,so)
+   31    99    76    32 4.1193e+03  1.0e+00 RM 1.6e+00 5.2e+02 (KKT_GEN(1,base,)
+   32    16    77    33 4.1193e+03  1.0e+00 RD 6.4e-01 5.2e+02 (KKT_GEN(1,base,)
+   33    36    78    34 4.1193e+03  1.0e+00 RD 2.6e-01 5.2e+02 (KKT_GEN(1,base,)
+   34    39    79    35 4.1193e+03  1.0e+00 RD 1.0e-01 5.2e+02 (KKT_GEN(1,base,)
+   35   195    80    36 4.1193e+03  1.0e+00 RD 4.1e-02 5.2e+02 (KKT_GEN(7,base,)
+
+Restart Log
+proximal_perturbation 0
+crash_method none
+crash_perturb yes
+nms_initial_reference_factor 2
+lemke_start_type slack
+proximal_perturbation 1.0000e-01
+
+Major Iteration Log
+major minor  func  grad  residual    step  type prox    inorm  (label)
+   35     0    89    37 5.4479e+03           R 1.0e-01 6.5e+02 (KKT_GEN(1,wind,)
+   36   373    90    38 5.4479e+03  1.0e+00 RO 4.0e-02 6.5e+02 (KKT_GEN(1,wind,)
+   37   363    91    39 5.4479e+03  1.0e+00 RO 1.6e-02 6.5e+02 (KKT_GEN(1,wind,)
+   38   347    92    40 5.4479e+03  1.0e+00 RO 6.4e-03 6.5e+02 (KKT_GEN(1,wind,)
+   39   472    93    41 5.4479e+03  1.0e+00 RO 2.6e-03 6.5e+02 (KKT_GEN(1,wind,)
+   40   353    94    42 5.4479e+03  1.0e+00 RO 1.0e-03 6.5e+02 (KKT_GEN(2,wind,)
+   41    11   102    43 4.9638e+03  6.9e-02 RG 4.0e-02 1.3e+03 (KKT_CAP(peak,we)
+   42    48   103    44 4.9638e+03  1.0e+00 RO 1.6e-02 1.3e+03 (KKT_CAP(peak,we)
+   43    21   104    45 4.9638e+03  1.0e+00 RO 6.4e-03 1.3e+03 (KKT_CAP(peak,we)
+   44    20   105    46 4.9638e+03  1.0e+00 RO 2.6e-03 1.3e+03 (KKT_CAP(peak,so)
+   45    82   106    47 4.9638e+03  1.0e+00 CO 1.0e-03 1.3e+03 (KKT_CAP(peak,ea)
+   46    11   108    48 5.1599e+03  8.0e-01 RB 4.1e-04 6.1e+02 (KKT_GEN(10,wind)
+   47   176   113    49 4.5583e+03  4.1e-01 CG 2.6e-03 1.4e+03 (KKT_CAP(wind,we)
+   48   427   114    50 4.5583e+03  1.0e+00 CO 1.0e-03 1.4e+03 (KKT_CAP(wind,we)
+
+Minor Iteration Log
+minor      t          z     w     v   art ckpts  enter    leave
+  500 -1.6179e+05    85   102    10     0     9 w[   60] z[   61]
+   49   108   115    51 4.5583e+03  1.0e+00 RO 1.0e+01 1.4e+03 (KKT_CAP(wind,we)
+   50   116   116    52 4.5583e+03  1.0e+00 RO 4.0e+00 1.4e+03 (KKT_CAP(wind,we)
+   51    99   117    53 4.1569e+03  1.0e+00 RM 1.6e+00 7.4e+02 (KKT_CAP(wind,we)
+   52    38   118    54 4.1569e+03  1.0e+00 RO 6.4e-01 7.4e+02 (KKT_CAP(wind,we)
+   53    36   126    55 3.3457e+03  6.9e-02 RG 2.6e-01 6.4e+02 (KKT_CAP(wind,we)
+   54    74   127    56 3.3457e+03  1.0e+00 RO 1.0e-01 6.4e+02 (KKT_CAP(wind,we)
+   55   147   128    57 3.3457e+03  1.0e+00 RO 4.1e-02 6.4e+02 (KKT_CAP(wind,we)
+   56    11   130    58 4.6712e+03  8.0e-01 RB 1.6e-02 5.2e+02 (KKT_GEN(4,wind,)
+   57   281   131    59 4.6712e+03  1.0e+00 RO 6.6e-03 5.2e+02 (KKT_GEN(4,wind,)
+   58   373   132    60 4.6712e+03  1.0e+00 CO 2.6e-03 5.2e+02 (KKT_GEN(4,wind,)
+   59    85   140    61 3.3210e+03  6.9e-02 CG 1.0e-01 5.6e+02 (KKT_CAP(wind,we)
+   60   150   141    62 3.3210e+03  1.0e+00 RO 4.1e-02 5.6e+02 (KKT_CAP(wind,we)
+   61    11   144    63 4.2437e+03  6.4e-01 RB 1.6e-02 4.8e+02 (KKT_GEN(2,base,)
+   62   303   145    64 4.2437e+03  1.0e+00 RO 6.6e-03 4.8e+02 (KKT_GEN(2,base,)
+   63   336   146    65 4.2437e+03  1.0e+00 CO 2.6e-03 4.8e+02 (KKT_GEN(2,base,)
+   64    96   147    66 4.2437e+03  1.0e+00 CD 1.0e-03 4.8e+02 (KKT_GEN(8,base,)
+   65    34   155    67 3.2875e+03  6.9e-02 CG 1.0e-01 6.8e+02 (KKT_CAP(base,ea)
+   66    11   158    68 4.1499e+03  6.4e-01 RB 4.1e-02 4.6e+02 (KKT_GEN(9,base,)
+   67    52   159    69 4.1499e+03  1.0e+00 RO 1.6e-02 4.6e+02 (KKT_GEN(2,base,)
+   68    28   160    70 4.1499e+03  1.0e+00 RO 6.6e-03 4.6e+02 (KKT_GEN(8,base,)
+   69   135   161    71 4.1499e+03  1.0e+00 RO 2.6e-03 4.6e+02 (KKT_GEN(8,base,)
+   70    42   162    72 4.1499e+03  1.0e+00 CD 1.0e-03 4.6e+02 (KKT_GEN(8,base,)
+
+Restart Log
+proximal_perturbation 0
+crash_method none
+crash_perturb no
+nms_initial_reference_factor 10
+nms_memory_size 2
+nms_mstep_frequency 1
+lemke_search_type slack
+
+Major Iteration Log
+major minor  func  grad  residual    step  type prox    inorm  (label)
+   70     0   172    73 5.4479e+03           R 0.0e+00 6.5e+02 (KKT_GEN(1,wind,)
+   71   359   173    74 5.3657e+03  1.0e+00 CM 0.0e+00 6.4e+02 (KKT_GEN(4,wind,)
+   72   159   174    75 5.3657e+03  1.0e+00 CM 0.0e+00 6.4e+02 (KKT_GEN(3,wind,)
+   73   363   189    76 5.3657e+03  3.5e-08 CB 0.0e+00 6.4e+02 (KKT_GEN(3,wind,)
+   74   349   190    77 5.3657e+03  1.0e+00 CM 0.0e+00 6.4e+02 (KKT_GEN(3,wind,)
+   75    24   191    78 5.3657e+03  1.0e+00 CM 0.0e+00 6.4e+02 (KKT_GEN(3,wind,)
+   76     2   199    79 5.0006e+03  6.9e-02 RG 0.0e+00 1.3e+03 (KKT_CAP(peak,ea)
+   77   182   200    80 5.0006e+03  1.0e+00 CM 0.0e+00 1.3e+03 (KKT_CAP(peak,ea)
+   78   117   213    81 5.0006e+03  4.4e-05 CB 0.0e+00 1.3e+03 (KKT_CAP(peak,ea)
+   79    72   232    82 4.5392e+03  4.1e-01 CG 0.0e+00 1.4e+03 (KKT_CAP(wind,we)
+   80   158   254    83 3.4101e+03  6.9e-02 RG 0.0e+00 1.0e+03 (KKT_CAP(wind,we)
+   81     2   259    84 3.3701e+03  3.3e-01 RB 0.0e+00 6.2e+02 (KKT_CAP(wind,we)
+   82   174   267    85 3.3407e+03  6.9e-02 CG 0.0e+00 6.7e+02 (KKT_CAP(base,we)
+   83   135   268    86 3.3407e+03  1.0e+00 CM 0.0e+00 6.7e+02 (KKT_CAP(base,ea)
+   84    43   269    87 3.3407e+03  1.0e+00 CM 0.0e+00 6.7e+02 (KKT_CAP(base,we)
+   85    27   291    88 3.3396e+03  6.9e-02 CG 0.0e+00 5.2e+02 (KKT_CAP(wind,we)
+
+Restart Log
+proximal_perturbation 0
+crash_method pnewton
+crash_nbchange_limit 10
+nms_initial_reference_factor 2
+crash_searchtype arc
+nms_searchtype arc
+gradient_searchtype arc
+lemke_search_type slack
+
+Crash Log
+major  func  diff  size  residual    step       prox   (label)
+    0     0             5.4479e+03             0.0e+00 (KKT_GEN(1,wind,west))
+pn_search terminated: no progress.
+
+Major Iteration Log
+major minor  func  grad  residual    step  type prox    inorm  (label)
+   85     0   326    89 5.4479e+03           R 1.0e+01 6.5e+02 (KKT_GEN(1,wind,)
+   86    83   327    90 5.4479e+03  1.0e+00 RM 4.0e+00 6.5e+02 (KKT_GEN(2,wind,)
+   87    82   328    91 5.4479e+03  1.0e+00 RM 1.6e+00 6.5e+02 (KKT_GEN(2,wind,)
+   88   230   350    92 4.9638e+03  6.9e-02 RG 4.0e+00 1.3e+03 (KKT_CAP(peak,we)
+   89   124   351    93 4.9638e+03  1.0e+00 RM 1.6e+00 1.3e+03 (KKT_CAP(peak,we)
+   90   108   364    94 4.9638e+03  4.4e-05 RB 6.4e-01 1.3e+03 (KKT_CAP(peak,we)
+   91    11   369    95 4.5583e+03  4.1e-01 RG 1.6e+00 1.4e+03 (KKT_CAP(wind,we)
+   92    22   370    96 4.5583e+03  1.0e+00 RM 6.4e-01 1.4e+03 (KKT_CAP(wind,we)
+   93    28   371    97 4.5583e+03  1.0e+00 RM 2.6e-01 1.4e+03 (KKT_CAP(wind,we)
+   94    36   372    98 4.5583e+03  1.0e+00 RM 1.0e-01 1.4e+03 (KKT_CAP(wind,we)
+   95   142   373    99 4.5583e+03  1.0e+00 RM 4.1e-02 1.4e+03 (KKT_CAP(wind,we)
+   96    11   376   100 4.3962e+03  6.4e-01 RB 1.6e-02 5.2e+02 (KKT_GEN(1,base,)
+   97    26   384   101 3.8754e+03  6.9e-02 RG 6.6e-03 8.9e+02 (KKT_CAP(peak,we)
+   98    53   385   102 3.8754e+03  1.0e+00 RM 2.6e-03 8.9e+02 (KKT_CAP(peak,ea)
+   99   148   408   103 3.6564e+03  2.8e-02 RG 6.6e-03 4.8e+02 (KKT_CAP(wind,we)
+  100   276   429   104 3.6439e+03  1.7e-01 CG 2.6e-03 8.8e+02 (KKT_CAP(peak,we)
+  101    11   437   105 3.6358e+03  5.5e-02 RB 1.0e-03 8.3e+02 (KKT_CAP(peak,we)
+  102   108   438   106 3.6358e+03  1.0e+00 CM 4.2e-04 8.3e+02 (KKT_CAP(peak,we)
+
+FINAL STATISTICS
+Inf-Norm of Complementarity . .  9.0630e+04 eqn: (gen_max(9,peak,south))
+Inf-Norm of Normal Map. . . . .  9.7553e+02 eqn: (gen_max(1,peak,south))
+Inf-Norm of Minimum Map . . . .  5.3694e+02 eqn: (KKT_CAP(peak,west))
+Inf-Norm of Fischer Function. .  6.7993e+02 eqn: (KKT_CAP(base,south))
+Inf-Norm of Grad Fischer Fcn. .  6.4893e+05 eqn: (KKT_GEN(4,wind,east))
+Two-Norm of Grad Fischer Fcn. .  5.4355e+06
+
+FINAL POINT STATISTICS
+Maximum of X. . . . . . . . . .  9.7553e+02 var: (CAP(peak,south))
+Maximum of F. . . . . . . . . .  9.7553e+02 eqn: (gen_max(1,peak,south))
+Maximum of Grad F . . . . . . .  1.6361e+02 eqn: (KKT_GEN(3,base,west))
+                                            var: (GEN(3,base,west))
+
+ ** EXIT - other error.
+
+Major Iterations. . . . 102
+Minor Iterations. . . . 13872
+Restarts. . . . . . . . 3
+Crash Iterations. . . . 0
+Gradient Steps. . . . . 24
+Function Evaluations. . 447
+Gradient Evaluations. . 106
+Basis Time. . . . . . . 0.187000
+Total Time. . . . . . . 0.219000
+Residual. . . . . . . . 3.129169e+03
+Postsolved residual: 2.0439e+03
+
+--- Reading solution for model LOCI
+--- Executing after solve: elapsed 0:00:00.375
+--- MPC_simplified.gms(146) 4 Mb
+*** Status: Normal completion
+--- Job MPC_simplified.gms Stop 09/17/21 17:30:20 elapsed 0:00:00.375

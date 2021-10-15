@@ -1,0 +1,153 @@
+
+--- Job MPC_large with big M as QCP.gms Start 10/05/21 15:12:19 35.2.0 r33388c4 WEX-WEI x86 64bit/MS Windows
+--- Applying:
+    C:\Program Files\GAMS-35\gmsprmNT.txt
+--- GAMS Parameters defined
+    Input "C:\Users\ansel\OneDrive\PhD\2 - Where to place new power generation\Three node models\Model testing\MPC_large with big M as QCP.gms"
+    PageSize 0
+    ScrDir "C:\Users\ansel\OneDrive\PhD\2 - Where to place new power generation\Three node models\Model testing\225d\"
+    SysDir "C:\Program Files\GAMS-35\"
+    LogOption 3
+    ErrMsg 1
+    ErrorLog 99
+    IDE 1
+    LstTitleLeftAligned 1
+Licensee: GAMS Community License for Anselm Eicke        G210709|0002AO-GEN
+          Hertie School of Governance GmbH                           CL1515
+          C:\Users\ansel\OneDrive\Dokumente\GAMS\gamslice.txt
+          Anselm Eicke, eicke@hertie-school.org                            
+          Community license for demonstration and instructional purposes only
+GAMS 35.2.0   Copyright (C) 1987-2021 GAMS Development. All rights reserved
+--- Starting compilation
+--- MPC_large with big M as QCP.gms(48) 3 Mb
+--- GDXin=C:\Users\ansel\OneDrive\PhD\2 - Where to place new power generation\Three node models\Model testing\in.gdx
+--- GDX File ($gdxIn) C:\Users\ansel\OneDrive\PhD\2 - Where to place new power generation\Three node models\Model testing\in.gdx
+--- MPC_large with big M as QCP.gms(217) 3 Mb
+--- Starting execution: elapsed 0:00:00.019
+--- MPC_large with big M as QCP.gms(208) 4 Mb
+--- Generating MIP model LOCI
+--- MPC_large with big M as QCP.gms(211) 4 Mb
+---   382 rows  274 columns  916 non-zeroes
+---   108 discrete-columns
+--- Executing CPLEX (Solvelink=2): elapsed 0:00:00.031
+
+IBM ILOG CPLEX   35.2.0 r33388c4 Released Jun 02, 2021 WEI x86 64bit/MS Window
+
+--- *** This solver runs with a community license. No commercial use.
+--- Space for names approximately 0.02 Mb
+--- Use option 'names no' to turn use of names off
+--- GMO memory 0.57 Mb (peak 0.58 Mb)
+--- Dictionary memory 0.00 Mb
+--- Cplex 20.1.0.1 link memory 0.01 Mb (peak 0.05 Mb)
+--- Starting Cplex
+
+Version identifier: 20.1.0.1 | 2021-04-07 | 3a818710c
+CPXPARAM_Advance                                 0
+CPXPARAM_Threads                                 1
+CPXPARAM_MIP_Display                             4
+CPXPARAM_MIP_Tolerances_AbsMIPGap                0
+Generic callback                                 0x50
+Tried aggregator 1 time.
+MIP Presolve eliminated 133 rows and 49 columns.
+MIP Presolve modified 136 coefficients.
+Reduced MIP has 248 rows, 220 columns, and 658 nonzeros.
+Reduced MIP has 85 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.46 ticks)
+Probing fixed 2 vars, tightened 51 bounds.
+Probing time = 0.00 sec. (0.26 ticks)
+Tried aggregator 1 time.
+Detecting symmetries...
+MIP Presolve eliminated 4 rows and 4 columns.
+MIP Presolve modified 61 coefficients.
+Reduced MIP has 244 rows, 216 columns, and 648 nonzeros.
+Reduced MIP has 83 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.45 ticks)
+Probing fixed 3 vars, tightened 68 bounds.
+Probing time = 0.01 sec. (0.29 ticks)
+Clique table members: 34.
+MIP emphasis: balance optimality and feasibility.
+MIP search method: dynamic search.
+Parallel mode: none, using 1 thread.
+Tried aggregator 1 time.
+LP Presolve eliminated 18 rows and 15 columns.
+Aggregator did 77 substitutions.
+Reduced LP has 149 rows, 124 columns, and 447 nonzeros.
+Presolve time = 0.00 sec. (0.18 ticks)
+Initializing dual steep norms . . .
+
+Iteration log . . .
+Iteration:     1   Dual objective     =             1.000000
+Perturbation started.
+Iteration:    51   Dual objective     =             1.000000
+Removing perturbation.
+Initializing dual steep norms . . .
+
+Iteration log . . .
+Iteration:     1   Dual objective     =             1.000000
+Root relaxation solution time = 0.00 sec. (0.78 ticks)
+
+        Nodes                                         Cuts/
+   Node  Left     Objective  IInf  Best Integer    Best Bound    ItCnt     Gap
+
+      0     0        1.0000     8                      1.0000       63         
+      0     0        1.0000    11                    Cuts: 23       87         
+      0     0        1.0000     4                    Cuts: 12       99         
+      0     0        1.0000    11                    Cuts: 24      122         
+      0     2        1.0000     4                      1.0000      122         
+Elapsed time = 0.09 sec. (31.51 ticks, tree = 0.01 MB, solutions = 0)
+    775   217        1.0000     4                      1.0000    14055         
+                                                     Cuts: 29                  
+   1066   322        1.0000     2                      1.0000    28508         
+                                                     Cuts: 15                  
+*  1203     1      integral     0        1.0000        1.0000    35892    0.00%
+                                                      Cuts: 2                  
+Found incumbent of value 1.000000 after 1.39 sec. (636.91 ticks)
+
+Cover cuts applied:  11
+Implied bound cuts applied:  32
+Flow cuts applied:  11
+
+Root node processing (before b&c):
+  Real time             =    0.09 sec. (31.51 ticks)
+Sequential b&c:
+  Real time             =    1.30 sec. (605.59 ticks)
+                          ------------
+Total (root+branch&cut) =    1.39 sec. (637.10 ticks)
+
+--- MIP status (101): integer optimal solution.
+--- Cplex Time: 1.39sec (det. 637.10 ticks)
+
+--- Fixing integer variables and solving final LP...
+
+Version identifier: 20.1.0.1 | 2021-04-07 | 3a818710c
+CPXPARAM_Advance                                 2
+CPXPARAM_Threads                                 1
+CPXPARAM_MIP_Display                             4
+CPXPARAM_MIP_Tolerances_AbsMIPGap                0
+Tried aggregator 1 time.
+LP Presolve eliminated 320 rows and 210 columns.
+Aggregator did 32 substitutions.
+Reduced LP has 29 rows, 32 columns, and 99 nonzeros.
+Presolve time = 0.00 sec. (0.27 ticks)
+Initializing dual steep norms . . .
+
+Iteration log . . .
+Iteration:     1   Dual objective     =             1.000000
+
+--- Fixed MIP status (1): optimal.
+--- Cplex Time: 0.00sec (det. 0.48 ticks)
+
+
+Proven optimal solution
+MIP Solution:            1.000000    (35892 iterations, 1204 nodes)
+Final Solve:             1.000000    (15 iterations)
+
+Best possible:           1.000000
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+--- Reading solution for model LOCI
+--- Executing after solve: elapsed 0:00:01.631
+--- MPC_large with big M as QCP.gms(216) 4 Mb
+*** Status: Normal completion
+--- Job MPC_large with big M as QCP.gms Stop 10/05/21 15:12:21 elapsed 0:00:01.640

@@ -1,0 +1,90 @@
+
+--- Job MPEC.gms Start 09/09/21 15:33:50 35.2.0 r33388c4 WEX-WEI x86 64bit/MS Windows
+--- Applying:
+    C:\Program Files\GAMS-35\gmsprmNT.txt
+--- GAMS Parameters defined
+    Input "C:\Users\ansel\OneDrive\PhD\3 - Where to place new power generation\Three node models\MPEC.gms"
+    PageSize 0
+    ScrDir "C:\Users\ansel\OneDrive\PhD\3 - Where to place new power generation\Three node models\225b\"
+    SysDir "C:\Program Files\GAMS-35\"
+    LogOption 3
+    ErrMsg 1
+    ErrorLog 99
+    IDE 1
+    LstTitleLeftAligned 1
+Licensee: GAMS Community License for Anselm Eicke        G210709|0002AO-GEN
+          Hertie School of Governance GmbH                           CL1515
+          C:\Users\ansel\OneDrive\Dokumente\GAMS\gamslice.txt
+          Anselm Eicke, eicke@hertie-school.org                            
+          Community license for demonstration and instructional purposes only
+GAMS 35.2.0   Copyright (C) 1987-2021 GAMS Development. All rights reserved
+--- Starting compilation
+--- MPEC.gms(81) 3 Mb
+--- GDXin=C:\Users\ansel\OneDrive\PhD\3 - Where to place new power generation\Three node models\in.gdx
+--- GDX File ($gdxIn) C:\Users\ansel\OneDrive\PhD\3 - Where to place new power generation\Three node models\in.gdx
+--- MPEC.gms(254) 3 Mb
+--- Starting execution: elapsed 0:00:00.019
+--- MPEC.gms(224) 4 Mb
+--- Generating NLP model LOCI
+--- MPEC.gms(225) 6 Mb
+---   141 rows  139 columns  419 non-zeroes
+---   142 nl-code  30 nl-non-zeroes
+--- MPEC.gms(225) 4 Mb
+--- Executing BARON (Solvelink=2): elapsed 0:00:00.019
+
+GAMS/BARON       35.2.0 r33388c4 Released Jun 02, 2021 WEI x86 64bit/MS Window
+
+*** This solver runs with a community license. No commercial use.
+===========================================================================
+ BARON version 21.1.13. Built: WIN-64 Wed Jan 13 16:04:12 EST 2021
+
+ BARON is a product of The Optimization Firm.
+ For information on BARON, see https://minlp.com/about-baron
+
+ If you use this software, please cite publications from
+ https://minlp.com/baron-publications, such as: 
+
+ Khajavirad, A. and N. V. Sahinidis,
+ A hybrid LP/NLP paradigm for global optimization relaxations,
+ Mathematical Programming Computation, 10, 383-421, 2018.
+===========================================================================
+ This BARON run may utilize the following subsolver(s)
+ For LP/MIP/QP: ILOG CPLEX                                      
+ For NLP: MINOS, SNOPT, GAMS external NLP, IPOPT, FILTERSD, FILTERSQP
+===========================================================================
+ Doing local search
+ Preprocessing found feasible solution with value  13204.2068946     
+ Solving bounding LP
+ Starting multi-start local search
+ Preprocessing found feasible solution with value  13234.7325364     
+ Done with local search
+===========================================================================
+  Iteration    Open nodes         Time (s)    Lower bound      Upper bound
+          1             1             0.34     13234.7          14845.1    
+*         2             2             0.50     13360.8          14845.1    
+        411             0             4.84     13360.8          13362.1    
+
+                         *** Normal completion ***            
+
+ Wall clock time:                     5.14
+ Total CPU time used:                 4.84
+
+ Total no. of BaR iterations:     411
+ Best solution found at node:       3
+ Max. no. of nodes in memory:       6
+ 
+ All done
+===========================================================================
+
+Solution      = 13360.7989250018  found at node 3
+Best possible = 13362.1351385
+Absolute gap  = 1.33621349818713  optca = 1E-9
+Relative gap  = 9.99999988278172E-5  optcr = 0.0001
+  (Note that BARON uses a different formula to compute the relative gap as
+   was used for the above reported value.)
+
+--- Reading solution for model LOCI
+--- Executing after solve: elapsed 0:00:05.386
+--- MPEC.gms(254) 4 Mb
+*** Status: Normal completion
+--- Job MPEC.gms Stop 09/09/21 15:33:55 elapsed 0:00:05.386

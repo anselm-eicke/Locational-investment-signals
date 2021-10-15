@@ -1,0 +1,2190 @@
+GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 10/15/21 12:40:54 Page 1
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+C o m p i l a t i o n
+
+
+   1  Sets
+   2  all_t       all hours               /1*48/
+   3  t(all_t)    hours                   /1*48/
+   4  tec         generators              /base, peak, wind, solar/
+   5  con(tec)    conventional generation /base, peak/
+   6  all_n       all buses               /north, south, total/
+   7  n(all_n)    selected buses          /north, south/
+   8  ;
+   9   
+  10  alias (n,m);
+  11  alias (all_n,all_m);
+  12   
+  13  * parameters for supply and demand functions
+  14  Parameter elasticity / -0.25 /;
+  15  Parameter p_ref / 65 /;
+  16  Parameter specific_network_costs /255/;
+  17  *in EUR/MW/km/a
+  18  *Source for network costs: EMMA (3400 EUR/MW/km discontiert mit i = 0.07 ueber 40 Jahre)
+  19   
+  20  Table B(all_n,all_m)        Susceptance of transmission lines
+  21           north  south   total
+  22  north        1     600    250
+  23  south      600       1    500
+  24  total      250     500      1
+  25  ;
+  26  Parameters
+  27  * Input Parameters
+  28  i_cost(*,*)                 cost data to be loaded from sheet "cost"
+  29  i_load(all_t,all_n)         load data to be loaded from sheet "time series" in MWh
+  30  i_avail(all_t,tec,all_n)    availability data
+  31   
+  32  * Model Parameters
+  33  load(t,n)                   hourly load in GWh
+  34  avail(t,tec,n)              availability of wind and solar generation (1)
+  35  c_var(tec,n)                variable costs (EUR per MWh)
+  36  c_fix(tec,n)                annualized fixed costs (EUR per MW p.a.)
+  37  capacity_slope
+  38  generation_slope
+  39  cap_lim(tec,n)              capacity limit of generation in each node
+  40  grid_cost(n,m)
+  41  sc                          scaling factor
+  42   
+  43  * Output Parameters
+  44  consumer_surplus
+  45  generation_costs
+  46  total_network_cost
+  47  load_deviation(t)
+  48  res_share
+  49  marginal_fixed_costs(tec,n)
+  50  fixed_linear_costs(tec,n)
+  51  max_marginal_price_adder(tec,n)
+  52  variable_costs(tec,n)
+  53  o_WF
+  54  o_CS
+  55  o_GC
+  56  o_NC
+  57  o_RES_share
+  58  o_load(t,n)
+  59  o_cap(tec,n)
+  60  o_gen(t,tec,n)
+  61  price(t)
+  62  o_cap_instr(tec,n)
+  63  o_instrument(tec,n)
+  64  sum_instrument
+  65  network_cost
+  66   
+  67  i_WF
+  68  i_instrument(tec,n)
+  69  i_cap(tec,n)
+  70  i_lambda(t)
+  71  i_load_real(t,n)
+  72  i_gen(t,tec,n)
+  73  i_grid_cap(n,m)
+  74  i_flow(t,n,m)
+  75  i_up(t,tec,n)
+  76  i_down(t,tec,n)
+  77  i_mu_G_min(t,tec,n)
+  78  i_mu_G_max(t,tec,n)
+  79  i_mu_C_min(tec,n)
+  80  i_mu_C_max(tec,n)
+  81  i_mu_D_min(t,n)
+  82  ;
+  83   
+  84  * Load data
+GDXIN   C:\Users\ansel\OneDrive\PhD\2 - Where to place new power generation\Three node models\in.gdx
+--- LOAD  i_cost = 1:i_cost
+--- LOAD  i_load = 2:i_load
+--- LOAD  i_avail = 3:i_avail
+  87   
+  88  * Data assignment
+  89  sc = card(t) / 8760;
+  90  load(t,n)                   = i_load(t,n) / 1000;
+  91  avail(t,tec,n)              = i_avail(t,tec,n);
+  92  avail(t,con,n)              = 1;
+  93  c_var(tec, n)               = i_cost(tec,"cost_var");
+  94  c_fix(tec, n)               = round(i_cost(tec,"cost_fix") * 1000 * sc);
+  95  capacity_slope              = 0.15;
+  96  cap_lim(tec,n)              = 100;
+  97  grid_cost(n,m)              = round(B(n,m) * specific_network_costs * sc);
+  98   
+  99  display c_var, load, avail, c_fix;
+ 100   
+ 101  Parameters
+ 102  consumer_surplus
+ 103  generation_costs
+ 104  total_network_cost
+ 105  res_share
+ 106   
+ 107  o_WF
+ 108  o_CS
+ 109  o_GC
+ 110  o_NC
+ 111  o_RES_share
+ 112   
+ 113  o_cap(tec,n)
+ 114  price(t)
+ 115  load_deviation(t)
+ 116  ;
+ 117   
+ 118   
+ 119  Binary variables y1(t,tec,n),y2(t,tec,n),y3(tec,n),y4(tec,n),y5(t,n),y6(t);
+ 120   
+ 121  Parameter M1 / 100000/;
+ 122  Parameter M2 / 100000/;
+ 123  Parameter M3 / 100000/;
+ 124  Parameter M4 / 100000/;
+ 125  Parameter M5 / 100000/;
+ 126  Parameter M6 / 100000/;
+ 127   
+ 128  Free Variables
+ 129  GEN(t,tec,n)
+ 130  CAP(tec,n)
+ 131  WF
+ 132  FLOW(t,n,m)
+ 133  INSTRUMENT(n)
+ 134  THETA(t,n)
+ 135  LAMBDA(t)
+ 136  ;
+ 137   
+ 138  Positive variables
+ 139  mu_G_min(t,tec,n)
+ 140  mu_G_max(t,tec,n)
+ 141  mu_C_min(tec,n)
+ 142  mu_C_max(tec,n)
+ 143  mu_D_min(t,n)
+ 144   
+ 145  GRID_CAP(n,m)
+ 146  LOAD_real(t,n)
+ 147  UP(t,tec,n)
+ 148  DOWN(t,tec,n)
+ 149  ;
+ 150   
+ 151  alias(tec, ttec);
+ 152  alias(n, nn);
+ 153   
+ 154   
+ 155  Equations
+ 156   
+ 157  objective, instr_const,
+ 158  nodal_energy_balance,
+ 159  grid_eq1, grid_eq2, grid_eq3, grid_eq4,
+ 160  redispatch1, redispatch2,
+ 161   
+ 162  gen_min, gen_max,
+ 163  cap_min, cap_max,
+ 164  demand_min,
+ 165  energy_balance,
+ 166   
+ 167  KKT_GEN, KKT_CAP, KKT_load,
+ 168   
+ 169   
+ 170  complementarity1a,
+ 171  complementarity1b,
+ 172  complementarity2a,
+ 173  complementarity2b,
+ 174  complementarity3a,
+ 175  complementarity3b,
+ 176  complementarity4a,
+ 177  complementarity4b,
+ 178  complementarity5a,
+ 179  complementarity5b,
+ 180  complementarity6a,
+ 181  complementarity6b
+ 182  ;
+ 183   
+ 184  objective..                     WF =e= sum(t, p_ref * sum((n), LOAD_real(t,n)) * (1-1/elasticity + sum((n), LOAD_real(t,n)) / (2*elasticity* sum(n,load(t,n)))))
+ 185                                      - sum((tec,n), CAP(tec,n) * c_fix(tec,n) + 0.5 * CAP(tec,n) * CAP(tec,n) * capacity_slope)
+ 186                                      - sum((t,tec,n), GEN(t,tec,n) * c_var(tec,n))
+ 187                                      - sum((n,m),(GRID_CAP(n,m) * grid_cost(n,m)) / 2)
+ 188                                      - sum((t,tec,n), UP(t,tec,n) * c_var(tec,n) - DOWN(t,tec,n) * c_var(tec,n));
+ 189   
+ 190   
+ 191  nodal_energy_balance(t,n)..     sum(tec,GEN(t,tec,n) - DOWN(t,tec,n) + UP(t,tec,n)) - LOAD_real(t,n) =E= sum(m,FLOW(t,n,m));
+ 192   
+ 193  *network constraints
+ 194  grid_eq1(t,n,m)..               FLOW(t,n,m) =l= GRID_CAP(n,m);
+ 195  grid_eq2(n,m)..                 GRID_CAP(n,m) =e= GRID_CAP(m,n);
+ 196  grid_eq3(t,n,m)..               FLOW(t,n,m) =e= B(n,m) *(THETA(t,n) - THETA(t,m));
+ 197  grid_eq4(t,n)..                 THETA(t,'south') =e= 0;
+ 198   
+ 199  redispatch1(t,tec,n)..          DOWN(t,tec,n) =L= GEN(t,tec,n);
+ 200  redispatch2(t,tec,n)..          UP(t,tec,n) =L= CAP(tec,n) * avail(t,tec,n) - GEN(t,tec,n);
+ 201   
+ 202  *instr_const
+ 203   
+ 204  ** INNER PROBLEM
+ 205   
+ 206  gen_min(t,tec,n)..              0 =g= -GEN(t,tec,n);
+ 207  gen_max(t,tec,n)..              0 =g= GEN(t,tec,n) - CAP(tec,n) * avail(t,tec,n);
+ 208   
+ 209  cap_min(tec,n)..                0 =g= -CAP(tec,n);
+ 210  cap_max(tec,n)..                0 =g= CAP(tec,n) - cap_lim(tec,n);
+ 211   
+ 212  demand_min(t,n)..               0 =g= -LOAD_real(t,n);
+ 213   
+ 214  energy_balance(t)..             0 =e= sum((tec,n),GEN(t,tec,n)) - sum(n,LOAD_real(t,n));
+ 215   
+ 216  *KKT conditions
+ 217  KKT_GEN(t,tec,n)..              c_var(tec,n) + mu_G_max(t,tec,n) - mu_G_min(t,tec,n) - LAMBDA(t) =e= 0;
+ 218  KKT_CAP(tec,n)..                c_fix(tec,n) + capacity_slope * CAP(tec,n) + INSTRUMENT(n) - sum(t,avail(t,tec,n) * mu_G_max(t,tec,n)) + mu_C_max(tec,n) - mu_C_min(tec,n) =e= 0;
+ 219  KKT_load(t,n)..                 -p_ref * ((1-1/elasticity) + LOAD_real(t,n) / (elasticity * load(t,n))) - mu_D_min(t,n) + LAMBDA(t) =e= 0;
+ 220   
+ 221  complementarity1a(t,tec,n)..    GEN(t,tec,n)        =L= y1(t,tec,n) * M1;
+ 222  complementarity1b(t,tec,n)..    mu_G_min(t,tec,n)   =L= (1-y1(t,tec,n)) * M1;
+ 223  complementarity2a(t,tec,n)..    CAP(tec,n) * avail(t,tec,n) - GEN(t,tec,n) =L= y2(t,tec,n) * M2;
+ 224  complementarity2b(t,tec,n)..    mu_G_max(t,tec,n)   =L= (1-y2(t,tec,n)) * M2;
+ 225  complementarity3a(tec,n)..      CAP(tec,n)          =L= y3(tec,n) * M3;
+ 226  complementarity3b(tec,n)..      mu_C_min(tec,n)     =L= (1-y3(tec,n)) * M3;
+ 227  complementarity4a(tec,n)..      cap_lim(tec,n) - CAP(tec,n) =L= y4(tec,n) * M4;
+ 228  complementarity4b(tec,n)..      mu_C_max(tec,n)     =L= (1-y4(tec,n)) * M4;
+ 229   
+ 230  complementarity5a(t,n)..        LOAD_real(t,n)      =L= y5(t,n) * M5;
+ 231  complementarity5b(t,n)..        mu_D_min(t,n)       =L= (1-y5(t,n)) * M5;
+ 232  complementarity6a(t)..          sum(n,LOAD_real(t,n)) - sum((tec,n),GEN(t,tec,n)) =L= y6(t) * M6;
+ 233  complementarity6b(t)..          LAMBDA(t)           =L= (1-y6(t)) * M6;
+ 234   
+ 235  Model LOCI /
+ 236   
+ 237   
+ 238  objective
+ 239  nodal_energy_balance
+ 240   
+ 241  grid_eq1
+ 242  grid_eq2
+ 243  grid_eq3
+ 244  grid_eq4
+ 245   
+ 246  redispatch1
+ 247  redispatch2
+ 248   
+ 249   
+ 250  gen_min
+ 251  gen_max
+ 252  cap_min
+ 253  cap_max
+ 254   
+ 255  demand_min
+ 256  energy_balance
+ 257   
+ 258  KKT_GEN
+ 259  KKT_CAP
+ 260  KKT_load
+ 261   
+ 262  complementarity1a
+ 263  complementarity1b
+ 264  complementarity2a
+ 265  complementarity2b
+ 266  complementarity3a
+ 267  complementarity3b
+ 268  complementarity4a
+ 269  complementarity4b
+ 270  complementarity5a
+ 271  complementarity5b
+ 272  complementarity6a
+ 273  complementarity6b
+ 274  /;
+ 275   
+ 276   
+ 277  *INSTRUMENT.lo(n) = -250;
+ 278  *INSTRUMENT.up(n) = 750;
+ 279   
+ 280  GEN.up(t,tec,n) = 100;
+ 281  GEN.lo(t,tec,n) = 0;
+ 282   
+ 283  DOWN.up(t,tec,n) = 100;
+ 284  DOWN.lo(t,tec,n) = 0;
+ 285   
+ 286  UP.up(t,tec,n) = 100;
+ 287  UP.lo(t,tec,n) = 0;
+ 288   
+ 289  LOCI.nodlim = 25000000;
+ 290  LOCI.resLim = 40000;
+ 291   
+ 292  *This should matter. But does it really do?
+ 293  *Option OptCA = 10;
+ 294   
+ 295  Option MIQCP = Cplex;
+ 296   
+ 297   
+ 298  Solve LOCI maximizing WF using MIQCP;
+ 299   
+ 300   
+ 301  price(t) = p_ref * (1-(1/elasticity) + (sum((tec,n), GEN.L(t,tec,n)) / sum(n, elasticity * load(t,n))));
+ 302  load_deviation(t) = sum((tec,n), GEN.L(t,tec,n)) / sum(n,load(t,n));
+ 303  i_instrument(tec,n) = INSTRUMENT.L(n) / sc / 1000;
+ 304   
+ 305  network_cost = (sum((n,m),(GRID_CAP.L(n,m) * grid_cost(n,m)) / 2) + sum((t,tec,n), UP.L(t,tec,n) * c_var(tec,n) - DOWN.L(t,tec,n) * c_var(tec,n))) / sc;
+ 306  consumer_surplus = sum(t, p_ref * sum((n), LOAD_real.L(t,n)) * (1-1/elasticity + sum((n), LOAD_real.L(t,n)) / (2*elasticity* sum(n,load(t,n))))) / sc;
+ 307   
+ 308  generation_costs = (sum((tec,n), CAP.L(tec,n) * c_fix(tec,n) + 0.5 * CAP.L(tec,n) * CAP.L(tec,n) * capacity_slope) + sum((t,tec,n), GEN.L(t,tec,n) * c_var(tec,n))) / sc;
+ 309   
+ 310  sum_instrument = sum((tec,n), INSTRUMENT.L(n) * CAP.L(tec,n)) / sc;
+ 311   
+ 312  load_deviation(t) = sum(n,LOAD_real.L(t,n)) / sum(n,load(t,n));
+ 313  res_share = 1 - sum((t,con,n), GEN.L(t,con,n)) / sum((t,tec,n), GEN.L(t,tec,n));
+ 314  o_cap(tec,n) = CAP.L(tec,n);
+ 315  o_gen(t,tec,n) = GEN.L(t,tec,n);
+ 316   
+ 317   
+ 318  Display GEN.L, CAP.L, price, load_deviation, i_instrument, sum_instrument, network_cost;
+ 319  *,WF.L,  GRID.L, LAMBDA.L, LOAD_real.L, CAP_INSTR.L, UP.L, DOWN.L, RESERVE_CAP.L, FLOW.L;
+ 320   
+ 321  *execute_UNLOAD 'instrument.gdx' i_instrument;
+ 322   
+ 323   
+ 324  execute_UNLOAD 'Output/with_instrument.gdx' consumer_surplus, generation_costs, network_cost, res_share, i_instrument, o_cap, o_gen, price;
+
+**** LIST OF STRAY NAMES - CHECK DECLARATIONS FOR SPURIOUS COMMAS
+**** STRAY NAME instr_const OF TYPE EQU  
+GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 10/15/21 12:40:54 Page 2
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Include File Summary
+
+
+   SEQ   GLOBAL TYPE      PARENT   LOCAL  FILENAME
+
+     1        1 INPUT          0       0  C:\Users\ansel\OneDrive\PhD\2 - Where to place new power generation\Three node models\test_agnostic instrument.gms
+     2       85 GDXIN          1      85  C:\Users\ansel\OneDrive\PhD\2 - Where to place new power generation\Three node models\in.gdx
+
+
+COMPILATION TIME     =        0.016 SECONDS      3 MB  30.3.0 rc5da09e WEX-WEI
+GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 10/15/21 12:40:54 Page 3
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+E x e c u t i o n
+
+
+----     99 PARAMETER c_var  variable costs (EUR per MWh)
+
+           north       south
+
+base      60.000      60.000
+peak      80.000      80.000
+
+
+----     99 PARAMETER load  hourly load in GWh
+
+         north       south
+
+1       15.533      36.243
+2       17.065      34.647
+3       15.186      41.060
+4       21.224      49.522
+5       21.433      52.474
+6       22.448      52.378
+7       20.422      52.512
+8       24.444      45.396
+9       24.781      48.104
+10      21.190      49.444
+11      20.720      42.068
+12      20.172      37.461
+13      16.869      29.988
+14      18.546      30.260
+15      20.102      39.022
+16      27.601      39.719
+17      23.764      44.134
+18      23.438      45.498
+19      21.522      45.735
+20      19.314      45.067
+21      21.009      42.655
+22      19.848      42.178
+23      17.854      39.740
+24      14.759      34.437
+25      17.086      34.690
+26      18.099      33.613
+27      20.811      35.435
+28      29.005      41.740
+29      25.128      48.779
+30      20.951      53.874
+31      25.527      47.407
+32      26.539      43.301
+33      21.865      51.020
+34      23.309      47.325
+35      21.976      40.812
+36      20.748      36.885
+37      16.444      26.829
+38      14.572      28.286
+39      13.422      32.860
+40      18.667      34.667
+41      19.300      37.464
+42      17.844      37.917
+43      21.335      30.702
+44      17.866      33.180
+45      20.680      33.742
+46      16.311      36.304
+47      14.040      32.760
+48      13.247      26.896
+
+
+----     99 PARAMETER avail  availability of wind and solar generation (1)
+
+               north       south
+
+1 .base        1.000       1.000
+1 .peak        1.000       1.000
+1 .wind        0.240       0.160
+2 .base        1.000       1.000
+2 .peak        1.000       1.000
+2 .wind        0.250       0.140
+3 .base        1.000       1.000
+3 .peak        1.000       1.000
+3 .wind        0.280       0.120
+3 .solar       0.050
+4 .base        1.000       1.000
+4 .peak        1.000       1.000
+4 .wind        0.350       0.130
+4 .solar       0.190
+5 .base        1.000       1.000
+5 .peak        1.000       1.000
+5 .wind        0.360       0.120
+5 .solar       0.330       0.100
+6 .base        1.000       1.000
+6 .peak        1.000       1.000
+6 .wind        0.370       0.120
+6 .solar       0.420       0.210
+7 .base        1.000       1.000
+7 .peak        1.000       1.000
+7 .wind        0.370       0.120
+7 .solar       0.390       0.200
+8 .base        1.000       1.000
+8 .peak        1.000       1.000
+8 .wind        0.350       0.110
+8 .solar       0.290       0.050
+9 .base        1.000       1.000
+9 .peak        1.000       1.000
+9 .wind        0.270       0.080
+9 .solar       0.130
+10.base        1.000       1.000
+10.peak        1.000       1.000
+10.wind        0.190       0.060
+10.solar       0.010
+11.base        1.000       1.000
+11.peak        1.000       1.000
+11.wind        0.150       0.040
+12.base        1.000       1.000
+12.peak        1.000       1.000
+12.wind        0.120       0.080
+13.base        1.000       1.000
+13.peak        1.000       1.000
+13.wind        0.080       0.110
+14.base        1.000       1.000
+14.peak        1.000       1.000
+14.wind        0.130       0.100
+15.base        1.000       1.000
+15.peak        1.000       1.000
+15.wind        0.090       0.070
+15.solar       0.060       0.040
+16.base        1.000       1.000
+16.peak        1.000       1.000
+16.wind        0.070       0.060
+16.solar       0.310       0.280
+17.base        1.000       1.000
+17.peak        1.000       1.000
+17.wind        0.060       0.020
+17.solar       0.530       0.510
+18.base        1.000       1.000
+18.peak        1.000       1.000
+18.wind        0.060       0.020
+18.solar       0.610       0.600
+19.base        1.000       1.000
+19.peak        1.000       1.000
+19.wind        0.080       0.020
+19.solar       0.530       0.530
+20.base        1.000       1.000
+20.peak        1.000       1.000
+20.wind        0.090       0.020
+20.solar       0.320       0.340
+21.base        1.000       1.000
+21.peak        1.000       1.000
+21.wind        0.120       0.030
+21.solar       0.090       0.100
+22.base        1.000       1.000
+22.peak        1.000       1.000
+22.wind        0.200       0.060
+23.base        1.000       1.000
+23.peak        1.000       1.000
+23.wind        0.210       0.060
+24.base        1.000       1.000
+24.peak        1.000       1.000
+24.wind        0.180       0.040
+25.base        1.000       1.000
+25.peak        1.000       1.000
+25.wind        0.270       0.280
+26.base        1.000       1.000
+26.peak        1.000       1.000
+26.wind        0.280       0.330
+27.base        1.000       1.000
+27.peak        1.000       1.000
+27.wind        0.320       0.420
+28.base        1.000       1.000
+28.peak        1.000       1.000
+28.wind        0.370       0.430
+28.solar       0.010       0.010
+29.base        1.000       1.000
+29.peak        1.000       1.000
+29.wind        0.370       0.360
+29.solar       0.080       0.120
+30.base        1.000       1.000
+30.peak        1.000       1.000
+30.wind        0.390       0.380
+30.solar       0.220       0.240
+31.base        1.000       1.000
+31.peak        1.000       1.000
+31.wind        0.350       0.420
+31.solar       0.220       0.260
+32.base        1.000       1.000
+32.peak        1.000       1.000
+32.wind        0.320       0.360
+32.solar       0.070       0.110
+33.base        1.000       1.000
+33.peak        1.000       1.000
+33.wind        0.400       0.380
+34.base        1.000       1.000
+34.peak        1.000       1.000
+34.wind        0.400       0.350
+35.base        1.000       1.000
+35.peak        1.000       1.000
+35.wind        0.370       0.280
+36.base        1.000       1.000
+36.peak        1.000       1.000
+36.wind        0.330       0.250
+37.base        1.000       1.000
+37.peak        1.000       1.000
+37.wind        0.090       0.110
+38.base        1.000       1.000
+38.peak        1.000       1.000
+38.wind        0.100       0.090
+39.base        1.000       1.000
+39.peak        1.000       1.000
+39.wind        0.110       0.080
+39.solar                   0.040
+40.base        1.000       1.000
+40.peak        1.000       1.000
+40.wind        0.110       0.080
+40.solar       0.010       0.180
+41.base        1.000       1.000
+41.peak        1.000       1.000
+41.wind        0.090       0.060
+41.solar       0.120       0.390
+42.base        1.000       1.000
+42.peak        1.000       1.000
+42.wind        0.070       0.050
+42.solar       0.240       0.530
+43.base        1.000       1.000
+43.peak        1.000       1.000
+43.wind        0.080       0.060
+43.solar       0.180       0.530
+44.base        1.000       1.000
+44.peak        1.000       1.000
+44.wind        0.140       0.100
+44.solar       0.030       0.380
+45.base        1.000       1.000
+45.peak        1.000       1.000
+45.wind        0.220       0.180
+45.solar                   0.150
+46.base        1.000       1.000
+46.peak        1.000       1.000
+46.wind        0.220       0.180
+46.solar                   0.010
+47.base        1.000       1.000
+47.peak        1.000       1.000
+47.wind        0.190       0.180
+48.base        1.000       1.000
+48.peak        1.000       1.000
+48.wind        0.180       0.180
+
+
+----     99 PARAMETER c_fix  annualized fixed costs (EUR per MW p.a.)
+
+            north       south
+
+base      548.000     548.000
+peak      175.000     175.000
+wind      438.000     438.000
+solar     247.000     247.000
+
+GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 10/15/21 12:40:54 Page 4
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Equation Listing    SOLVE LOCI Using MIQCP From line 298
+
+
+---- objective  =E=  
+
+objective..  60*GEN(1,base,north) + 60*GEN(1,base,south) + 80*GEN(1,peak,north) + 80*GEN(1,peak,south) + 60*GEN(2,base,north) + 60*GEN(2,base,south) + 80*GEN(2,peak,north) + 80*GEN(2,peak,south) + 60*GEN(3,base,north) + 60*GEN(3,base,south)
+     
+      + 80*GEN(3,peak,north) + 80*GEN(3,peak,south) + 60*GEN(4,base,north) + 60*GEN(4,base,south) + 80*GEN(4,peak,north) + 80*GEN(4,peak,south) + 60*GEN(5,base,north) + 60*GEN(5,base,south) + 80*GEN(5,peak,north) + 80*GEN(5,peak,south)
+     
+      + 60*GEN(6,base,north) + 60*GEN(6,base,south) + 80*GEN(6,peak,north) + 80*GEN(6,peak,south) + 60*GEN(7,base,north) + 60*GEN(7,base,south) + 80*GEN(7,peak,north) + 80*GEN(7,peak,south) + 60*GEN(8,base,north) + 60*GEN(8,base,south)
+     
+      + 80*GEN(8,peak,north) + 80*GEN(8,peak,south) + 60*GEN(9,base,north) + 60*GEN(9,base,south) + 80*GEN(9,peak,north) + 80*GEN(9,peak,south) + 60*GEN(10,base,north) + 60*GEN(10,base,south) + 80*GEN(10,peak,north) + 80*GEN(10,peak,south)
+     
+      + 60*GEN(11,base,north) + 60*GEN(11,base,south) + 80*GEN(11,peak,north) + 80*GEN(11,peak,south) + 60*GEN(12,base,north) + 60*GEN(12,base,south) + 80*GEN(12,peak,north) + 80*GEN(12,peak,south) + 60*GEN(13,base,north) + 60*GEN(13,base,south)
+     
+      + 80*GEN(13,peak,north) + 80*GEN(13,peak,south) + 60*GEN(14,base,north) + 60*GEN(14,base,south) + 80*GEN(14,peak,north) + 80*GEN(14,peak,south) + 60*GEN(15,base,north) + 60*GEN(15,base,south) + 80*GEN(15,peak,north) + 80*GEN(15,peak,south)
+     
+      + 60*GEN(16,base,north) + 60*GEN(16,base,south) + 80*GEN(16,peak,north) + 80*GEN(16,peak,south) + 60*GEN(17,base,north) + 60*GEN(17,base,south) + 80*GEN(17,peak,north) + 80*GEN(17,peak,south) + 60*GEN(18,base,north) + 60*GEN(18,base,south)
+     
+      + 80*GEN(18,peak,north) + 80*GEN(18,peak,south) + 60*GEN(19,base,north) + 60*GEN(19,base,south) + 80*GEN(19,peak,north) + 80*GEN(19,peak,south) + 60*GEN(20,base,north) + 60*GEN(20,base,south) + 80*GEN(20,peak,north) + 80*GEN(20,peak,south)
+     
+      + 60*GEN(21,base,north) + 60*GEN(21,base,south) + 80*GEN(21,peak,north) + 80*GEN(21,peak,south) + 60*GEN(22,base,north) + 60*GEN(22,base,south) + 80*GEN(22,peak,north) + 80*GEN(22,peak,south) + 60*GEN(23,base,north) + 60*GEN(23,base,south)
+     
+      + 80*GEN(23,peak,north) + 80*GEN(23,peak,south) + 60*GEN(24,base,north) + 60*GEN(24,base,south) + 80*GEN(24,peak,north) + 80*GEN(24,peak,south) + 60*GEN(25,base,north) + 60*GEN(25,base,south) + 80*GEN(25,peak,north) + 80*GEN(25,peak,south)
+     
+      + 60*GEN(26,base,north) + 60*GEN(26,base,south) + 80*GEN(26,peak,north) + 80*GEN(26,peak,south) + 60*GEN(27,base,north) + 60*GEN(27,base,south) + 80*GEN(27,peak,north) + 80*GEN(27,peak,south) + 60*GEN(28,base,north) + 60*GEN(28,base,south)
+     
+      + 80*GEN(28,peak,north) + 80*GEN(28,peak,south) + 60*GEN(29,base,north) + 60*GEN(29,base,south) + 80*GEN(29,peak,north) + 80*GEN(29,peak,south) + 60*GEN(30,base,north) + 60*GEN(30,base,south) + 80*GEN(30,peak,north) + 80*GEN(30,peak,south)
+     
+      + 60*GEN(31,base,north) + 60*GEN(31,base,south) + 80*GEN(31,peak,north) + 80*GEN(31,peak,south) + 60*GEN(32,base,north) + 60*GEN(32,base,south) + 80*GEN(32,peak,north) + 80*GEN(32,peak,south) + 60*GEN(33,base,north) + 60*GEN(33,base,south)
+     
+      + 80*GEN(33,peak,north) + 80*GEN(33,peak,south) + 60*GEN(34,base,north) + 60*GEN(34,base,south) + 80*GEN(34,peak,north) + 80*GEN(34,peak,south) + 60*GEN(35,base,north) + 60*GEN(35,base,south) + 80*GEN(35,peak,north) + 80*GEN(35,peak,south)
+     
+      + 60*GEN(36,base,north) + 60*GEN(36,base,south) + 80*GEN(36,peak,north) + 80*GEN(36,peak,south) + 60*GEN(37,base,north) + 60*GEN(37,base,south) + 80*GEN(37,peak,north) + 80*GEN(37,peak,south) + 60*GEN(38,base,north) + 60*GEN(38,base,south)
+     
+      + 80*GEN(38,peak,north) + 80*GEN(38,peak,south) + 60*GEN(39,base,north) + 60*GEN(39,base,south) + 80*GEN(39,peak,north) + 80*GEN(39,peak,south) + 60*GEN(40,base,north) + 60*GEN(40,base,south) + 80*GEN(40,peak,north) + 80*GEN(40,peak,south)
+     
+      + 60*GEN(41,base,north) + 60*GEN(41,base,south) + 80*GEN(41,peak,north) + 80*GEN(41,peak,south) + 60*GEN(42,base,north) + 60*GEN(42,base,south) + 80*GEN(42,peak,north) + 80*GEN(42,peak,south) + 60*GEN(43,base,north) + 60*GEN(43,base,south)
+     
+      + 80*GEN(43,peak,north) + 80*GEN(43,peak,south) + 60*GEN(44,base,north) + 60*GEN(44,base,south) + 80*GEN(44,peak,north) + 80*GEN(44,peak,south) + 60*GEN(45,base,north) + 60*GEN(45,base,south) + 80*GEN(45,peak,north) + 80*GEN(45,peak,south)
+     
+      + 60*GEN(46,base,north) + 60*GEN(46,base,south) + 80*GEN(46,peak,north) + 80*GEN(46,peak,south) + 60*GEN(47,base,north) + 60*GEN(47,base,south) + 80*GEN(47,peak,north) + 80*GEN(47,peak,south) + 60*GEN(48,base,north) + 60*GEN(48,base,south)
+     
+      + 80*GEN(48,peak,north) + 80*GEN(48,peak,south) + (548)*CAP(base,north) + (548)*CAP(base,south) + (175)*CAP(peak,north) + (175)*CAP(peak,south) + (438)*CAP(wind,north) + (438)*CAP(wind,south) + (247)*CAP(solar,north) + (247)*CAP(solar,south) + WF
+     
+      + 0.5*GRID_CAP(north,north) + 419*GRID_CAP(north,south) + 419*GRID_CAP(south,north) + 0.5*GRID_CAP(south,south) - (325)*LOAD_real(1,north) - (325)*LOAD_real(1,south) - (325)*LOAD_real(2,north) - (325)*LOAD_real(2,south) - (325)*LOAD_real(3,north)
+     
+      - (325)*LOAD_real(3,south) - (325)*LOAD_real(4,north) - (325)*LOAD_real(4,south) - (325)*LOAD_real(5,north) - (325)*LOAD_real(5,south) - (325)*LOAD_real(6,north) - (325)*LOAD_real(6,south) - (325)*LOAD_real(7,north) - (325)*LOAD_real(7,south)
+     
+      - (325)*LOAD_real(8,north) - (325)*LOAD_real(8,south) - (325)*LOAD_real(9,north) - (325)*LOAD_real(9,south) - (325)*LOAD_real(10,north) - (325)*LOAD_real(10,south) - (325)*LOAD_real(11,north) - (325)*LOAD_real(11,south) - (325)*LOAD_real(12,north)
+     
+      - (325)*LOAD_real(12,south) - (325)*LOAD_real(13,north) - (325)*LOAD_real(13,south) - (325)*LOAD_real(14,north) - (325)*LOAD_real(14,south) - (325)*LOAD_real(15,north) - (325)*LOAD_real(15,south) - (325)*LOAD_real(16,north)
+     
+      - (325)*LOAD_real(16,south) - (325)*LOAD_real(17,north) - (325)*LOAD_real(17,south) - (325)*LOAD_real(18,north) - (325)*LOAD_real(18,south) - (325)*LOAD_real(19,north) - (325)*LOAD_real(19,south) - (325)*LOAD_real(20,north)
+     
+      - (325)*LOAD_real(20,south) - (325)*LOAD_real(21,north) - (325)*LOAD_real(21,south) - (325)*LOAD_real(22,north) - (325)*LOAD_real(22,south) - (325)*LOAD_real(23,north) - (325)*LOAD_real(23,south) - (325)*LOAD_real(24,north)
+     
+      - (325)*LOAD_real(24,south) - (325)*LOAD_real(25,north) - (325)*LOAD_real(25,south) - (325)*LOAD_real(26,north) - (325)*LOAD_real(26,south) - (325)*LOAD_real(27,north) - (325)*LOAD_real(27,south) - (325)*LOAD_real(28,north)
+     
+      - (325)*LOAD_real(28,south) - (325)*LOAD_real(29,north) - (325)*LOAD_real(29,south) - (325)*LOAD_real(30,north) - (325)*LOAD_real(30,south) - (325)*LOAD_real(31,north) - (325)*LOAD_real(31,south) - (325)*LOAD_real(32,north)
+     
+      - (325)*LOAD_real(32,south) - (325)*LOAD_real(33,north) - (325)*LOAD_real(33,south) - (325)*LOAD_real(34,north) - (325)*LOAD_real(34,south) - (325)*LOAD_real(35,north) - (325)*LOAD_real(35,south) - (325)*LOAD_real(36,north)
+     
+      - (325)*LOAD_real(36,south) - (325)*LOAD_real(37,north) - (325)*LOAD_real(37,south) - (325)*LOAD_real(38,north) - (325)*LOAD_real(38,south) - (325)*LOAD_real(39,north) - (325)*LOAD_real(39,south) - (325)*LOAD_real(40,north)
+     
+      - (325)*LOAD_real(40,south) - (325)*LOAD_real(41,north) - (325)*LOAD_real(41,south) - (325)*LOAD_real(42,north) - (325)*LOAD_real(42,south) - (325)*LOAD_real(43,north) - (325)*LOAD_real(43,south) - (325)*LOAD_real(44,north)
+     
+      - (325)*LOAD_real(44,south) - (325)*LOAD_real(45,north) - (325)*LOAD_real(45,south) - (325)*LOAD_real(46,north) - (325)*LOAD_real(46,south) - (325)*LOAD_real(47,north) - (325)*LOAD_real(47,south) - (325)*LOAD_real(48,north)
+     
+      - (325)*LOAD_real(48,south) + 60*UP(1,base,north) + 60*UP(1,base,south) + 80*UP(1,peak,north) + 80*UP(1,peak,south) + 60*UP(2,base,north) + 60*UP(2,base,south) + 80*UP(2,peak,north) + 80*UP(2,peak,south) + 60*UP(3,base,north) + 60*UP(3,base,south)
+     
+      + 80*UP(3,peak,north) + 80*UP(3,peak,south) + 60*UP(4,base,north) + 60*UP(4,base,south) + 80*UP(4,peak,north) + 80*UP(4,peak,south) + 60*UP(5,base,north) + 60*UP(5,base,south) + 80*UP(5,peak,north) + 80*UP(5,peak,south) + 60*UP(6,base,north)
+     
+      + 60*UP(6,base,south) + 80*UP(6,peak,north) + 80*UP(6,peak,south) + 60*UP(7,base,north) + 60*UP(7,base,south) + 80*UP(7,peak,north) + 80*UP(7,peak,south) + 60*UP(8,base,north) + 60*UP(8,base,south) + 80*UP(8,peak,north) + 80*UP(8,peak,south)
+     
+      + 60*UP(9,base,north) + 60*UP(9,base,south) + 80*UP(9,peak,north) + 80*UP(9,peak,south) + 60*UP(10,base,north) + 60*UP(10,base,south) + 80*UP(10,peak,north) + 80*UP(10,peak,south) + 60*UP(11,base,north) + 60*UP(11,base,south) + 80*UP(11,peak,north)
+     
+      + 80*UP(11,peak,south) + 60*UP(12,base,north) + 60*UP(12,base,south) + 80*UP(12,peak,north) + 80*UP(12,peak,south) + 60*UP(13,base,north) + 60*UP(13,base,south) + 80*UP(13,peak,north) + 80*UP(13,peak,south) + 60*UP(14,base,north)
+     
+      + 60*UP(14,base,south) + 80*UP(14,peak,north) + 80*UP(14,peak,south) + 60*UP(15,base,north) + 60*UP(15,base,south) + 80*UP(15,peak,north) + 80*UP(15,peak,south) + 60*UP(16,base,north) + 60*UP(16,base,south) + 80*UP(16,peak,north)
+     
+      + 80*UP(16,peak,south) + 60*UP(17,base,north) + 60*UP(17,base,south) + 80*UP(17,peak,north) + 80*UP(17,peak,south) + 60*UP(18,base,north) + 60*UP(18,base,south) + 80*UP(18,peak,north) + 80*UP(18,peak,south) + 60*UP(19,base,north)
+     
+      + 60*UP(19,base,south) + 80*UP(19,peak,north) + 80*UP(19,peak,south) + 60*UP(20,base,north) + 60*UP(20,base,south) + 80*UP(20,peak,north) + 80*UP(20,peak,south) + 60*UP(21,base,north) + 60*UP(21,base,south) + 80*UP(21,peak,north)
+     
+      + 80*UP(21,peak,south) + 60*UP(22,base,north) + 60*UP(22,base,south) + 80*UP(22,peak,north) + 80*UP(22,peak,south) + 60*UP(23,base,north) + 60*UP(23,base,south) + 80*UP(23,peak,north) + 80*UP(23,peak,south) + 60*UP(24,base,north)
+     
+      + 60*UP(24,base,south) + 80*UP(24,peak,north) + 80*UP(24,peak,south) + 60*UP(25,base,north) + 60*UP(25,base,south) + 80*UP(25,peak,north) + 80*UP(25,peak,south) + 60*UP(26,base,north) + 60*UP(26,base,south) + 80*UP(26,peak,north)
+     
+      + 80*UP(26,peak,south) + 60*UP(27,base,north) + 60*UP(27,base,south) + 80*UP(27,peak,north) + 80*UP(27,peak,south) + 60*UP(28,base,north) + 60*UP(28,base,south) + 80*UP(28,peak,north) + 80*UP(28,peak,south) + 60*UP(29,base,north)
+     
+      + 60*UP(29,base,south) + 80*UP(29,peak,north) + 80*UP(29,peak,south) + 60*UP(30,base,north) + 60*UP(30,base,south) + 80*UP(30,peak,north) + 80*UP(30,peak,south) + 60*UP(31,base,north) + 60*UP(31,base,south) + 80*UP(31,peak,north)
+     
+      + 80*UP(31,peak,south) + 60*UP(32,base,north) + 60*UP(32,base,south) + 80*UP(32,peak,north) + 80*UP(32,peak,south) + 60*UP(33,base,north) + 60*UP(33,base,south) + 80*UP(33,peak,north) + 80*UP(33,peak,south) + 60*UP(34,base,north)
+     
+      + 60*UP(34,base,south) + 80*UP(34,peak,north) + 80*UP(34,peak,south) + 60*UP(35,base,north) + 60*UP(35,base,south) + 80*UP(35,peak,north) + 80*UP(35,peak,south) + 60*UP(36,base,north) + 60*UP(36,base,south) + 80*UP(36,peak,north)
+     
+      + 80*UP(36,peak,south) + 60*UP(37,base,north) + 60*UP(37,base,south) + 80*UP(37,peak,north) + 80*UP(37,peak,south) + 60*UP(38,base,north) + 60*UP(38,base,south) + 80*UP(38,peak,north) + 80*UP(38,peak,south) + 60*UP(39,base,north)
+     
+      + 60*UP(39,base,south) + 80*UP(39,peak,north) + 80*UP(39,peak,south) + 60*UP(40,base,north) + 60*UP(40,base,south) + 80*UP(40,peak,north) + 80*UP(40,peak,south) + 60*UP(41,base,north) + 60*UP(41,base,south) + 80*UP(41,peak,north)
+     
+      + 80*UP(41,peak,south) + 60*UP(42,base,north) + 60*UP(42,base,south) + 80*UP(42,peak,north) + 80*UP(42,peak,south) + 60*UP(43,base,north) + 60*UP(43,base,south) + 80*UP(43,peak,north) + 80*UP(43,peak,south) + 60*UP(44,base,north)
+     
+      + 60*UP(44,base,south) + 80*UP(44,peak,north) + 80*UP(44,peak,south) + 60*UP(45,base,north) + 60*UP(45,base,south) + 80*UP(45,peak,north) + 80*UP(45,peak,south) + 60*UP(46,base,north) + 60*UP(46,base,south) + 80*UP(46,peak,north)
+     
+      + 80*UP(46,peak,south) + 60*UP(47,base,north) + 60*UP(47,base,south) + 80*UP(47,peak,north) + 80*UP(47,peak,south) + 60*UP(48,base,north) + 60*UP(48,base,south) + 80*UP(48,peak,north) + 80*UP(48,peak,south) - 60*DOWN(1,base,north)
+     
+      - 60*DOWN(1,base,south) - 80*DOWN(1,peak,north) - 80*DOWN(1,peak,south) - 60*DOWN(2,base,north) - 60*DOWN(2,base,south) - 80*DOWN(2,peak,north) - 80*DOWN(2,peak,south) - 60*DOWN(3,base,north) - 60*DOWN(3,base,south) - 80*DOWN(3,peak,north)
+     
+      - 80*DOWN(3,peak,south) - 60*DOWN(4,base,north) - 60*DOWN(4,base,south) - 80*DOWN(4,peak,north) - 80*DOWN(4,peak,south) - 60*DOWN(5,base,north) - 60*DOWN(5,base,south) - 80*DOWN(5,peak,north) - 80*DOWN(5,peak,south) - 60*DOWN(6,base,north)
+     
+      - 60*DOWN(6,base,south) - 80*DOWN(6,peak,north) - 80*DOWN(6,peak,south) - 60*DOWN(7,base,north) - 60*DOWN(7,base,south) - 80*DOWN(7,peak,north) - 80*DOWN(7,peak,south) - 60*DOWN(8,base,north) - 60*DOWN(8,base,south) - 80*DOWN(8,peak,north)
+     
+      - 80*DOWN(8,peak,south) - 60*DOWN(9,base,north) - 60*DOWN(9,base,south) - 80*DOWN(9,peak,north) - 80*DOWN(9,peak,south) - 60*DOWN(10,base,north) - 60*DOWN(10,base,south) - 80*DOWN(10,peak,north) - 80*DOWN(10,peak,south) - 60*DOWN(11,base,north)
+     
+      - 60*DOWN(11,base,south) - 80*DOWN(11,peak,north) - 80*DOWN(11,peak,south) - 60*DOWN(12,base,north) - 60*DOWN(12,base,south) - 80*DOWN(12,peak,north) - 80*DOWN(12,peak,south) - 60*DOWN(13,base,north) - 60*DOWN(13,base,south) - 80*DOWN(13,peak,north)
+     
+      - 80*DOWN(13,peak,south) - 60*DOWN(14,base,north) - 60*DOWN(14,base,south) - 80*DOWN(14,peak,north) - 80*DOWN(14,peak,south) - 60*DOWN(15,base,north) - 60*DOWN(15,base,south) - 80*DOWN(15,peak,north) - 80*DOWN(15,peak,south) - 60*DOWN(16,base,north)
+     
+      - 60*DOWN(16,base,south) - 80*DOWN(16,peak,north) - 80*DOWN(16,peak,south) - 60*DOWN(17,base,north) - 60*DOWN(17,base,south) - 80*DOWN(17,peak,north) - 80*DOWN(17,peak,south) - 60*DOWN(18,base,north) - 60*DOWN(18,base,south) - 80*DOWN(18,peak,north)
+     
+      - 80*DOWN(18,peak,south) - 60*DOWN(19,base,north) - 60*DOWN(19,base,south) - 80*DOWN(19,peak,north) - 80*DOWN(19,peak,south) - 60*DOWN(20,base,north) - 60*DOWN(20,base,south) - 80*DOWN(20,peak,north) - 80*DOWN(20,peak,south) - 60*DOWN(21,base,north)
+     
+      - 60*DOWN(21,base,south) - 80*DOWN(21,peak,north) - 80*DOWN(21,peak,south) - 60*DOWN(22,base,north) - 60*DOWN(22,base,south) - 80*DOWN(22,peak,north) - 80*DOWN(22,peak,south) - 60*DOWN(23,base,north) - 60*DOWN(23,base,south) - 80*DOWN(23,peak,north)
+     
+      - 80*DOWN(23,peak,south) - 60*DOWN(24,base,north) - 60*DOWN(24,base,south) - 80*DOWN(24,peak,north) - 80*DOWN(24,peak,south) - 60*DOWN(25,base,north) - 60*DOWN(25,base,south) - 80*DOWN(25,peak,north) - 80*DOWN(25,peak,south) - 60*DOWN(26,base,north)
+     
+      - 60*DOWN(26,base,south) - 80*DOWN(26,peak,north) - 80*DOWN(26,peak,south) - 60*DOWN(27,base,north) - 60*DOWN(27,base,south) - 80*DOWN(27,peak,north) - 80*DOWN(27,peak,south) - 60*DOWN(28,base,north) - 60*DOWN(28,base,south) - 80*DOWN(28,peak,north)
+     
+      - 80*DOWN(28,peak,south) - 60*DOWN(29,base,north) - 60*DOWN(29,base,south) - 80*DOWN(29,peak,north) - 80*DOWN(29,peak,south) - 60*DOWN(30,base,north) - 60*DOWN(30,base,south) - 80*DOWN(30,peak,north) - 80*DOWN(30,peak,south) - 60*DOWN(31,base,north)
+     
+      - 60*DOWN(31,base,south) - 80*DOWN(31,peak,north) - 80*DOWN(31,peak,south) - 60*DOWN(32,base,north) - 60*DOWN(32,base,south) - 80*DOWN(32,peak,north) - 80*DOWN(32,peak,south) - 60*DOWN(33,base,north) - 60*DOWN(33,base,south) - 80*DOWN(33,peak,north)
+     
+      - 80*DOWN(33,peak,south) - 60*DOWN(34,base,north) - 60*DOWN(34,base,south) - 80*DOWN(34,peak,north) - 80*DOWN(34,peak,south) - 60*DOWN(35,base,north) - 60*DOWN(35,base,south) - 80*DOWN(35,peak,north) - 80*DOWN(35,peak,south) - 60*DOWN(36,base,north)
+     
+      - 60*DOWN(36,base,south) - 80*DOWN(36,peak,north) - 80*DOWN(36,peak,south) - 60*DOWN(37,base,north) - 60*DOWN(37,base,south) - 80*DOWN(37,peak,north) - 80*DOWN(37,peak,south) - 60*DOWN(38,base,north) - 60*DOWN(38,base,south) - 80*DOWN(38,peak,north)
+     
+      - 80*DOWN(38,peak,south) - 60*DOWN(39,base,north) - 60*DOWN(39,base,south) - 80*DOWN(39,peak,north) - 80*DOWN(39,peak,south) - 60*DOWN(40,base,north) - 60*DOWN(40,base,south) - 80*DOWN(40,peak,north) - 80*DOWN(40,peak,south) - 60*DOWN(41,base,north)
+     
+      - 60*DOWN(41,base,south) - 80*DOWN(41,peak,north) - 80*DOWN(41,peak,south) - 60*DOWN(42,base,north) - 60*DOWN(42,base,south) - 80*DOWN(42,peak,north) - 80*DOWN(42,peak,south) - 60*DOWN(43,base,north) - 60*DOWN(43,base,south) - 80*DOWN(43,peak,north)
+     
+      - 80*DOWN(43,peak,south) - 60*DOWN(44,base,north) - 60*DOWN(44,base,south) - 80*DOWN(44,peak,north) - 80*DOWN(44,peak,south) - 60*DOWN(45,base,north) - 60*DOWN(45,base,south) - 80*DOWN(45,peak,north) - 80*DOWN(45,peak,south) - 60*DOWN(46,base,north)
+     
+      - 60*DOWN(46,base,south) - 80*DOWN(46,peak,north) - 80*DOWN(46,peak,south) - 60*DOWN(47,base,north) - 60*DOWN(47,base,south) - 80*DOWN(47,peak,north) - 80*DOWN(47,peak,south) - 60*DOWN(48,base,north) - 60*DOWN(48,base,south) - 80*DOWN(48,peak,north)
+     
+      - 80*DOWN(48,peak,south) =E= 0 ; (LHS = 0)
+     
+
+---- nodal_energy_balance  =E=  
+
+nodal_energy_balance(1,north)..  GEN(1,base,north) + GEN(1,peak,north) + GEN(1,wind,north) + GEN(1,solar,north) - FLOW(1,north,north) - FLOW(1,north,south) - LOAD_real(1,north) + UP(1,base,north) + UP(1,peak,north) + UP(1,wind,north) + UP(1,solar,north)
+     
+      - DOWN(1,base,north) - DOWN(1,peak,north) - DOWN(1,wind,north) - DOWN(1,solar,north) =E= 0 ; (LHS = 0)
+     
+nodal_energy_balance(1,south)..  GEN(1,base,south) + GEN(1,peak,south) + GEN(1,wind,south) + GEN(1,solar,south) - FLOW(1,south,north) - FLOW(1,south,south) - LOAD_real(1,south) + UP(1,base,south) + UP(1,peak,south) + UP(1,wind,south) + UP(1,solar,south)
+     
+      - DOWN(1,base,south) - DOWN(1,peak,south) - DOWN(1,wind,south) - DOWN(1,solar,south) =E= 0 ; (LHS = 0)
+     
+nodal_energy_balance(2,north)..  GEN(2,base,north) + GEN(2,peak,north) + GEN(2,wind,north) + GEN(2,solar,north) - FLOW(2,north,north) - FLOW(2,north,south) - LOAD_real(2,north) + UP(2,base,north) + UP(2,peak,north) + UP(2,wind,north) + UP(2,solar,north)
+     
+      - DOWN(2,base,north) - DOWN(2,peak,north) - DOWN(2,wind,north) - DOWN(2,solar,north) =E= 0 ; (LHS = 0)
+     
+REMAINING 93 ENTRIES SKIPPED
+
+
+---- grid_eq1  =L=  
+
+grid_eq1(1,north,north)..  FLOW(1,north,north) - GRID_CAP(north,north) =L= 0 ; (LHS = 0)
+     
+grid_eq1(1,north,south)..  FLOW(1,north,south) - GRID_CAP(north,south) =L= 0 ; (LHS = 0)
+     
+grid_eq1(1,south,north)..  FLOW(1,south,north) - GRID_CAP(south,north) =L= 0 ; (LHS = 0)
+     
+REMAINING 189 ENTRIES SKIPPED
+
+
+---- grid_eq2  =E=  
+
+grid_eq2(north,south)..  GRID_CAP(north,south) - GRID_CAP(south,north) =E= 0 ; (LHS = 0)
+     
+grid_eq2(south,north)..  - GRID_CAP(north,south) + GRID_CAP(south,north) =E= 0 ; (LHS = 0)
+     
+
+---- grid_eq3  =E=  
+
+grid_eq3(1,north,north)..  FLOW(1,north,north) =E= 0 ; (LHS = 0)
+     
+grid_eq3(1,north,south)..  FLOW(1,north,south) - 600*THETA(1,north) + 600*THETA(1,south) =E= 0 ; (LHS = 0)
+     
+grid_eq3(1,south,north)..  FLOW(1,south,north) + 600*THETA(1,north) - 600*THETA(1,south) =E= 0 ; (LHS = 0)
+     
+REMAINING 189 ENTRIES SKIPPED
+
+
+---- grid_eq4  =E=  
+
+grid_eq4(1,north)..  THETA(1,south) =E= 0 ; (LHS = 0)
+     
+grid_eq4(1,south)..  THETA(1,south) =E= 0 ; (LHS = 0)
+     
+grid_eq4(2,north)..  THETA(2,south) =E= 0 ; (LHS = 0)
+     
+REMAINING 93 ENTRIES SKIPPED
+
+
+---- redispatch1  =L=  
+
+redispatch1(1,base,north)..  - GEN(1,base,north) + DOWN(1,base,north) =L= 0 ; (LHS = 0)
+     
+redispatch1(1,base,south)..  - GEN(1,base,south) + DOWN(1,base,south) =L= 0 ; (LHS = 0)
+     
+redispatch1(1,peak,north)..  - GEN(1,peak,north) + DOWN(1,peak,north) =L= 0 ; (LHS = 0)
+     
+REMAINING 381 ENTRIES SKIPPED
+
+
+---- redispatch2  =L=  
+
+redispatch2(1,base,north)..  GEN(1,base,north) - CAP(base,north) + UP(1,base,north) =L= 0 ; (LHS = 0)
+     
+redispatch2(1,base,south)..  GEN(1,base,south) - CAP(base,south) + UP(1,base,south) =L= 0 ; (LHS = 0)
+     
+redispatch2(1,peak,north)..  GEN(1,peak,north) - CAP(peak,north) + UP(1,peak,north) =L= 0 ; (LHS = 0)
+     
+REMAINING 381 ENTRIES SKIPPED
+
+
+---- gen_min  =G=  
+
+gen_min(1,base,north)..  GEN(1,base,north) =G= 0 ; (LHS = 0)
+     
+gen_min(1,base,south)..  GEN(1,base,south) =G= 0 ; (LHS = 0)
+     
+gen_min(1,peak,north)..  GEN(1,peak,north) =G= 0 ; (LHS = 0)
+     
+REMAINING 381 ENTRIES SKIPPED
+
+
+---- gen_max  =G=  
+
+gen_max(1,base,north)..  - GEN(1,base,north) + CAP(base,north) =G= 0 ; (LHS = 0)
+     
+gen_max(1,base,south)..  - GEN(1,base,south) + CAP(base,south) =G= 0 ; (LHS = 0)
+     
+gen_max(1,peak,north)..  - GEN(1,peak,north) + CAP(peak,north) =G= 0 ; (LHS = 0)
+     
+REMAINING 381 ENTRIES SKIPPED
+
+
+---- cap_min  =G=  
+
+cap_min(base,north)..  CAP(base,north) =G= 0 ; (LHS = 0)
+     
+cap_min(base,south)..  CAP(base,south) =G= 0 ; (LHS = 0)
+     
+cap_min(peak,north)..  CAP(peak,north) =G= 0 ; (LHS = 0)
+     
+REMAINING 5 ENTRIES SKIPPED
+
+
+---- cap_max  =G=  
+
+cap_max(base,north)..  - CAP(base,north) =G= -100 ; (LHS = 0)
+     
+cap_max(base,south)..  - CAP(base,south) =G= -100 ; (LHS = 0)
+     
+cap_max(peak,north)..  - CAP(peak,north) =G= -100 ; (LHS = 0)
+     
+REMAINING 5 ENTRIES SKIPPED
+
+
+---- demand_min  =G=  
+
+demand_min(1,north)..  LOAD_real(1,north) =G= 0 ; (LHS = 0)
+     
+demand_min(1,south)..  LOAD_real(1,south) =G= 0 ; (LHS = 0)
+     
+demand_min(2,north)..  LOAD_real(2,north) =G= 0 ; (LHS = 0)
+     
+REMAINING 93 ENTRIES SKIPPED
+
+
+---- energy_balance  =E=  
+
+energy_balance(1)..  - GEN(1,base,north) - GEN(1,base,south) - GEN(1,peak,north) - GEN(1,peak,south) - GEN(1,wind,north) - GEN(1,wind,south) - GEN(1,solar,north) - GEN(1,solar,south) + LOAD_real(1,north) + LOAD_real(1,south) =E= 0 ; (LHS = 0)
+     
+energy_balance(2)..  - GEN(2,base,north) - GEN(2,base,south) - GEN(2,peak,north) - GEN(2,peak,south) - GEN(2,wind,north) - GEN(2,wind,south) - GEN(2,solar,north) - GEN(2,solar,south) + LOAD_real(2,north) + LOAD_real(2,south) =E= 0 ; (LHS = 0)
+     
+energy_balance(3)..  - GEN(3,base,north) - GEN(3,base,south) - GEN(3,peak,north) - GEN(3,peak,south) - GEN(3,wind,north) - GEN(3,wind,south) - GEN(3,solar,north) - GEN(3,solar,south) + LOAD_real(3,north) + LOAD_real(3,south) =E= 0 ; (LHS = 0)
+     
+REMAINING 45 ENTRIES SKIPPED
+
+
+---- KKT_GEN  =E=  
+
+KKT_GEN(1,base,north)..  - LAMBDA(1) - mu_G_min(1,base,north) + mu_G_max(1,base,north) =E= -60 ; (LHS = 0, INFES = 60 ****)
+     
+KKT_GEN(1,base,south)..  - LAMBDA(1) - mu_G_min(1,base,south) + mu_G_max(1,base,south) =E= -60 ; (LHS = 0, INFES = 60 ****)
+     
+KKT_GEN(1,peak,north)..  - LAMBDA(1) - mu_G_min(1,peak,north) + mu_G_max(1,peak,north) =E= -80 ; (LHS = 0, INFES = 80 ****)
+     
+REMAINING 381 ENTRIES SKIPPED
+
+
+---- KKT_CAP  =E=  
+
+KKT_CAP(base,north)..  0.15*CAP(base,north) + INSTRUMENT(north) - mu_G_max(1,base,north) - mu_G_max(2,base,north) - mu_G_max(3,base,north) - mu_G_max(4,base,north) - mu_G_max(5,base,north) - mu_G_max(6,base,north) - mu_G_max(7,base,north)
+     
+      - mu_G_max(8,base,north) - mu_G_max(9,base,north) - mu_G_max(10,base,north) - mu_G_max(11,base,north) - mu_G_max(12,base,north) - mu_G_max(13,base,north) - mu_G_max(14,base,north) - mu_G_max(15,base,north) - mu_G_max(16,base,north)
+     
+      - mu_G_max(17,base,north) - mu_G_max(18,base,north) - mu_G_max(19,base,north) - mu_G_max(20,base,north) - mu_G_max(21,base,north) - mu_G_max(22,base,north) - mu_G_max(23,base,north) - mu_G_max(24,base,north) - mu_G_max(25,base,north)
+     
+      - mu_G_max(26,base,north) - mu_G_max(27,base,north) - mu_G_max(28,base,north) - mu_G_max(29,base,north) - mu_G_max(30,base,north) - mu_G_max(31,base,north) - mu_G_max(32,base,north) - mu_G_max(33,base,north) - mu_G_max(34,base,north)
+     
+      - mu_G_max(35,base,north) - mu_G_max(36,base,north) - mu_G_max(37,base,north) - mu_G_max(38,base,north) - mu_G_max(39,base,north) - mu_G_max(40,base,north) - mu_G_max(41,base,north) - mu_G_max(42,base,north) - mu_G_max(43,base,north)
+     
+      - mu_G_max(44,base,north) - mu_G_max(45,base,north) - mu_G_max(46,base,north) - mu_G_max(47,base,north) - mu_G_max(48,base,north) - mu_C_min(base,north) + mu_C_max(base,north) =E= -548 ; (LHS = 0, INFES = 548 ****)
+     
+KKT_CAP(base,south)..  0.15*CAP(base,south) + INSTRUMENT(south) - mu_G_max(1,base,south) - mu_G_max(2,base,south) - mu_G_max(3,base,south) - mu_G_max(4,base,south) - mu_G_max(5,base,south) - mu_G_max(6,base,south) - mu_G_max(7,base,south)
+     
+      - mu_G_max(8,base,south) - mu_G_max(9,base,south) - mu_G_max(10,base,south) - mu_G_max(11,base,south) - mu_G_max(12,base,south) - mu_G_max(13,base,south) - mu_G_max(14,base,south) - mu_G_max(15,base,south) - mu_G_max(16,base,south)
+     
+      - mu_G_max(17,base,south) - mu_G_max(18,base,south) - mu_G_max(19,base,south) - mu_G_max(20,base,south) - mu_G_max(21,base,south) - mu_G_max(22,base,south) - mu_G_max(23,base,south) - mu_G_max(24,base,south) - mu_G_max(25,base,south)
+     
+      - mu_G_max(26,base,south) - mu_G_max(27,base,south) - mu_G_max(28,base,south) - mu_G_max(29,base,south) - mu_G_max(30,base,south) - mu_G_max(31,base,south) - mu_G_max(32,base,south) - mu_G_max(33,base,south) - mu_G_max(34,base,south)
+     
+      - mu_G_max(35,base,south) - mu_G_max(36,base,south) - mu_G_max(37,base,south) - mu_G_max(38,base,south) - mu_G_max(39,base,south) - mu_G_max(40,base,south) - mu_G_max(41,base,south) - mu_G_max(42,base,south) - mu_G_max(43,base,south)
+     
+      - mu_G_max(44,base,south) - mu_G_max(45,base,south) - mu_G_max(46,base,south) - mu_G_max(47,base,south) - mu_G_max(48,base,south) - mu_C_min(base,south) + mu_C_max(base,south) =E= -548 ; (LHS = 0, INFES = 548 ****)
+     
+KKT_CAP(peak,north)..  0.15*CAP(peak,north) + INSTRUMENT(north) - mu_G_max(1,peak,north) - mu_G_max(2,peak,north) - mu_G_max(3,peak,north) - mu_G_max(4,peak,north) - mu_G_max(5,peak,north) - mu_G_max(6,peak,north) - mu_G_max(7,peak,north)
+     
+      - mu_G_max(8,peak,north) - mu_G_max(9,peak,north) - mu_G_max(10,peak,north) - mu_G_max(11,peak,north) - mu_G_max(12,peak,north) - mu_G_max(13,peak,north) - mu_G_max(14,peak,north) - mu_G_max(15,peak,north) - mu_G_max(16,peak,north)
+     
+      - mu_G_max(17,peak,north) - mu_G_max(18,peak,north) - mu_G_max(19,peak,north) - mu_G_max(20,peak,north) - mu_G_max(21,peak,north) - mu_G_max(22,peak,north) - mu_G_max(23,peak,north) - mu_G_max(24,peak,north) - mu_G_max(25,peak,north)
+     
+      - mu_G_max(26,peak,north) - mu_G_max(27,peak,north) - mu_G_max(28,peak,north) - mu_G_max(29,peak,north) - mu_G_max(30,peak,north) - mu_G_max(31,peak,north) - mu_G_max(32,peak,north) - mu_G_max(33,peak,north) - mu_G_max(34,peak,north)
+     
+      - mu_G_max(35,peak,north) - mu_G_max(36,peak,north) - mu_G_max(37,peak,north) - mu_G_max(38,peak,north) - mu_G_max(39,peak,north) - mu_G_max(40,peak,north) - mu_G_max(41,peak,north) - mu_G_max(42,peak,north) - mu_G_max(43,peak,north)
+     
+      - mu_G_max(44,peak,north) - mu_G_max(45,peak,north) - mu_G_max(46,peak,north) - mu_G_max(47,peak,north) - mu_G_max(48,peak,north) - mu_C_min(peak,north) + mu_C_max(peak,north) =E= -175 ; (LHS = 0, INFES = 175 ****)
+     
+REMAINING 5 ENTRIES SKIPPED
+
+
+---- KKT_load  =E=  
+
+KKT_load(1,north)..  LAMBDA(1) - mu_D_min(1,north) + 16.7387721466831*LOAD_real(1,north) =E= 325 ; (LHS = 0, INFES = 325 ****)
+     
+KKT_load(1,south)..  LAMBDA(1) - mu_D_min(1,south) + 7.17375949143564*LOAD_real(1,south) =E= 325 ; (LHS = 0, INFES = 325 ****)
+     
+KKT_load(2,north)..  LAMBDA(2) - mu_D_min(2,north) + 15.235898589859*LOAD_real(2,north) =E= 325 ; (LHS = 0, INFES = 325 ****)
+     
+REMAINING 93 ENTRIES SKIPPED
+
+
+---- complementarity1a  =L=  
+
+complementarity1a(1,base,north)..  - 100000*y1(1,base,north) + GEN(1,base,north) =L= 0 ; (LHS = 0)
+     
+complementarity1a(1,base,south)..  - 100000*y1(1,base,south) + GEN(1,base,south) =L= 0 ; (LHS = 0)
+     
+complementarity1a(1,peak,north)..  - 100000*y1(1,peak,north) + GEN(1,peak,north) =L= 0 ; (LHS = 0)
+     
+REMAINING 381 ENTRIES SKIPPED
+
+
+---- complementarity1b  =L=  
+
+complementarity1b(1,base,north)..  100000*y1(1,base,north) + mu_G_min(1,base,north) =L= 100000 ; (LHS = 0)
+     
+complementarity1b(1,base,south)..  100000*y1(1,base,south) + mu_G_min(1,base,south) =L= 100000 ; (LHS = 0)
+     
+complementarity1b(1,peak,north)..  100000*y1(1,peak,north) + mu_G_min(1,peak,north) =L= 100000 ; (LHS = 0)
+     
+REMAINING 381 ENTRIES SKIPPED
+
+
+---- complementarity2a  =L=  
+
+complementarity2a(1,base,north)..  - 100000*y2(1,base,north) - GEN(1,base,north) + CAP(base,north) =L= 0 ; (LHS = 0)
+     
+complementarity2a(1,base,south)..  - 100000*y2(1,base,south) - GEN(1,base,south) + CAP(base,south) =L= 0 ; (LHS = 0)
+     
+complementarity2a(1,peak,north)..  - 100000*y2(1,peak,north) - GEN(1,peak,north) + CAP(peak,north) =L= 0 ; (LHS = 0)
+     
+REMAINING 381 ENTRIES SKIPPED
+
+
+---- complementarity2b  =L=  
+
+complementarity2b(1,base,north)..  100000*y2(1,base,north) + mu_G_max(1,base,north) =L= 100000 ; (LHS = 0)
+     
+complementarity2b(1,base,south)..  100000*y2(1,base,south) + mu_G_max(1,base,south) =L= 100000 ; (LHS = 0)
+     
+complementarity2b(1,peak,north)..  100000*y2(1,peak,north) + mu_G_max(1,peak,north) =L= 100000 ; (LHS = 0)
+     
+REMAINING 381 ENTRIES SKIPPED
+
+
+---- complementarity3a  =L=  
+
+complementarity3a(base,north)..  - 100000*y3(base,north) + CAP(base,north) =L= 0 ; (LHS = 0)
+     
+complementarity3a(base,south)..  - 100000*y3(base,south) + CAP(base,south) =L= 0 ; (LHS = 0)
+     
+complementarity3a(peak,north)..  - 100000*y3(peak,north) + CAP(peak,north) =L= 0 ; (LHS = 0)
+     
+REMAINING 5 ENTRIES SKIPPED
+
+
+---- complementarity3b  =L=  
+
+complementarity3b(base,north)..  100000*y3(base,north) + mu_C_min(base,north) =L= 100000 ; (LHS = 0)
+     
+complementarity3b(base,south)..  100000*y3(base,south) + mu_C_min(base,south) =L= 100000 ; (LHS = 0)
+     
+complementarity3b(peak,north)..  100000*y3(peak,north) + mu_C_min(peak,north) =L= 100000 ; (LHS = 0)
+     
+REMAINING 5 ENTRIES SKIPPED
+
+
+---- complementarity4a  =L=  
+
+complementarity4a(base,north)..  - 100000*y4(base,north) - CAP(base,north) =L= -100 ; (LHS = 0, INFES = 100 ****)
+     
+complementarity4a(base,south)..  - 100000*y4(base,south) - CAP(base,south) =L= -100 ; (LHS = 0, INFES = 100 ****)
+     
+complementarity4a(peak,north)..  - 100000*y4(peak,north) - CAP(peak,north) =L= -100 ; (LHS = 0, INFES = 100 ****)
+     
+REMAINING 5 ENTRIES SKIPPED
+
+
+---- complementarity4b  =L=  
+
+complementarity4b(base,north)..  100000*y4(base,north) + mu_C_max(base,north) =L= 100000 ; (LHS = 0)
+     
+complementarity4b(base,south)..  100000*y4(base,south) + mu_C_max(base,south) =L= 100000 ; (LHS = 0)
+     
+complementarity4b(peak,north)..  100000*y4(peak,north) + mu_C_max(peak,north) =L= 100000 ; (LHS = 0)
+     
+REMAINING 5 ENTRIES SKIPPED
+
+
+---- complementarity5a  =L=  
+
+complementarity5a(1,north)..  - 100000*y5(1,north) + LOAD_real(1,north) =L= 0 ; (LHS = 0)
+     
+complementarity5a(1,south)..  - 100000*y5(1,south) + LOAD_real(1,south) =L= 0 ; (LHS = 0)
+     
+complementarity5a(2,north)..  - 100000*y5(2,north) + LOAD_real(2,north) =L= 0 ; (LHS = 0)
+     
+REMAINING 93 ENTRIES SKIPPED
+
+
+---- complementarity5b  =L=  
+
+complementarity5b(1,north)..  100000*y5(1,north) + mu_D_min(1,north) =L= 100000 ; (LHS = 0)
+     
+complementarity5b(1,south)..  100000*y5(1,south) + mu_D_min(1,south) =L= 100000 ; (LHS = 0)
+     
+complementarity5b(2,north)..  100000*y5(2,north) + mu_D_min(2,north) =L= 100000 ; (LHS = 0)
+     
+REMAINING 93 ENTRIES SKIPPED
+
+
+---- complementarity6a  =L=  
+
+complementarity6a(1)..  - 100000*y6(1) - GEN(1,base,north) - GEN(1,base,south) - GEN(1,peak,north) - GEN(1,peak,south) - GEN(1,wind,north) - GEN(1,wind,south) - GEN(1,solar,north) - GEN(1,solar,south) + LOAD_real(1,north) + LOAD_real(1,south) =L= 0 ;
+     
+      (LHS = 0)
+     
+complementarity6a(2)..  - 100000*y6(2) - GEN(2,base,north) - GEN(2,base,south) - GEN(2,peak,north) - GEN(2,peak,south) - GEN(2,wind,north) - GEN(2,wind,south) - GEN(2,solar,north) - GEN(2,solar,south) + LOAD_real(2,north) + LOAD_real(2,south) =L= 0 ;
+     
+      (LHS = 0)
+     
+complementarity6a(3)..  - 100000*y6(3) - GEN(3,base,north) - GEN(3,base,south) - GEN(3,peak,north) - GEN(3,peak,south) - GEN(3,wind,north) - GEN(3,wind,south) - GEN(3,solar,north) - GEN(3,solar,south) + LOAD_real(3,north) + LOAD_real(3,south) =L= 0 ;
+     
+      (LHS = 0)
+     
+REMAINING 45 ENTRIES SKIPPED
+
+
+---- complementarity6b  =L=  
+
+complementarity6b(1)..  100000*y6(1) + LAMBDA(1) =L= 100000 ; (LHS = 0)
+     
+complementarity6b(2)..  100000*y6(2) + LAMBDA(2) =L= 100000 ; (LHS = 0)
+     
+complementarity6b(3)..  100000*y6(3) + LAMBDA(3) =L= 100000 ; (LHS = 0)
+     
+REMAINING 45 ENTRIES SKIPPED
+
+GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 10/15/21 12:40:54 Page 5
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Column Listing      SOLVE LOCI Using MIQCP From line 298
+
+
+---- y1  
+
+y1(1,base,north)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+  -100000       complementarity1a(1,base,north)
+   100000       complementarity1b(1,base,north)
+
+y1(1,base,south)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+  -100000       complementarity1a(1,base,south)
+   100000       complementarity1b(1,base,south)
+
+y1(1,peak,north)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+  -100000       complementarity1a(1,peak,north)
+   100000       complementarity1b(1,peak,north)
+
+REMAINING 381 ENTRIES SKIPPED
+
+---- y2  
+
+y2(1,base,north)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+  -100000       complementarity2a(1,base,north)
+   100000       complementarity2b(1,base,north)
+
+y2(1,base,south)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+  -100000       complementarity2a(1,base,south)
+   100000       complementarity2b(1,base,south)
+
+y2(1,peak,north)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+  -100000       complementarity2a(1,peak,north)
+   100000       complementarity2b(1,peak,north)
+
+REMAINING 381 ENTRIES SKIPPED
+
+---- y3  
+
+y3(base,north)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+  -100000       complementarity3a(base,north)
+   100000       complementarity3b(base,north)
+
+y3(base,south)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+  -100000       complementarity3a(base,south)
+   100000       complementarity3b(base,south)
+
+y3(peak,north)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+  -100000       complementarity3a(peak,north)
+   100000       complementarity3b(peak,north)
+
+REMAINING 5 ENTRIES SKIPPED
+
+---- y4  
+
+y4(base,north)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+  -100000       complementarity4a(base,north)
+   100000       complementarity4b(base,north)
+
+y4(base,south)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+  -100000       complementarity4a(base,south)
+   100000       complementarity4b(base,south)
+
+y4(peak,north)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+  -100000       complementarity4a(peak,north)
+   100000       complementarity4b(peak,north)
+
+REMAINING 5 ENTRIES SKIPPED
+
+---- y5  
+
+y5(1,north)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+  -100000       complementarity5a(1,north)
+   100000       complementarity5b(1,north)
+
+y5(1,south)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+  -100000       complementarity5a(1,south)
+   100000       complementarity5b(1,south)
+
+y5(2,north)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+  -100000       complementarity5a(2,north)
+   100000       complementarity5b(2,north)
+
+REMAINING 93 ENTRIES SKIPPED
+
+---- y6  
+
+y6(1)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+  -100000       complementarity6a(1)
+   100000       complementarity6b(1)
+
+y6(2)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+  -100000       complementarity6a(2)
+   100000       complementarity6b(2)
+
+y6(3)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+  -100000       complementarity6a(3)
+   100000       complementarity6b(3)
+
+REMAINING 45 ENTRIES SKIPPED
+
+---- GEN  
+
+GEN(1,base,north)
+                (.LO, .L, .UP, .M = 0, 0, 100, 0)
+       60       objective
+        1       nodal_energy_balance(1,north)
+       -1       redispatch1(1,base,north)
+        1       redispatch2(1,base,north)
+        1       gen_min(1,base,north)
+       -1       gen_max(1,base,north)
+       -1       energy_balance(1)
+        1       complementarity1a(1,base,north)
+       -1       complementarity2a(1,base,north)
+       -1       complementarity6a(1)
+
+GEN(1,base,south)
+                (.LO, .L, .UP, .M = 0, 0, 100, 0)
+       60       objective
+        1       nodal_energy_balance(1,south)
+       -1       redispatch1(1,base,south)
+        1       redispatch2(1,base,south)
+        1       gen_min(1,base,south)
+       -1       gen_max(1,base,south)
+       -1       energy_balance(1)
+        1       complementarity1a(1,base,south)
+       -1       complementarity2a(1,base,south)
+       -1       complementarity6a(1)
+
+GEN(1,peak,north)
+                (.LO, .L, .UP, .M = 0, 0, 100, 0)
+       80       objective
+        1       nodal_energy_balance(1,north)
+       -1       redispatch1(1,peak,north)
+        1       redispatch2(1,peak,north)
+        1       gen_min(1,peak,north)
+       -1       gen_max(1,peak,north)
+       -1       energy_balance(1)
+        1       complementarity1a(1,peak,north)
+       -1       complementarity2a(1,peak,north)
+       -1       complementarity6a(1)
+
+REMAINING 381 ENTRIES SKIPPED
+
+---- CAP  
+
+CAP(base,north)
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+     (548)      objective
+       -1       redispatch2(1,base,north)
+       -1       redispatch2(2,base,north)
+       -1       redispatch2(3,base,north)
+       -1       redispatch2(4,base,north)
+       -1       redispatch2(5,base,north)
+       -1       redispatch2(6,base,north)
+       -1       redispatch2(7,base,north)
+       -1       redispatch2(8,base,north)
+       -1       redispatch2(9,base,north)
+       -1       redispatch2(10,base,north)
+       -1       redispatch2(11,base,north)
+       -1       redispatch2(12,base,north)
+       -1       redispatch2(13,base,north)
+       -1       redispatch2(14,base,north)
+       -1       redispatch2(15,base,north)
+       -1       redispatch2(16,base,north)
+       -1       redispatch2(17,base,north)
+       -1       redispatch2(18,base,north)
+       -1       redispatch2(19,base,north)
+       -1       redispatch2(20,base,north)
+       -1       redispatch2(21,base,north)
+       -1       redispatch2(22,base,north)
+       -1       redispatch2(23,base,north)
+       -1       redispatch2(24,base,north)
+       -1       redispatch2(25,base,north)
+       -1       redispatch2(26,base,north)
+       -1       redispatch2(27,base,north)
+       -1       redispatch2(28,base,north)
+       -1       redispatch2(29,base,north)
+       -1       redispatch2(30,base,north)
+       -1       redispatch2(31,base,north)
+       -1       redispatch2(32,base,north)
+       -1       redispatch2(33,base,north)
+       -1       redispatch2(34,base,north)
+       -1       redispatch2(35,base,north)
+       -1       redispatch2(36,base,north)
+       -1       redispatch2(37,base,north)
+       -1       redispatch2(38,base,north)
+       -1       redispatch2(39,base,north)
+       -1       redispatch2(40,base,north)
+       -1       redispatch2(41,base,north)
+       -1       redispatch2(42,base,north)
+       -1       redispatch2(43,base,north)
+       -1       redispatch2(44,base,north)
+       -1       redispatch2(45,base,north)
+       -1       redispatch2(46,base,north)
+       -1       redispatch2(47,base,north)
+       -1       redispatch2(48,base,north)
+        1       gen_max(1,base,north)
+        1       gen_max(2,base,north)
+        1       gen_max(3,base,north)
+        1       gen_max(4,base,north)
+        1       gen_max(5,base,north)
+        1       gen_max(6,base,north)
+        1       gen_max(7,base,north)
+        1       gen_max(8,base,north)
+        1       gen_max(9,base,north)
+        1       gen_max(10,base,north)
+        1       gen_max(11,base,north)
+        1       gen_max(12,base,north)
+        1       gen_max(13,base,north)
+        1       gen_max(14,base,north)
+        1       gen_max(15,base,north)
+        1       gen_max(16,base,north)
+        1       gen_max(17,base,north)
+        1       gen_max(18,base,north)
+        1       gen_max(19,base,north)
+        1       gen_max(20,base,north)
+        1       gen_max(21,base,north)
+        1       gen_max(22,base,north)
+        1       gen_max(23,base,north)
+        1       gen_max(24,base,north)
+        1       gen_max(25,base,north)
+        1       gen_max(26,base,north)
+        1       gen_max(27,base,north)
+        1       gen_max(28,base,north)
+        1       gen_max(29,base,north)
+        1       gen_max(30,base,north)
+        1       gen_max(31,base,north)
+        1       gen_max(32,base,north)
+        1       gen_max(33,base,north)
+        1       gen_max(34,base,north)
+        1       gen_max(35,base,north)
+        1       gen_max(36,base,north)
+        1       gen_max(37,base,north)
+        1       gen_max(38,base,north)
+        1       gen_max(39,base,north)
+        1       gen_max(40,base,north)
+        1       gen_max(41,base,north)
+        1       gen_max(42,base,north)
+        1       gen_max(43,base,north)
+        1       gen_max(44,base,north)
+        1       gen_max(45,base,north)
+        1       gen_max(46,base,north)
+        1       gen_max(47,base,north)
+        1       gen_max(48,base,north)
+        1       cap_min(base,north)
+       -1       cap_max(base,north)
+        0.15    KKT_CAP(base,north)
+        1       complementarity2a(1,base,north)
+        1       complementarity2a(2,base,north)
+        1       complementarity2a(3,base,north)
+        1       complementarity2a(4,base,north)
+        1       complementarity2a(5,base,north)
+        1       complementarity2a(6,base,north)
+        1       complementarity2a(7,base,north)
+        1       complementarity2a(8,base,north)
+        1       complementarity2a(9,base,north)
+        1       complementarity2a(10,base,north)
+        1       complementarity2a(11,base,north)
+        1       complementarity2a(12,base,north)
+        1       complementarity2a(13,base,north)
+        1       complementarity2a(14,base,north)
+        1       complementarity2a(15,base,north)
+        1       complementarity2a(16,base,north)
+        1       complementarity2a(17,base,north)
+        1       complementarity2a(18,base,north)
+        1       complementarity2a(19,base,north)
+        1       complementarity2a(20,base,north)
+        1       complementarity2a(21,base,north)
+        1       complementarity2a(22,base,north)
+        1       complementarity2a(23,base,north)
+        1       complementarity2a(24,base,north)
+        1       complementarity2a(25,base,north)
+        1       complementarity2a(26,base,north)
+        1       complementarity2a(27,base,north)
+        1       complementarity2a(28,base,north)
+        1       complementarity2a(29,base,north)
+        1       complementarity2a(30,base,north)
+        1       complementarity2a(31,base,north)
+        1       complementarity2a(32,base,north)
+        1       complementarity2a(33,base,north)
+        1       complementarity2a(34,base,north)
+        1       complementarity2a(35,base,north)
+        1       complementarity2a(36,base,north)
+        1       complementarity2a(37,base,north)
+        1       complementarity2a(38,base,north)
+        1       complementarity2a(39,base,north)
+        1       complementarity2a(40,base,north)
+        1       complementarity2a(41,base,north)
+        1       complementarity2a(42,base,north)
+        1       complementarity2a(43,base,north)
+        1       complementarity2a(44,base,north)
+        1       complementarity2a(45,base,north)
+        1       complementarity2a(46,base,north)
+        1       complementarity2a(47,base,north)
+        1       complementarity2a(48,base,north)
+        1       complementarity3a(base,north)
+       -1       complementarity4a(base,north)
+
+CAP(base,south)
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+     (548)      objective
+       -1       redispatch2(1,base,south)
+       -1       redispatch2(2,base,south)
+       -1       redispatch2(3,base,south)
+       -1       redispatch2(4,base,south)
+       -1       redispatch2(5,base,south)
+       -1       redispatch2(6,base,south)
+       -1       redispatch2(7,base,south)
+       -1       redispatch2(8,base,south)
+       -1       redispatch2(9,base,south)
+       -1       redispatch2(10,base,south)
+       -1       redispatch2(11,base,south)
+       -1       redispatch2(12,base,south)
+       -1       redispatch2(13,base,south)
+       -1       redispatch2(14,base,south)
+       -1       redispatch2(15,base,south)
+       -1       redispatch2(16,base,south)
+       -1       redispatch2(17,base,south)
+       -1       redispatch2(18,base,south)
+       -1       redispatch2(19,base,south)
+       -1       redispatch2(20,base,south)
+       -1       redispatch2(21,base,south)
+       -1       redispatch2(22,base,south)
+       -1       redispatch2(23,base,south)
+       -1       redispatch2(24,base,south)
+       -1       redispatch2(25,base,south)
+       -1       redispatch2(26,base,south)
+       -1       redispatch2(27,base,south)
+       -1       redispatch2(28,base,south)
+       -1       redispatch2(29,base,south)
+       -1       redispatch2(30,base,south)
+       -1       redispatch2(31,base,south)
+       -1       redispatch2(32,base,south)
+       -1       redispatch2(33,base,south)
+       -1       redispatch2(34,base,south)
+       -1       redispatch2(35,base,south)
+       -1       redispatch2(36,base,south)
+       -1       redispatch2(37,base,south)
+       -1       redispatch2(38,base,south)
+       -1       redispatch2(39,base,south)
+       -1       redispatch2(40,base,south)
+       -1       redispatch2(41,base,south)
+       -1       redispatch2(42,base,south)
+       -1       redispatch2(43,base,south)
+       -1       redispatch2(44,base,south)
+       -1       redispatch2(45,base,south)
+       -1       redispatch2(46,base,south)
+       -1       redispatch2(47,base,south)
+       -1       redispatch2(48,base,south)
+        1       gen_max(1,base,south)
+        1       gen_max(2,base,south)
+        1       gen_max(3,base,south)
+        1       gen_max(4,base,south)
+        1       gen_max(5,base,south)
+        1       gen_max(6,base,south)
+        1       gen_max(7,base,south)
+        1       gen_max(8,base,south)
+        1       gen_max(9,base,south)
+        1       gen_max(10,base,south)
+        1       gen_max(11,base,south)
+        1       gen_max(12,base,south)
+        1       gen_max(13,base,south)
+        1       gen_max(14,base,south)
+        1       gen_max(15,base,south)
+        1       gen_max(16,base,south)
+        1       gen_max(17,base,south)
+        1       gen_max(18,base,south)
+        1       gen_max(19,base,south)
+        1       gen_max(20,base,south)
+        1       gen_max(21,base,south)
+        1       gen_max(22,base,south)
+        1       gen_max(23,base,south)
+        1       gen_max(24,base,south)
+        1       gen_max(25,base,south)
+        1       gen_max(26,base,south)
+        1       gen_max(27,base,south)
+        1       gen_max(28,base,south)
+        1       gen_max(29,base,south)
+        1       gen_max(30,base,south)
+        1       gen_max(31,base,south)
+        1       gen_max(32,base,south)
+        1       gen_max(33,base,south)
+        1       gen_max(34,base,south)
+        1       gen_max(35,base,south)
+        1       gen_max(36,base,south)
+        1       gen_max(37,base,south)
+        1       gen_max(38,base,south)
+        1       gen_max(39,base,south)
+        1       gen_max(40,base,south)
+        1       gen_max(41,base,south)
+        1       gen_max(42,base,south)
+        1       gen_max(43,base,south)
+        1       gen_max(44,base,south)
+        1       gen_max(45,base,south)
+        1       gen_max(46,base,south)
+        1       gen_max(47,base,south)
+        1       gen_max(48,base,south)
+        1       cap_min(base,south)
+       -1       cap_max(base,south)
+        0.15    KKT_CAP(base,south)
+        1       complementarity2a(1,base,south)
+        1       complementarity2a(2,base,south)
+        1       complementarity2a(3,base,south)
+        1       complementarity2a(4,base,south)
+        1       complementarity2a(5,base,south)
+        1       complementarity2a(6,base,south)
+        1       complementarity2a(7,base,south)
+        1       complementarity2a(8,base,south)
+        1       complementarity2a(9,base,south)
+        1       complementarity2a(10,base,south)
+        1       complementarity2a(11,base,south)
+        1       complementarity2a(12,base,south)
+        1       complementarity2a(13,base,south)
+        1       complementarity2a(14,base,south)
+        1       complementarity2a(15,base,south)
+        1       complementarity2a(16,base,south)
+        1       complementarity2a(17,base,south)
+        1       complementarity2a(18,base,south)
+        1       complementarity2a(19,base,south)
+        1       complementarity2a(20,base,south)
+        1       complementarity2a(21,base,south)
+        1       complementarity2a(22,base,south)
+        1       complementarity2a(23,base,south)
+        1       complementarity2a(24,base,south)
+        1       complementarity2a(25,base,south)
+        1       complementarity2a(26,base,south)
+        1       complementarity2a(27,base,south)
+        1       complementarity2a(28,base,south)
+        1       complementarity2a(29,base,south)
+        1       complementarity2a(30,base,south)
+        1       complementarity2a(31,base,south)
+        1       complementarity2a(32,base,south)
+        1       complementarity2a(33,base,south)
+        1       complementarity2a(34,base,south)
+        1       complementarity2a(35,base,south)
+        1       complementarity2a(36,base,south)
+        1       complementarity2a(37,base,south)
+        1       complementarity2a(38,base,south)
+        1       complementarity2a(39,base,south)
+        1       complementarity2a(40,base,south)
+        1       complementarity2a(41,base,south)
+        1       complementarity2a(42,base,south)
+        1       complementarity2a(43,base,south)
+        1       complementarity2a(44,base,south)
+        1       complementarity2a(45,base,south)
+        1       complementarity2a(46,base,south)
+        1       complementarity2a(47,base,south)
+        1       complementarity2a(48,base,south)
+        1       complementarity3a(base,south)
+       -1       complementarity4a(base,south)
+
+CAP(peak,north)
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+     (175)      objective
+       -1       redispatch2(1,peak,north)
+       -1       redispatch2(2,peak,north)
+       -1       redispatch2(3,peak,north)
+       -1       redispatch2(4,peak,north)
+       -1       redispatch2(5,peak,north)
+       -1       redispatch2(6,peak,north)
+       -1       redispatch2(7,peak,north)
+       -1       redispatch2(8,peak,north)
+       -1       redispatch2(9,peak,north)
+       -1       redispatch2(10,peak,north)
+       -1       redispatch2(11,peak,north)
+       -1       redispatch2(12,peak,north)
+       -1       redispatch2(13,peak,north)
+       -1       redispatch2(14,peak,north)
+       -1       redispatch2(15,peak,north)
+       -1       redispatch2(16,peak,north)
+       -1       redispatch2(17,peak,north)
+       -1       redispatch2(18,peak,north)
+       -1       redispatch2(19,peak,north)
+       -1       redispatch2(20,peak,north)
+       -1       redispatch2(21,peak,north)
+       -1       redispatch2(22,peak,north)
+       -1       redispatch2(23,peak,north)
+       -1       redispatch2(24,peak,north)
+       -1       redispatch2(25,peak,north)
+       -1       redispatch2(26,peak,north)
+       -1       redispatch2(27,peak,north)
+       -1       redispatch2(28,peak,north)
+       -1       redispatch2(29,peak,north)
+       -1       redispatch2(30,peak,north)
+       -1       redispatch2(31,peak,north)
+       -1       redispatch2(32,peak,north)
+       -1       redispatch2(33,peak,north)
+       -1       redispatch2(34,peak,north)
+       -1       redispatch2(35,peak,north)
+       -1       redispatch2(36,peak,north)
+       -1       redispatch2(37,peak,north)
+       -1       redispatch2(38,peak,north)
+       -1       redispatch2(39,peak,north)
+       -1       redispatch2(40,peak,north)
+       -1       redispatch2(41,peak,north)
+       -1       redispatch2(42,peak,north)
+       -1       redispatch2(43,peak,north)
+       -1       redispatch2(44,peak,north)
+       -1       redispatch2(45,peak,north)
+       -1       redispatch2(46,peak,north)
+       -1       redispatch2(47,peak,north)
+       -1       redispatch2(48,peak,north)
+        1       gen_max(1,peak,north)
+        1       gen_max(2,peak,north)
+        1       gen_max(3,peak,north)
+        1       gen_max(4,peak,north)
+        1       gen_max(5,peak,north)
+        1       gen_max(6,peak,north)
+        1       gen_max(7,peak,north)
+        1       gen_max(8,peak,north)
+        1       gen_max(9,peak,north)
+        1       gen_max(10,peak,north)
+        1       gen_max(11,peak,north)
+        1       gen_max(12,peak,north)
+        1       gen_max(13,peak,north)
+        1       gen_max(14,peak,north)
+        1       gen_max(15,peak,north)
+        1       gen_max(16,peak,north)
+        1       gen_max(17,peak,north)
+        1       gen_max(18,peak,north)
+        1       gen_max(19,peak,north)
+        1       gen_max(20,peak,north)
+        1       gen_max(21,peak,north)
+        1       gen_max(22,peak,north)
+        1       gen_max(23,peak,north)
+        1       gen_max(24,peak,north)
+        1       gen_max(25,peak,north)
+        1       gen_max(26,peak,north)
+        1       gen_max(27,peak,north)
+        1       gen_max(28,peak,north)
+        1       gen_max(29,peak,north)
+        1       gen_max(30,peak,north)
+        1       gen_max(31,peak,north)
+        1       gen_max(32,peak,north)
+        1       gen_max(33,peak,north)
+        1       gen_max(34,peak,north)
+        1       gen_max(35,peak,north)
+        1       gen_max(36,peak,north)
+        1       gen_max(37,peak,north)
+        1       gen_max(38,peak,north)
+        1       gen_max(39,peak,north)
+        1       gen_max(40,peak,north)
+        1       gen_max(41,peak,north)
+        1       gen_max(42,peak,north)
+        1       gen_max(43,peak,north)
+        1       gen_max(44,peak,north)
+        1       gen_max(45,peak,north)
+        1       gen_max(46,peak,north)
+        1       gen_max(47,peak,north)
+        1       gen_max(48,peak,north)
+        1       cap_min(peak,north)
+       -1       cap_max(peak,north)
+        0.15    KKT_CAP(peak,north)
+        1       complementarity2a(1,peak,north)
+        1       complementarity2a(2,peak,north)
+        1       complementarity2a(3,peak,north)
+        1       complementarity2a(4,peak,north)
+        1       complementarity2a(5,peak,north)
+        1       complementarity2a(6,peak,north)
+        1       complementarity2a(7,peak,north)
+        1       complementarity2a(8,peak,north)
+        1       complementarity2a(9,peak,north)
+        1       complementarity2a(10,peak,north)
+        1       complementarity2a(11,peak,north)
+        1       complementarity2a(12,peak,north)
+        1       complementarity2a(13,peak,north)
+        1       complementarity2a(14,peak,north)
+        1       complementarity2a(15,peak,north)
+        1       complementarity2a(16,peak,north)
+        1       complementarity2a(17,peak,north)
+        1       complementarity2a(18,peak,north)
+        1       complementarity2a(19,peak,north)
+        1       complementarity2a(20,peak,north)
+        1       complementarity2a(21,peak,north)
+        1       complementarity2a(22,peak,north)
+        1       complementarity2a(23,peak,north)
+        1       complementarity2a(24,peak,north)
+        1       complementarity2a(25,peak,north)
+        1       complementarity2a(26,peak,north)
+        1       complementarity2a(27,peak,north)
+        1       complementarity2a(28,peak,north)
+        1       complementarity2a(29,peak,north)
+        1       complementarity2a(30,peak,north)
+        1       complementarity2a(31,peak,north)
+        1       complementarity2a(32,peak,north)
+        1       complementarity2a(33,peak,north)
+        1       complementarity2a(34,peak,north)
+        1       complementarity2a(35,peak,north)
+        1       complementarity2a(36,peak,north)
+        1       complementarity2a(37,peak,north)
+        1       complementarity2a(38,peak,north)
+        1       complementarity2a(39,peak,north)
+        1       complementarity2a(40,peak,north)
+        1       complementarity2a(41,peak,north)
+        1       complementarity2a(42,peak,north)
+        1       complementarity2a(43,peak,north)
+        1       complementarity2a(44,peak,north)
+        1       complementarity2a(45,peak,north)
+        1       complementarity2a(46,peak,north)
+        1       complementarity2a(47,peak,north)
+        1       complementarity2a(48,peak,north)
+        1       complementarity3a(peak,north)
+       -1       complementarity4a(peak,north)
+
+REMAINING 5 ENTRIES SKIPPED
+
+---- WF  
+
+WF
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+        1       objective
+
+
+---- FLOW  
+
+FLOW(1,north,north)
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+       -1       nodal_energy_balance(1,north)
+        1       grid_eq1(1,north,north)
+        1       grid_eq3(1,north,north)
+
+FLOW(1,north,south)
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+       -1       nodal_energy_balance(1,north)
+        1       grid_eq1(1,north,south)
+        1       grid_eq3(1,north,south)
+
+FLOW(1,south,north)
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+       -1       nodal_energy_balance(1,south)
+        1       grid_eq1(1,south,north)
+        1       grid_eq3(1,south,north)
+
+REMAINING 189 ENTRIES SKIPPED
+
+---- INSTRUMENT  
+
+INSTRUMENT(north)
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+        1       KKT_CAP(base,north)
+        1       KKT_CAP(peak,north)
+        1       KKT_CAP(wind,north)
+        1       KKT_CAP(solar,north)
+
+INSTRUMENT(south)
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+        1       KKT_CAP(base,south)
+        1       KKT_CAP(peak,south)
+        1       KKT_CAP(wind,south)
+        1       KKT_CAP(solar,south)
+
+
+---- THETA  
+
+THETA(1,north)
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+     -600       grid_eq3(1,north,south)
+      600       grid_eq3(1,south,north)
+
+THETA(1,south)
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+      600       grid_eq3(1,north,south)
+     -600       grid_eq3(1,south,north)
+        1       grid_eq4(1,north)
+        1       grid_eq4(1,south)
+
+THETA(2,north)
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+     -600       grid_eq3(2,north,south)
+      600       grid_eq3(2,south,north)
+
+REMAINING 93 ENTRIES SKIPPED
+
+---- LAMBDA  
+
+LAMBDA(1)
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+       -1       KKT_GEN(1,base,north)
+       -1       KKT_GEN(1,base,south)
+       -1       KKT_GEN(1,peak,north)
+       -1       KKT_GEN(1,peak,south)
+       -1       KKT_GEN(1,wind,north)
+       -1       KKT_GEN(1,wind,south)
+       -1       KKT_GEN(1,solar,north)
+       -1       KKT_GEN(1,solar,south)
+        1       KKT_load(1,north)
+        1       KKT_load(1,south)
+        1       complementarity6b(1)
+
+LAMBDA(2)
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+       -1       KKT_GEN(2,base,north)
+       -1       KKT_GEN(2,base,south)
+       -1       KKT_GEN(2,peak,north)
+       -1       KKT_GEN(2,peak,south)
+       -1       KKT_GEN(2,wind,north)
+       -1       KKT_GEN(2,wind,south)
+       -1       KKT_GEN(2,solar,north)
+       -1       KKT_GEN(2,solar,south)
+        1       KKT_load(2,north)
+        1       KKT_load(2,south)
+        1       complementarity6b(2)
+
+LAMBDA(3)
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+       -1       KKT_GEN(3,base,north)
+       -1       KKT_GEN(3,base,south)
+       -1       KKT_GEN(3,peak,north)
+       -1       KKT_GEN(3,peak,south)
+       -1       KKT_GEN(3,wind,north)
+       -1       KKT_GEN(3,wind,south)
+       -1       KKT_GEN(3,solar,north)
+       -1       KKT_GEN(3,solar,south)
+        1       KKT_load(3,north)
+        1       KKT_load(3,south)
+        1       complementarity6b(3)
+
+REMAINING 45 ENTRIES SKIPPED
+
+---- mu_G_min  
+
+mu_G_min(1,base,north)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -1       KKT_GEN(1,base,north)
+        1       complementarity1b(1,base,north)
+
+mu_G_min(1,base,south)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -1       KKT_GEN(1,base,south)
+        1       complementarity1b(1,base,south)
+
+mu_G_min(1,peak,north)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -1       KKT_GEN(1,peak,north)
+        1       complementarity1b(1,peak,north)
+
+REMAINING 381 ENTRIES SKIPPED
+
+---- mu_G_max  
+
+mu_G_max(1,base,north)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       KKT_GEN(1,base,north)
+       -1       KKT_CAP(base,north)
+        1       complementarity2b(1,base,north)
+
+mu_G_max(1,base,south)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       KKT_GEN(1,base,south)
+       -1       KKT_CAP(base,south)
+        1       complementarity2b(1,base,south)
+
+mu_G_max(1,peak,north)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       KKT_GEN(1,peak,north)
+       -1       KKT_CAP(peak,north)
+        1       complementarity2b(1,peak,north)
+
+REMAINING 381 ENTRIES SKIPPED
+
+---- mu_C_min  
+
+mu_C_min(base,north)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -1       KKT_CAP(base,north)
+        1       complementarity3b(base,north)
+
+mu_C_min(base,south)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -1       KKT_CAP(base,south)
+        1       complementarity3b(base,south)
+
+mu_C_min(peak,north)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -1       KKT_CAP(peak,north)
+        1       complementarity3b(peak,north)
+
+REMAINING 5 ENTRIES SKIPPED
+
+---- mu_C_max  
+
+mu_C_max(base,north)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       KKT_CAP(base,north)
+        1       complementarity4b(base,north)
+
+mu_C_max(base,south)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       KKT_CAP(base,south)
+        1       complementarity4b(base,south)
+
+mu_C_max(peak,north)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       KKT_CAP(peak,north)
+        1       complementarity4b(peak,north)
+
+REMAINING 5 ENTRIES SKIPPED
+
+---- mu_D_min  
+
+mu_D_min(1,north)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -1       KKT_load(1,north)
+        1       complementarity5b(1,north)
+
+mu_D_min(1,south)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -1       KKT_load(1,south)
+        1       complementarity5b(1,south)
+
+mu_D_min(2,north)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -1       KKT_load(2,north)
+        1       complementarity5b(2,north)
+
+REMAINING 93 ENTRIES SKIPPED
+
+---- GRID_CAP  
+
+GRID_CAP(north,north)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        0.5     objective
+       -1       grid_eq1(1,north,north)
+       -1       grid_eq1(2,north,north)
+       -1       grid_eq1(3,north,north)
+       -1       grid_eq1(4,north,north)
+       -1       grid_eq1(5,north,north)
+       -1       grid_eq1(6,north,north)
+       -1       grid_eq1(7,north,north)
+       -1       grid_eq1(8,north,north)
+       -1       grid_eq1(9,north,north)
+       -1       grid_eq1(10,north,north)
+       -1       grid_eq1(11,north,north)
+       -1       grid_eq1(12,north,north)
+       -1       grid_eq1(13,north,north)
+       -1       grid_eq1(14,north,north)
+       -1       grid_eq1(15,north,north)
+       -1       grid_eq1(16,north,north)
+       -1       grid_eq1(17,north,north)
+       -1       grid_eq1(18,north,north)
+       -1       grid_eq1(19,north,north)
+       -1       grid_eq1(20,north,north)
+       -1       grid_eq1(21,north,north)
+       -1       grid_eq1(22,north,north)
+       -1       grid_eq1(23,north,north)
+       -1       grid_eq1(24,north,north)
+       -1       grid_eq1(25,north,north)
+       -1       grid_eq1(26,north,north)
+       -1       grid_eq1(27,north,north)
+       -1       grid_eq1(28,north,north)
+       -1       grid_eq1(29,north,north)
+       -1       grid_eq1(30,north,north)
+       -1       grid_eq1(31,north,north)
+       -1       grid_eq1(32,north,north)
+       -1       grid_eq1(33,north,north)
+       -1       grid_eq1(34,north,north)
+       -1       grid_eq1(35,north,north)
+       -1       grid_eq1(36,north,north)
+       -1       grid_eq1(37,north,north)
+       -1       grid_eq1(38,north,north)
+       -1       grid_eq1(39,north,north)
+       -1       grid_eq1(40,north,north)
+       -1       grid_eq1(41,north,north)
+       -1       grid_eq1(42,north,north)
+       -1       grid_eq1(43,north,north)
+       -1       grid_eq1(44,north,north)
+       -1       grid_eq1(45,north,north)
+       -1       grid_eq1(46,north,north)
+       -1       grid_eq1(47,north,north)
+       -1       grid_eq1(48,north,north)
+
+GRID_CAP(north,south)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+      419       objective
+       -1       grid_eq1(1,north,south)
+       -1       grid_eq1(2,north,south)
+       -1       grid_eq1(3,north,south)
+       -1       grid_eq1(4,north,south)
+       -1       grid_eq1(5,north,south)
+       -1       grid_eq1(6,north,south)
+       -1       grid_eq1(7,north,south)
+       -1       grid_eq1(8,north,south)
+       -1       grid_eq1(9,north,south)
+       -1       grid_eq1(10,north,south)
+       -1       grid_eq1(11,north,south)
+       -1       grid_eq1(12,north,south)
+       -1       grid_eq1(13,north,south)
+       -1       grid_eq1(14,north,south)
+       -1       grid_eq1(15,north,south)
+       -1       grid_eq1(16,north,south)
+       -1       grid_eq1(17,north,south)
+       -1       grid_eq1(18,north,south)
+       -1       grid_eq1(19,north,south)
+       -1       grid_eq1(20,north,south)
+       -1       grid_eq1(21,north,south)
+       -1       grid_eq1(22,north,south)
+       -1       grid_eq1(23,north,south)
+       -1       grid_eq1(24,north,south)
+       -1       grid_eq1(25,north,south)
+       -1       grid_eq1(26,north,south)
+       -1       grid_eq1(27,north,south)
+       -1       grid_eq1(28,north,south)
+       -1       grid_eq1(29,north,south)
+       -1       grid_eq1(30,north,south)
+       -1       grid_eq1(31,north,south)
+       -1       grid_eq1(32,north,south)
+       -1       grid_eq1(33,north,south)
+       -1       grid_eq1(34,north,south)
+       -1       grid_eq1(35,north,south)
+       -1       grid_eq1(36,north,south)
+       -1       grid_eq1(37,north,south)
+       -1       grid_eq1(38,north,south)
+       -1       grid_eq1(39,north,south)
+       -1       grid_eq1(40,north,south)
+       -1       grid_eq1(41,north,south)
+       -1       grid_eq1(42,north,south)
+       -1       grid_eq1(43,north,south)
+       -1       grid_eq1(44,north,south)
+       -1       grid_eq1(45,north,south)
+       -1       grid_eq1(46,north,south)
+       -1       grid_eq1(47,north,south)
+       -1       grid_eq1(48,north,south)
+        1       grid_eq2(north,south)
+       -1       grid_eq2(south,north)
+
+GRID_CAP(south,north)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+      419       objective
+       -1       grid_eq1(1,south,north)
+       -1       grid_eq1(2,south,north)
+       -1       grid_eq1(3,south,north)
+       -1       grid_eq1(4,south,north)
+       -1       grid_eq1(5,south,north)
+       -1       grid_eq1(6,south,north)
+       -1       grid_eq1(7,south,north)
+       -1       grid_eq1(8,south,north)
+       -1       grid_eq1(9,south,north)
+       -1       grid_eq1(10,south,north)
+       -1       grid_eq1(11,south,north)
+       -1       grid_eq1(12,south,north)
+       -1       grid_eq1(13,south,north)
+       -1       grid_eq1(14,south,north)
+       -1       grid_eq1(15,south,north)
+       -1       grid_eq1(16,south,north)
+       -1       grid_eq1(17,south,north)
+       -1       grid_eq1(18,south,north)
+       -1       grid_eq1(19,south,north)
+       -1       grid_eq1(20,south,north)
+       -1       grid_eq1(21,south,north)
+       -1       grid_eq1(22,south,north)
+       -1       grid_eq1(23,south,north)
+       -1       grid_eq1(24,south,north)
+       -1       grid_eq1(25,south,north)
+       -1       grid_eq1(26,south,north)
+       -1       grid_eq1(27,south,north)
+       -1       grid_eq1(28,south,north)
+       -1       grid_eq1(29,south,north)
+       -1       grid_eq1(30,south,north)
+       -1       grid_eq1(31,south,north)
+       -1       grid_eq1(32,south,north)
+       -1       grid_eq1(33,south,north)
+       -1       grid_eq1(34,south,north)
+       -1       grid_eq1(35,south,north)
+       -1       grid_eq1(36,south,north)
+       -1       grid_eq1(37,south,north)
+       -1       grid_eq1(38,south,north)
+       -1       grid_eq1(39,south,north)
+       -1       grid_eq1(40,south,north)
+       -1       grid_eq1(41,south,north)
+       -1       grid_eq1(42,south,north)
+       -1       grid_eq1(43,south,north)
+       -1       grid_eq1(44,south,north)
+       -1       grid_eq1(45,south,north)
+       -1       grid_eq1(46,south,north)
+       -1       grid_eq1(47,south,north)
+       -1       grid_eq1(48,south,north)
+       -1       grid_eq2(north,south)
+        1       grid_eq2(south,north)
+
+REMAINING ENTRY SKIPPED
+
+---- LOAD_real  
+
+LOAD_real(1,north)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+    (-325)      objective
+       -1       nodal_energy_balance(1,north)
+        1       demand_min(1,north)
+        1       energy_balance(1)
+       16.7388  KKT_load(1,north)
+        1       complementarity5a(1,north)
+        1       complementarity6a(1)
+
+LOAD_real(1,south)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+    (-325)      objective
+       -1       nodal_energy_balance(1,south)
+        1       demand_min(1,south)
+        1       energy_balance(1)
+        7.1738  KKT_load(1,south)
+        1       complementarity5a(1,south)
+        1       complementarity6a(1)
+
+LOAD_real(2,north)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+    (-325)      objective
+       -1       nodal_energy_balance(2,north)
+        1       demand_min(2,north)
+        1       energy_balance(2)
+       15.2359  KKT_load(2,north)
+        1       complementarity5a(2,north)
+        1       complementarity6a(2)
+
+REMAINING 93 ENTRIES SKIPPED
+
+---- UP  
+
+UP(1,base,north)
+                (.LO, .L, .UP, .M = 0, 0, 100, 0)
+       60       objective
+        1       nodal_energy_balance(1,north)
+        1       redispatch2(1,base,north)
+
+UP(1,base,south)
+                (.LO, .L, .UP, .M = 0, 0, 100, 0)
+       60       objective
+        1       nodal_energy_balance(1,south)
+        1       redispatch2(1,base,south)
+
+UP(1,peak,north)
+                (.LO, .L, .UP, .M = 0, 0, 100, 0)
+       80       objective
+        1       nodal_energy_balance(1,north)
+        1       redispatch2(1,peak,north)
+
+REMAINING 381 ENTRIES SKIPPED
+
+---- DOWN  
+
+DOWN(1,base,north)
+                (.LO, .L, .UP, .M = 0, 0, 100, 0)
+      -60       objective
+       -1       nodal_energy_balance(1,north)
+        1       redispatch1(1,base,north)
+
+DOWN(1,base,south)
+                (.LO, .L, .UP, .M = 0, 0, 100, 0)
+      -60       objective
+       -1       nodal_energy_balance(1,south)
+        1       redispatch1(1,base,south)
+
+DOWN(1,peak,north)
+                (.LO, .L, .UP, .M = 0, 0, 100, 0)
+      -80       objective
+       -1       nodal_energy_balance(1,north)
+        1       redispatch1(1,peak,north)
+
+REMAINING 381 ENTRIES SKIPPED
+GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 10/15/21 12:40:54 Page 6
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Model Statistics    SOLVE LOCI Using MIQCP From line 298
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          29     SINGLE EQUATIONS        4,619
+BLOCKS OF VARIABLES          22     SINGLE VARIABLES        3,407
+NON ZERO ELEMENTS        12,853     NON LINEAR N-Z            104
+DERIVATIVE POOL              20     CONSTANT POOL              60
+CODE LENGTH                 586     DISCRETE VARIABLES        928
+
+
+GENERATION TIME      =        0.093 SECONDS      5 MB  30.3.0 rc5da09e WEX-WEI
+
+
+EXECUTION TIME       =        0.093 SECONDS      5 MB  30.3.0 rc5da09e WEX-WEI

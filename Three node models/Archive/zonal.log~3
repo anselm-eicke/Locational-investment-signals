@@ -1,0 +1,129 @@
+
+--- Job zonal.gms Start 09/08/21 11:42:12 35.2.0 r33388c4 WEX-WEI x86 64bit/MS Windows
+--- Applying:
+    C:\Program Files\GAMS-35\gmsprmNT.txt
+--- GAMS Parameters defined
+    Input "C:\Users\ansel\OneDrive\PhD\3 - Where to place new power generation\Three node models\zonal.gms"
+    PageSize 0
+    ScrDir "C:\Users\ansel\OneDrive\PhD\3 - Where to place new power generation\Three node models\225a\"
+    SysDir "C:\Program Files\GAMS-35\"
+    LogOption 3
+    ErrMsg 1
+    ErrorLog 99
+    IDE 1
+    LstTitleLeftAligned 1
+Licensee: GAMS Community License for Anselm Eicke        G210709|0002AO-GEN
+          Hertie School of Governance GmbH                           CL1515
+          C:\Users\ansel\OneDrive\Dokumente\GAMS\gamslice.txt
+          Anselm Eicke, eicke@hertie-school.org                            
+          Community license for demonstration and instructional purposes only
+GAMS 35.2.0   Copyright (C) 1987-2021 GAMS Development. All rights reserved
+--- Starting compilation
+--- zonal.gms(83) 3 Mb
+--- GDXin=C:\Users\ansel\OneDrive\PhD\3 - Where to place new power generation\Three node models\in.gdx
+--- GDX File ($gdxIn) C:\Users\ansel\OneDrive\PhD\3 - Where to place new power generation\Three node models\in.gdx
+--- zonal.gms(253) 3 Mb
+--- $echo File C:\Users\ansel\OneDrive\PhD\3 - Where to place new power generation\Three node models\Output/puts.txt
+--- zonal.gms(263) 3 Mb
+--- Starting execution: elapsed 0:00:00.027
+--- zonal.gms(204) 4 Mb
+--- Generating NLP model LOCI_inner
+--- zonal.gms(205) 6 Mb
+---   127 rows  64 columns  270 non-zeroes
+---   227 nl-code  57 nl-non-zeroes
+--- zonal.gms(205) 4 Mb
+--- Executing BARON (Solvelink=2): elapsed 0:00:00.055
+
+GAMS/BARON       35.2.0 r33388c4 Released Jun 02, 2021 WEI x86 64bit/MS Window
+
+*** This solver runs with a community license. No commercial use.
+===========================================================================
+ BARON version 21.1.13. Built: WIN-64 Wed Jan 13 16:04:12 EST 2021
+
+ BARON is a product of The Optimization Firm.
+ For information on BARON, see https://minlp.com/about-baron
+
+ If you use this software, please cite publications from
+ https://minlp.com/baron-publications, such as: 
+
+ Khajavirad, A. and N. V. Sahinidis,
+ A hybrid LP/NLP paradigm for global optimization relaxations,
+ Mathematical Programming Computation, 10, 383-421, 2018.
+===========================================================================
+ This BARON run may utilize the following subsolver(s)
+ For LP/MIP/QP: ILOG CPLEX                                      
+ For NLP: MINOS, SNOPT, GAMS external NLP, IPOPT, FILTERSD, FILTERSQP
+===========================================================================
+ Doing local search
+ Preprocessing found feasible solution with value  39426.9547337     
+ Solving bounding LP
+ Starting multi-start local search
+ Done with local search
+===========================================================================
+  Iteration    Open nodes         Time (s)    Lower bound      Upper bound
+          1             0             0.22     39427.0          39430.9    
+
+ Calculating duals
+
+                         *** Normal completion ***            
+
+ Wall clock time:                     0.60
+ Total CPU time used:                 0.22
+
+ Total no. of BaR iterations:       1
+ Best solution found at node:      -1
+ Max. no. of nodes in memory:       1
+ 
+ All done
+===========================================================================
+
+Solution      = 39426.9547337143  best solution found during preprocessing
+Best possible = 39430.8978235
+Absolute gap  = 3.94308978574554  optca = 1E-9
+Relative gap  = 0.000100000000086114  optcr = 0.0001
+  (Note that BARON uses a different formula to compute the relative gap as
+   was used for the above reported value.)
+
+--- Reading solution for model LOCI_inner
+--- Executing after solve: elapsed 0:00:01.198
+--- zonal.gms(213) 4 Mb
+--- Generating QCP model LOCI_outer
+--- zonal.gms(215) 6 Mb
+---   151 rows  130 columns  408 non-zeroes
+---   0 nl-code  0 nl-non-zeroes
+--- zonal.gms(215) 4 Mb
+--- Executing CONOPT (Solvelink=2): elapsed 0:00:01.204
+
+CONOPT 3         35.2.0 r33388c4 Released Jun 02, 2021 WEI x86 64bit/MS Window
+
+--- *** This solver runs with a community license. No commercial use.
+ 
+ 
+    C O N O P T 3   version 3.17K
+    Copyright (C)   ARKI Consulting and Development A/S
+                    Bagsvaerdvej 246 A
+                    DK-2880 Bagsvaerd, Denmark
+ 
+ 
+   Iter Phase Ninf   Infeasibility   RGmax    NSB   Step InItr MX OK
+      0   0        3.9580235245E+04 (Input point)
+ 
+                   Pre-triangular equations:   18
+                   Post-triangular equations:  12
+ 
+      1   0        1.5328051160E+02 (After pre-processing)
+      2   0        1.2689591792E+01 (After scaling)
+ 
+ ** Feasible solution. Value of objective =    37463.5009574
+ 
+   Iter Phase Ninf     Objective     RGmax    NSB   Step InItr MX OK
+      6   3        3.7496336619E+04 0.0E+00     0
+ 
+ ** Optimal solution. There are no superbasic variables.
+ 
+--- Reading solution for model LOCI_outer
+--- Executing after solve: elapsed 0:00:01.267
+--- zonal.gms(250) 4 Mb
+--- GDX File (execute_unload) C:\Users\ansel\OneDrive\PhD\3 - Where to place new power generation\Three node models\Output/Zonal/out.gdx
+*** Status: Normal completion
+--- Job zonal.gms Stop 09/08/21 11:42:13 elapsed 0:00:01.267

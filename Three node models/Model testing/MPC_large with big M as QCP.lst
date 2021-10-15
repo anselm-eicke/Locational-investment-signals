@@ -1,0 +1,1049 @@
+GAMS 35.2.0  r33388c4 Released Jun  2, 2021 WEX-WEI x86 64bit/MS Windows - 10/08/21 13:39:26 Page 1
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+C o m p i l a t i o n
+
+
+   1  Sets
+   2  all_t       all hours               /1*10/
+   3  t(all_t)    hours                   /1*10/
+   4  tec         generators              /base, peak, wind, solar/
+   5  con(tec)    conventional generation /base, peak/
+   6  all_n       all buses               /west, east, south/
+   7  n(all_n)    selected buses          /west, east, south/
+   8  ;
+   9   
+  10  alias (n,m);
+  11  alias (all_n,all_m);
+  12   
+  13  * parameters for supply and demand functions
+  14  Parameter elasticity / -0.25 /;
+  15  Parameter p_ref / 65 /;
+  16  Parameter specific_network_costs /255/;
+  17  *Source for network costs: EMMA (3400 EUR/MW/km discontiert mit i = 0.07 ueber 40 Jahre)
+  18   
+  19  Table B(all_n,all_m)        Susceptance of transmission lines
+  20           west   east    south
+  21  west        1    300      800
+  22  east      300      1      500
+  23  south     800    500        1
+  24  ;
+  25   
+  26  Parameters
+  27  * Input Parameters
+  28  i_cost(*,*)                 cost data to be loaded from sheet "cost"
+  29  i_load(all_t,all_n)         load data to be loaded from sheet "time series" in MWh
+  30  i_avail(all_t,tec,all_n)    availability data
+  31   
+  32  * Model Parameters
+  33  load(t,n)                   hourly load in GWh
+  34  avail(t,tec,n)              availability of wind and solar generation (1)
+  35  c_var(tec,n)                variable costs (EUR per MWh)
+  36  c_fix(tec,n)                annualized fixed costs (EUR per MW p.a.)
+  37  capacity_slope
+  38  cap_lim(tec,n)              capacity limit of generation in each node
+  39  grid_cost(n,m)
+  40  sc                          scaling factor
+  41  INSTRUMENT(tec,n)
+  42   
+  43  * Output Parameters
+  44  consumer_surplus
+  45  generation_costs
+  46  total_network_cost
+  47  load_deviation(t)
+  48  res_share
+  49  marginal_fixed_costs(tec,n)
+  50  fixed_linear_costs(tec,n)
+  51  max_marginal_price_adder(tec,n)
+  52  variable_costs(tec,n)
+  53  o_WF
+  54  o_CS
+  55  o_GC
+  56  o_NC
+  57  o_RES_share
+  58  o_load(t,n)
+  59  o_cap(tec,n)
+  60  price(t)
+  61  o_cap_instr(tec,n)
+  62  o_instrument(tec,n)
+  63   
+  64  i_WF
+  65  i_instrument(tec,n)
+  66  i_cap(tec,n)
+  67  i_lambda(t)
+  68  i_load_real(t,n)
+  69  i_gen(t,tec,n)
+  70  i_grid_cap(n,m)
+  71  i_flow(t,n,m)
+  72  i_up(t,tec,n)
+  73  i_down(t,tec,n)
+  74  i_mu_G_min(t,tec,n)
+  75  i_mu_G_max(t,tec,n)
+  76  i_mu_C_min(tec,n)
+  77  i_mu_C_max(tec,n)
+  78  i_mu_D_min(t,n)
+  79  ;
+  80   
+  81  * Load data
+GDXIN   C:\Users\ansel\OneDrive\PhD\2 - Where to place new power generation\Three node models\Model testing\in.gdx
+--- LOAD  i_cost = 1:i_cost
+--- LOAD  i_load = 2:i_load
+--- LOAD  i_avail = 3:i_avail
+  84   
+GDXIN   C:\Users\ansel\OneDrive\PhD\2 - Where to place new power generation\Three node models\Model testing\instrument.gdx
+--- LOAD  i_instrument = 1:i_instrument
+  87   
+  88  display i_instrument;
+  89   
+  90  * Data assignment
+  91  sc = card(t) / 8760;
+  92  load(t,n)                   = i_load(t,n) / 1000;
+  93  avail(t,tec,n)              = i_avail(t,tec,n);
+  94  avail(t,con,n)              = 1;
+  95  c_var(tec, n)               = i_cost(tec,"cost_var");
+  96  c_fix(tec, n)               = round(i_cost(tec,"cost_fix") * 1000 * sc);
+  97  capacity_slope              = 0.15;
+  98  *c_fix('wind','south')  * 0.25 / 50;
+  99  cap_lim(tec,n)              = 100;
+ 100  grid_cost(n,m)              = round(B(n,m) * specific_network_costs * sc);
+ 101  INSTRUMENT(tec,n)     = 0;
+ 102   
+ 103  Binary variables y1(t,tec,n),y2(t,tec,n),y3(tec,n),y4(tec,n),y5(t,n),y6(t);
+ 104   
+ 105  Parameter M1 / 100000/;
+ 106  Parameter M2 / 100000/;
+ 107  Parameter M3 / 100000/;
+ 108  Parameter M4 / 100000/;
+ 109  Parameter M5 / 100000/;
+ 110  Parameter M6 / 100000/;
+ 111   
+ 112  Variables
+ 113  GEN(t,tec,n)
+ 114  CAP(tec,n)
+ 115  LOAD_real(t,n)
+ 116  LAMBDA(t)
+ 117  WF
+ 118  ;
+ 119   
+ 120  Positive variables
+ 121  mu_G_min(t,tec,n)
+ 122  mu_G_max(t,tec,n)
+ 123  mu_C_min(tec,n)
+ 124  mu_C_max(tec,n)
+ 125  mu_D_min(t,n)
+ 126  ;
+ 127   
+ 128  alias(tec, ttec);
+ 129  alias(n, nn);
+ 130   
+ 131   
+ 132  Equations
+ 133  objective,
+ 134  gen_min, gen_max,
+ 135  cap_min, cap_max,
+ 136  demand_min,
+ 137  energy_balance,
+ 138   
+ 139  KKT_GEN, KKT_CAP, KKT_load,
+ 140   
+ 141   
+ 142  complementarity1a,
+ 143  complementarity1b,
+ 144  complementarity2a,
+ 145  complementarity2b,
+ 146  complementarity3a,
+ 147  complementarity3b,
+ 148  complementarity4a,
+ 149  complementarity4b,
+ 150  complementarity5a,
+ 151  complementarity5b,
+ 152  complementarity6a,
+ 153  complementarity6b
+ 154  ;
+ 155   
+ 156  objective..                     WF =e= 1;
+ 157   
+ 158  gen_min(t,tec,n)..              0 =g= -GEN(t,tec,n);
+ 159  gen_max(t,tec,n)..              0 =g= GEN(t,tec,n) - CAP(tec,n) * avail(t,tec,n);
+ 160   
+ 161  cap_min(tec,n)..                0 =g= -CAP(tec,n);
+ 162  cap_max(tec,n)..                0 =g= CAP(tec,n) - cap_lim(tec,n);
+ 163   
+ 164  demand_min(t,n)..               0 =g= -LOAD_real(t,n);
+ 165   
+ 166  energy_balance(t)..             0 =e= sum((tec,n),GEN(t,tec,n)) - sum(n,LOAD_real(t,n));
+ 167   
+ 168  *KKT conditions
+ 169  KKT_GEN(t,tec,n)..              c_var(tec,n) + mu_G_max(t,tec,n) - mu_G_min(t,tec,n) - LAMBDA(t) =e= 0;
+ 170  KKT_CAP(tec,n)..                c_fix(tec,n) + capacity_slope * CAP(tec,n) + INSTRUMENT(tec,n) - sum(t,avail(t,tec,n) * mu_G_max(t,tec,n)) + mu_C_max(tec,n) - mu_C_min(tec,n) =e= 0;
+ 171  KKT_load(t,n)..                 -p_ref * ((1-1/elasticity) + LOAD_real(t,n) / (elasticity * load(t,n))) - mu_D_min(t,n) + LAMBDA(t) =e= 0;
+ 172   
+ 173  complementarity1a(t,tec,n)..    GEN(t,tec,n)        =L= y1(t,tec,n) * M1;
+ 174  complementarity1b(t,tec,n)..    mu_G_min(t,tec,n)   =L= (1-y1(t,tec,n)) * M1;
+ 175  complementarity2a(t,tec,n)..    CAP(tec,n) * avail(t,tec,n) - GEN(t,tec,n) =L= y2(t,tec,n) * M2;
+ 176  complementarity2b(t,tec,n)..    mu_G_max(t,tec,n)   =L= (1-y2(t,tec,n)) * M2;
+ 177  complementarity3a(tec,n)..      CAP(tec,n)          =L= y3(tec,n) * M3;
+ 178  complementarity3b(tec,n)..      mu_C_min(tec,n)     =L= (1-y3(tec,n)) * M3;
+ 179  complementarity4a(tec,n)..      cap_lim(tec,n) - CAP(tec,n) =L= y4(tec,n) * M4;
+ 180  complementarity4b(tec,n)..      mu_C_max(tec,n)     =L= (1-y4(tec,n)) * M4;
+ 181   
+ 182  complementarity5a(t,n)..        LOAD_real(t,n)      =L= y5(t,n) * M5;
+ 183  complementarity5b(t,n)..        mu_D_min(t,n)       =L= (1-y5(t,n)) * M5;
+ 184  complementarity6a(t)..          sum(n,LOAD_real(t,n)) - sum((tec,n),GEN(t,tec,n)) =L= y6(t) * M6;
+ 185  complementarity6b(t)..          LAMBDA(t)           =L= (1-y6(t)) * M6;
+ 186   
+ 187  Model LOCI /
+ 188   
+ 189  objective
+ 190   
+ 191  gen_min
+ 192  gen_max
+ 193  cap_min
+ 194  cap_max
+ 195   
+ 196  demand_min
+ 197  energy_balance
+ 198   
+ 199  KKT_GEN
+ 200  KKT_CAP
+ 201  KKT_load
+ 202   
+ 203  complementarity1a
+ 204  complementarity1b
+ 205  complementarity2a
+ 206  complementarity2b
+ 207  complementarity3a
+ 208  complementarity3b
+ 209  complementarity4a
+ 210  complementarity4b
+ 211  complementarity5a
+ 212  complementarity5b
+ 213  complementarity6a
+ 214  complementarity6b
+ 215  /;
+ 216   
+ 217  * Set starting values
+ 218  LOAD_real.L(t,n) =load(t,n);
+ 219   
+ 220  LOCI.nodlim = 25000000;
+ 221  LOCI.resLim = 40000;
+ 222   
+ 223  Solve LOCI maximizing WF using MIQCP;
+ 224   
+ 225  price(t) = p_ref * (1-(1/elasticity) + (sum((tec,n), GEN.L(t,tec,n)) / sum(n, elasticity * load(t,n))));
+ 226  load_deviation(t) = sum((tec,n), GEN.L(t,tec,n)) / sum(n,load(t,n));
+ 227   
+ 228  Display GEN.L, CAP.L, price, load_deviation;
+ 229  *,WF.L,  GRID.L, LAMBDA.L, LOAD_real.L, CAP_INSTR.L, UP.L, DOWN.L, RESERVE_CAP.L, FLOW.L;
+GAMS 35.2.0  r33388c4 Released Jun  2, 2021 WEX-WEI x86 64bit/MS Windows - 10/08/21 13:39:26 Page 2
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Include File Summary
+
+
+   SEQ   GLOBAL TYPE      PARENT   LOCAL  FILENAME
+
+     1        1 INPUT          0       0  C:\Users\ansel\OneDrive\PhD\2 - Where to place new power generation\Three node models\Model testing\MPC_large with big M as QCP.gms
+     2       82 GDXIN          1      82  C:\Users\ansel\OneDrive\PhD\2 - Where to place new power generation\Three node models\Model testing\in.gdx
+     3       85 GDXIN          1      85  C:\Users\ansel\OneDrive\PhD\2 - Where to place new power generation\Three node models\Model testing\instrument.gdx
+
+
+COMPILATION TIME     =        0.031 SECONDS      3 MB  35.2.0 r33388c4 WEX-WEI
+GAMS 35.2.0  r33388c4 Released Jun  2, 2021 WEX-WEI x86 64bit/MS Windows - 10/08/21 13:39:26 Page 3
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+E x e c u t i o n
+
+
+----     88 PARAMETER i_instrument  
+
+             west        east       south
+
+base      -18.587     -20.153     -26.535
+peak      -12.258     -12.208     -13.432
+wind       43.075      31.329     -91.000
+solar      22.101      23.191     -51.000
+
+GAMS 35.2.0  r33388c4 Released Jun  2, 2021 WEX-WEI x86 64bit/MS Windows - 10/08/21 13:39:26 Page 4
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Equation Listing    SOLVE LOCI Using MIQCP From line 223
+
+
+---- objective  =E=  
+
+objective..  WF =E= 1 ; (LHS = 0, INFES = 1 ****)
+     
+
+---- gen_min  =G=  
+
+gen_min(1,base,west)..  GEN(1,base,west) =G= 0 ; (LHS = 0)
+     
+gen_min(1,base,east)..  GEN(1,base,east) =G= 0 ; (LHS = 0)
+     
+gen_min(1,base,south)..  GEN(1,base,south) =G= 0 ; (LHS = 0)
+     
+REMAINING 117 ENTRIES SKIPPED
+
+
+---- gen_max  =G=  
+
+gen_max(1,base,west)..  - GEN(1,base,west) + CAP(base,west) =G= 0 ; (LHS = 0)
+     
+gen_max(1,base,east)..  - GEN(1,base,east) + CAP(base,east) =G= 0 ; (LHS = 0)
+     
+gen_max(1,base,south)..  - GEN(1,base,south) + CAP(base,south) =G= 0 ; (LHS = 0)
+     
+REMAINING 117 ENTRIES SKIPPED
+
+
+---- cap_min  =G=  
+
+cap_min(base,west)..  CAP(base,west) =G= 0 ; (LHS = 0)
+     
+cap_min(base,east)..  CAP(base,east) =G= 0 ; (LHS = 0)
+     
+cap_min(base,south)..  CAP(base,south) =G= 0 ; (LHS = 0)
+     
+REMAINING 9 ENTRIES SKIPPED
+
+
+---- cap_max  =G=  
+
+cap_max(base,west)..  - CAP(base,west) =G= -100 ; (LHS = 0)
+     
+cap_max(base,east)..  - CAP(base,east) =G= -100 ; (LHS = 0)
+     
+cap_max(base,south)..  - CAP(base,south) =G= -100 ; (LHS = 0)
+     
+REMAINING 9 ENTRIES SKIPPED
+
+
+---- demand_min  =G=  
+
+demand_min(1,west)..  LOAD_real(1,west) =G= 0 ; (LHS = 17.55765)
+     
+demand_min(1,east)..  LOAD_real(1,east) =G= 0 ; (LHS = 35.64735)
+     
+demand_min(1,south)..  LOAD_real(1,south) =G= 0 ; (LHS = 53.205)
+     
+REMAINING 27 ENTRIES SKIPPED
+
+
+---- energy_balance  =E=  
+
+energy_balance(1)..  - GEN(1,base,west) - GEN(1,base,east) - GEN(1,base,south) - GEN(1,peak,west) - GEN(1,peak,east) - GEN(1,peak,south) - GEN(1,wind,west) - GEN(1,wind,east) - GEN(1,wind,south) - GEN(1,solar,west) - GEN(1,solar,east) - GEN(1,solar,south) + LOAD_real(1,west) + LOAD_real(1,east) + LOAD_real(1,south) =E= 0 ; (LHS = 106.41, INFES = 106.41 ****)
+     
+energy_balance(2)..  - GEN(2,base,west) - GEN(2,base,east) - GEN(2,base,south) - GEN(2,peak,west) - GEN(2,peak,east) - GEN(2,peak,south) - GEN(2,wind,west) - GEN(2,wind,east) - GEN(2,wind,south) - GEN(2,solar,west) - GEN(2,solar,east) - GEN(2,solar,south) + LOAD_real(2,west) + LOAD_real(2,east) + LOAD_real(2,south) =E= 0 ; (LHS = 103.552, INFES = 103.552 ****)
+     
+energy_balance(3)..  - GEN(3,base,west) - GEN(3,base,east) - GEN(3,base,south) - GEN(3,peak,west) - GEN(3,peak,east) - GEN(3,peak,south) - GEN(3,wind,west) - GEN(3,wind,east) - GEN(3,wind,south) - GEN(3,solar,west) - GEN(3,solar,east) - GEN(3,solar,south) + LOAD_real(3,west) + LOAD_real(3,east) + LOAD_real(3,south) =E= 0 ; (LHS = 103.294, INFES = 103.294 ****)
+     
+REMAINING 7 ENTRIES SKIPPED
+
+
+---- KKT_GEN  =E=  
+
+KKT_GEN(1,base,west)..  - LAMBDA(1) - mu_G_min(1,base,west) + mu_G_max(1,base,west) =E= -65 ; (LHS = 0, INFES = 65 ****)
+     
+KKT_GEN(1,base,east)..  - LAMBDA(1) - mu_G_min(1,base,east) + mu_G_max(1,base,east) =E= -65 ; (LHS = 0, INFES = 65 ****)
+     
+KKT_GEN(1,base,south)..  - LAMBDA(1) - mu_G_min(1,base,south) + mu_G_max(1,base,south) =E= -65 ; (LHS = 0, INFES = 65 ****)
+     
+REMAINING 117 ENTRIES SKIPPED
+
+
+---- KKT_CAP  =E=  
+
+KKT_CAP(base,west)..  0.15*CAP(base,west) - mu_G_max(1,base,west) - mu_G_max(2,base,west) - mu_G_max(3,base,west) - mu_G_max(4,base,west) - mu_G_max(5,base,west) - mu_G_max(6,base,west) - mu_G_max(7,base,west) - mu_G_max(8,base,west) - mu_G_max(9,base,west) - mu_G_max(10,base,west) - mu_C_min(base,west) + mu_C_max(base,west) =E= -126 ; (LHS = 0, INFES = 126 ****)
+     
+KKT_CAP(base,east)..  0.15*CAP(base,east) - mu_G_max(1,base,east) - mu_G_max(2,base,east) - mu_G_max(3,base,east) - mu_G_max(4,base,east) - mu_G_max(5,base,east) - mu_G_max(6,base,east) - mu_G_max(7,base,east) - mu_G_max(8,base,east) - mu_G_max(9,base,east) - mu_G_max(10,base,east) - mu_C_min(base,east) + mu_C_max(base,east) =E= -126 ; (LHS = 0, INFES = 126 ****)
+     
+KKT_CAP(base,south)..  0.15*CAP(base,south) - mu_G_max(1,base,south) - mu_G_max(2,base,south) - mu_G_max(3,base,south) - mu_G_max(4,base,south) - mu_G_max(5,base,south) - mu_G_max(6,base,south) - mu_G_max(7,base,south) - mu_G_max(8,base,south) - mu_G_max(9,base,south) - mu_G_max(10,base,south) - mu_C_min(base,south) + mu_C_max(base,south) =E= -126 ; (LHS = 0, INFES = 126 ****)
+     
+REMAINING 9 ENTRIES SKIPPED
+
+
+---- KKT_load  =E=  
+
+KKT_load(1,west)..  14.8083598887095*LOAD_real(1,west) + LAMBDA(1) - mu_D_min(1,west) =E= 325 ; (LHS = 260, INFES = 65 ****)
+     
+KKT_load(1,east)..  7.29366979593154*LOAD_real(1,east) + LAMBDA(1) - mu_D_min(1,east) =E= 325 ; (LHS = 260, INFES = 65 ****)
+     
+KKT_load(1,south)..  4.88675876327413*LOAD_real(1,south) + LAMBDA(1) - mu_D_min(1,south) =E= 325 ; (LHS = 260, INFES = 65 ****)
+     
+REMAINING 27 ENTRIES SKIPPED
+
+
+---- complementarity1a  =L=  
+
+complementarity1a(1,base,west)..  - 100000*y1(1,base,west) + GEN(1,base,west) =L= 0 ; (LHS = 0)
+     
+complementarity1a(1,base,east)..  - 100000*y1(1,base,east) + GEN(1,base,east) =L= 0 ; (LHS = 0)
+     
+complementarity1a(1,base,south)..  - 100000*y1(1,base,south) + GEN(1,base,south) =L= 0 ; (LHS = 0)
+     
+REMAINING 117 ENTRIES SKIPPED
+
+
+---- complementarity1b  =L=  
+
+complementarity1b(1,base,west)..  100000*y1(1,base,west) + mu_G_min(1,base,west) =L= 100000 ; (LHS = 0)
+     
+complementarity1b(1,base,east)..  100000*y1(1,base,east) + mu_G_min(1,base,east) =L= 100000 ; (LHS = 0)
+     
+complementarity1b(1,base,south)..  100000*y1(1,base,south) + mu_G_min(1,base,south) =L= 100000 ; (LHS = 0)
+     
+REMAINING 117 ENTRIES SKIPPED
+
+
+---- complementarity2a  =L=  
+
+complementarity2a(1,base,west)..  - 100000*y2(1,base,west) - GEN(1,base,west) + CAP(base,west) =L= 0 ; (LHS = 0)
+     
+complementarity2a(1,base,east)..  - 100000*y2(1,base,east) - GEN(1,base,east) + CAP(base,east) =L= 0 ; (LHS = 0)
+     
+complementarity2a(1,base,south)..  - 100000*y2(1,base,south) - GEN(1,base,south) + CAP(base,south) =L= 0 ; (LHS = 0)
+     
+REMAINING 117 ENTRIES SKIPPED
+
+
+---- complementarity2b  =L=  
+
+complementarity2b(1,base,west)..  100000*y2(1,base,west) + mu_G_max(1,base,west) =L= 100000 ; (LHS = 0)
+     
+complementarity2b(1,base,east)..  100000*y2(1,base,east) + mu_G_max(1,base,east) =L= 100000 ; (LHS = 0)
+     
+complementarity2b(1,base,south)..  100000*y2(1,base,south) + mu_G_max(1,base,south) =L= 100000 ; (LHS = 0)
+     
+REMAINING 117 ENTRIES SKIPPED
+
+
+---- complementarity3a  =L=  
+
+complementarity3a(base,west)..  - 100000*y3(base,west) + CAP(base,west) =L= 0 ; (LHS = 0)
+     
+complementarity3a(base,east)..  - 100000*y3(base,east) + CAP(base,east) =L= 0 ; (LHS = 0)
+     
+complementarity3a(base,south)..  - 100000*y3(base,south) + CAP(base,south) =L= 0 ; (LHS = 0)
+     
+REMAINING 9 ENTRIES SKIPPED
+
+
+---- complementarity3b  =L=  
+
+complementarity3b(base,west)..  100000*y3(base,west) + mu_C_min(base,west) =L= 100000 ; (LHS = 0)
+     
+complementarity3b(base,east)..  100000*y3(base,east) + mu_C_min(base,east) =L= 100000 ; (LHS = 0)
+     
+complementarity3b(base,south)..  100000*y3(base,south) + mu_C_min(base,south) =L= 100000 ; (LHS = 0)
+     
+REMAINING 9 ENTRIES SKIPPED
+
+
+---- complementarity4a  =L=  
+
+complementarity4a(base,west)..  - 100000*y4(base,west) - CAP(base,west) =L= -100 ; (LHS = 0, INFES = 100 ****)
+     
+complementarity4a(base,east)..  - 100000*y4(base,east) - CAP(base,east) =L= -100 ; (LHS = 0, INFES = 100 ****)
+     
+complementarity4a(base,south)..  - 100000*y4(base,south) - CAP(base,south) =L= -100 ; (LHS = 0, INFES = 100 ****)
+     
+REMAINING 9 ENTRIES SKIPPED
+
+
+---- complementarity4b  =L=  
+
+complementarity4b(base,west)..  100000*y4(base,west) + mu_C_max(base,west) =L= 100000 ; (LHS = 0)
+     
+complementarity4b(base,east)..  100000*y4(base,east) + mu_C_max(base,east) =L= 100000 ; (LHS = 0)
+     
+complementarity4b(base,south)..  100000*y4(base,south) + mu_C_max(base,south) =L= 100000 ; (LHS = 0)
+     
+REMAINING 9 ENTRIES SKIPPED
+
+
+---- complementarity5a  =L=  
+
+complementarity5a(1,west)..  - 100000*y5(1,west) + LOAD_real(1,west) =L= 0 ; (LHS = 17.55765, INFES = 17.55765 ****)
+     
+complementarity5a(1,east)..  - 100000*y5(1,east) + LOAD_real(1,east) =L= 0 ; (LHS = 35.64735, INFES = 35.64735 ****)
+     
+complementarity5a(1,south)..  - 100000*y5(1,south) + LOAD_real(1,south) =L= 0 ; (LHS = 53.205, INFES = 53.205 ****)
+     
+REMAINING 27 ENTRIES SKIPPED
+
+
+---- complementarity5b  =L=  
+
+complementarity5b(1,west)..  100000*y5(1,west) + mu_D_min(1,west) =L= 100000 ; (LHS = 0)
+     
+complementarity5b(1,east)..  100000*y5(1,east) + mu_D_min(1,east) =L= 100000 ; (LHS = 0)
+     
+complementarity5b(1,south)..  100000*y5(1,south) + mu_D_min(1,south) =L= 100000 ; (LHS = 0)
+     
+REMAINING 27 ENTRIES SKIPPED
+
+
+---- complementarity6a  =L=  
+
+complementarity6a(1)..  - 100000*y6(1) - GEN(1,base,west) - GEN(1,base,east) - GEN(1,base,south) - GEN(1,peak,west) - GEN(1,peak,east) - GEN(1,peak,south) - GEN(1,wind,west) - GEN(1,wind,east) - GEN(1,wind,south) - GEN(1,solar,west) - GEN(1,solar,east) - GEN(1,solar,south) + LOAD_real(1,west) + LOAD_real(1,east) + LOAD_real(1,south) =L= 0 ; (LHS = 106.41, INFES = 106.41 ****)
+     
+complementarity6a(2)..  - 100000*y6(2) - GEN(2,base,west) - GEN(2,base,east) - GEN(2,base,south) - GEN(2,peak,west) - GEN(2,peak,east) - GEN(2,peak,south) - GEN(2,wind,west) - GEN(2,wind,east) - GEN(2,wind,south) - GEN(2,solar,west) - GEN(2,solar,east) - GEN(2,solar,south) + LOAD_real(2,west) + LOAD_real(2,east) + LOAD_real(2,south) =L= 0 ; (LHS = 103.552, INFES = 103.552 ****)
+     
+complementarity6a(3)..  - 100000*y6(3) - GEN(3,base,west) - GEN(3,base,east) - GEN(3,base,south) - GEN(3,peak,west) - GEN(3,peak,east) - GEN(3,peak,south) - GEN(3,wind,west) - GEN(3,wind,east) - GEN(3,wind,south) - GEN(3,solar,west) - GEN(3,solar,east) - GEN(3,solar,south) + LOAD_real(3,west) + LOAD_real(3,east) + LOAD_real(3,south) =L= 0 ; (LHS = 103.294, INFES = 103.294 ****)
+     
+REMAINING 7 ENTRIES SKIPPED
+
+
+---- complementarity6b  =L=  
+
+complementarity6b(1)..  100000*y6(1) + LAMBDA(1) =L= 100000 ; (LHS = 0)
+     
+complementarity6b(2)..  100000*y6(2) + LAMBDA(2) =L= 100000 ; (LHS = 0)
+     
+complementarity6b(3)..  100000*y6(3) + LAMBDA(3) =L= 100000 ; (LHS = 0)
+     
+REMAINING 7 ENTRIES SKIPPED
+
+GAMS 35.2.0  r33388c4 Released Jun  2, 2021 WEX-WEI x86 64bit/MS Windows - 10/08/21 13:39:26 Page 5
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Column Listing      SOLVE LOCI Using MIQCP From line 223
+
+
+---- y1  
+
+y1(1,base,west)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+  -100000       complementarity1a(1,base,west)
+   100000       complementarity1b(1,base,west)
+
+y1(1,base,east)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+  -100000       complementarity1a(1,base,east)
+   100000       complementarity1b(1,base,east)
+
+y1(1,base,south)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+  -100000       complementarity1a(1,base,south)
+   100000       complementarity1b(1,base,south)
+
+REMAINING 117 ENTRIES SKIPPED
+
+---- y2  
+
+y2(1,base,west)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+  -100000       complementarity2a(1,base,west)
+   100000       complementarity2b(1,base,west)
+
+y2(1,base,east)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+  -100000       complementarity2a(1,base,east)
+   100000       complementarity2b(1,base,east)
+
+y2(1,base,south)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+  -100000       complementarity2a(1,base,south)
+   100000       complementarity2b(1,base,south)
+
+REMAINING 117 ENTRIES SKIPPED
+
+---- y3  
+
+y3(base,west)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+  -100000       complementarity3a(base,west)
+   100000       complementarity3b(base,west)
+
+y3(base,east)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+  -100000       complementarity3a(base,east)
+   100000       complementarity3b(base,east)
+
+y3(base,south)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+  -100000       complementarity3a(base,south)
+   100000       complementarity3b(base,south)
+
+REMAINING 9 ENTRIES SKIPPED
+
+---- y4  
+
+y4(base,west)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+  -100000       complementarity4a(base,west)
+   100000       complementarity4b(base,west)
+
+y4(base,east)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+  -100000       complementarity4a(base,east)
+   100000       complementarity4b(base,east)
+
+y4(base,south)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+  -100000       complementarity4a(base,south)
+   100000       complementarity4b(base,south)
+
+REMAINING 9 ENTRIES SKIPPED
+
+---- y5  
+
+y5(1,west)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+  -100000       complementarity5a(1,west)
+   100000       complementarity5b(1,west)
+
+y5(1,east)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+  -100000       complementarity5a(1,east)
+   100000       complementarity5b(1,east)
+
+y5(1,south)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+  -100000       complementarity5a(1,south)
+   100000       complementarity5b(1,south)
+
+REMAINING 27 ENTRIES SKIPPED
+
+---- y6  
+
+y6(1)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+  -100000       complementarity6a(1)
+   100000       complementarity6b(1)
+
+y6(2)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+  -100000       complementarity6a(2)
+   100000       complementarity6b(2)
+
+y6(3)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+  -100000       complementarity6a(3)
+   100000       complementarity6b(3)
+
+REMAINING 7 ENTRIES SKIPPED
+
+---- GEN  
+
+GEN(1,base,west)
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+        1       gen_min(1,base,west)
+       -1       gen_max(1,base,west)
+       -1       energy_balance(1)
+        1       complementarity1a(1,base,west)
+       -1       complementarity2a(1,base,west)
+       -1       complementarity6a(1)
+
+GEN(1,base,east)
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+        1       gen_min(1,base,east)
+       -1       gen_max(1,base,east)
+       -1       energy_balance(1)
+        1       complementarity1a(1,base,east)
+       -1       complementarity2a(1,base,east)
+       -1       complementarity6a(1)
+
+GEN(1,base,south)
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+        1       gen_min(1,base,south)
+       -1       gen_max(1,base,south)
+       -1       energy_balance(1)
+        1       complementarity1a(1,base,south)
+       -1       complementarity2a(1,base,south)
+       -1       complementarity6a(1)
+
+REMAINING 117 ENTRIES SKIPPED
+
+---- CAP  
+
+CAP(base,west)
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+        1       gen_max(1,base,west)
+        1       gen_max(2,base,west)
+        1       gen_max(3,base,west)
+        1       gen_max(4,base,west)
+        1       gen_max(5,base,west)
+        1       gen_max(6,base,west)
+        1       gen_max(7,base,west)
+        1       gen_max(8,base,west)
+        1       gen_max(9,base,west)
+        1       gen_max(10,base,west)
+        1       cap_min(base,west)
+       -1       cap_max(base,west)
+        0.15    KKT_CAP(base,west)
+        1       complementarity2a(1,base,west)
+        1       complementarity2a(2,base,west)
+        1       complementarity2a(3,base,west)
+        1       complementarity2a(4,base,west)
+        1       complementarity2a(5,base,west)
+        1       complementarity2a(6,base,west)
+        1       complementarity2a(7,base,west)
+        1       complementarity2a(8,base,west)
+        1       complementarity2a(9,base,west)
+        1       complementarity2a(10,base,west)
+        1       complementarity3a(base,west)
+       -1       complementarity4a(base,west)
+
+CAP(base,east)
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+        1       gen_max(1,base,east)
+        1       gen_max(2,base,east)
+        1       gen_max(3,base,east)
+        1       gen_max(4,base,east)
+        1       gen_max(5,base,east)
+        1       gen_max(6,base,east)
+        1       gen_max(7,base,east)
+        1       gen_max(8,base,east)
+        1       gen_max(9,base,east)
+        1       gen_max(10,base,east)
+        1       cap_min(base,east)
+       -1       cap_max(base,east)
+        0.15    KKT_CAP(base,east)
+        1       complementarity2a(1,base,east)
+        1       complementarity2a(2,base,east)
+        1       complementarity2a(3,base,east)
+        1       complementarity2a(4,base,east)
+        1       complementarity2a(5,base,east)
+        1       complementarity2a(6,base,east)
+        1       complementarity2a(7,base,east)
+        1       complementarity2a(8,base,east)
+        1       complementarity2a(9,base,east)
+        1       complementarity2a(10,base,east)
+        1       complementarity3a(base,east)
+       -1       complementarity4a(base,east)
+
+CAP(base,south)
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+        1       gen_max(1,base,south)
+        1       gen_max(2,base,south)
+        1       gen_max(3,base,south)
+        1       gen_max(4,base,south)
+        1       gen_max(5,base,south)
+        1       gen_max(6,base,south)
+        1       gen_max(7,base,south)
+        1       gen_max(8,base,south)
+        1       gen_max(9,base,south)
+        1       gen_max(10,base,south)
+        1       cap_min(base,south)
+       -1       cap_max(base,south)
+        0.15    KKT_CAP(base,south)
+        1       complementarity2a(1,base,south)
+        1       complementarity2a(2,base,south)
+        1       complementarity2a(3,base,south)
+        1       complementarity2a(4,base,south)
+        1       complementarity2a(5,base,south)
+        1       complementarity2a(6,base,south)
+        1       complementarity2a(7,base,south)
+        1       complementarity2a(8,base,south)
+        1       complementarity2a(9,base,south)
+        1       complementarity2a(10,base,south)
+        1       complementarity3a(base,south)
+       -1       complementarity4a(base,south)
+
+REMAINING 9 ENTRIES SKIPPED
+
+---- LOAD_real  
+
+LOAD_real(1,west)
+                (.LO, .L, .UP, .M = -INF, 17.55765, +INF, 0)
+        1       demand_min(1,west)
+        1       energy_balance(1)
+       14.8084  KKT_load(1,west)
+        1       complementarity5a(1,west)
+        1       complementarity6a(1)
+
+LOAD_real(1,east)
+                (.LO, .L, .UP, .M = -INF, 35.64735, +INF, 0)
+        1       demand_min(1,east)
+        1       energy_balance(1)
+        7.2937  KKT_load(1,east)
+        1       complementarity5a(1,east)
+        1       complementarity6a(1)
+
+LOAD_real(1,south)
+                (.LO, .L, .UP, .M = -INF, 53.205, +INF, 0)
+        1       demand_min(1,south)
+        1       energy_balance(1)
+        4.8868  KKT_load(1,south)
+        1       complementarity5a(1,south)
+        1       complementarity6a(1)
+
+REMAINING 27 ENTRIES SKIPPED
+
+---- LAMBDA  
+
+LAMBDA(1)
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+       -1       KKT_GEN(1,base,west)
+       -1       KKT_GEN(1,base,east)
+       -1       KKT_GEN(1,base,south)
+       -1       KKT_GEN(1,peak,west)
+       -1       KKT_GEN(1,peak,east)
+       -1       KKT_GEN(1,peak,south)
+       -1       KKT_GEN(1,wind,west)
+       -1       KKT_GEN(1,wind,east)
+       -1       KKT_GEN(1,wind,south)
+       -1       KKT_GEN(1,solar,west)
+       -1       KKT_GEN(1,solar,east)
+       -1       KKT_GEN(1,solar,south)
+        1       KKT_load(1,west)
+        1       KKT_load(1,east)
+        1       KKT_load(1,south)
+        1       complementarity6b(1)
+
+LAMBDA(2)
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+       -1       KKT_GEN(2,base,west)
+       -1       KKT_GEN(2,base,east)
+       -1       KKT_GEN(2,base,south)
+       -1       KKT_GEN(2,peak,west)
+       -1       KKT_GEN(2,peak,east)
+       -1       KKT_GEN(2,peak,south)
+       -1       KKT_GEN(2,wind,west)
+       -1       KKT_GEN(2,wind,east)
+       -1       KKT_GEN(2,wind,south)
+       -1       KKT_GEN(2,solar,west)
+       -1       KKT_GEN(2,solar,east)
+       -1       KKT_GEN(2,solar,south)
+        1       KKT_load(2,west)
+        1       KKT_load(2,east)
+        1       KKT_load(2,south)
+        1       complementarity6b(2)
+
+LAMBDA(3)
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+       -1       KKT_GEN(3,base,west)
+       -1       KKT_GEN(3,base,east)
+       -1       KKT_GEN(3,base,south)
+       -1       KKT_GEN(3,peak,west)
+       -1       KKT_GEN(3,peak,east)
+       -1       KKT_GEN(3,peak,south)
+       -1       KKT_GEN(3,wind,west)
+       -1       KKT_GEN(3,wind,east)
+       -1       KKT_GEN(3,wind,south)
+       -1       KKT_GEN(3,solar,west)
+       -1       KKT_GEN(3,solar,east)
+       -1       KKT_GEN(3,solar,south)
+        1       KKT_load(3,west)
+        1       KKT_load(3,east)
+        1       KKT_load(3,south)
+        1       complementarity6b(3)
+
+REMAINING 7 ENTRIES SKIPPED
+
+---- WF  
+
+WF
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+        1       objective
+
+
+---- mu_G_min  
+
+mu_G_min(1,base,west)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -1       KKT_GEN(1,base,west)
+        1       complementarity1b(1,base,west)
+
+mu_G_min(1,base,east)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -1       KKT_GEN(1,base,east)
+        1       complementarity1b(1,base,east)
+
+mu_G_min(1,base,south)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -1       KKT_GEN(1,base,south)
+        1       complementarity1b(1,base,south)
+
+REMAINING 117 ENTRIES SKIPPED
+
+---- mu_G_max  
+
+mu_G_max(1,base,west)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       KKT_GEN(1,base,west)
+       -1       KKT_CAP(base,west)
+        1       complementarity2b(1,base,west)
+
+mu_G_max(1,base,east)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       KKT_GEN(1,base,east)
+       -1       KKT_CAP(base,east)
+        1       complementarity2b(1,base,east)
+
+mu_G_max(1,base,south)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       KKT_GEN(1,base,south)
+       -1       KKT_CAP(base,south)
+        1       complementarity2b(1,base,south)
+
+REMAINING 117 ENTRIES SKIPPED
+
+---- mu_C_min  
+
+mu_C_min(base,west)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -1       KKT_CAP(base,west)
+        1       complementarity3b(base,west)
+
+mu_C_min(base,east)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -1       KKT_CAP(base,east)
+        1       complementarity3b(base,east)
+
+mu_C_min(base,south)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -1       KKT_CAP(base,south)
+        1       complementarity3b(base,south)
+
+REMAINING 9 ENTRIES SKIPPED
+
+---- mu_C_max  
+
+mu_C_max(base,west)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       KKT_CAP(base,west)
+        1       complementarity4b(base,west)
+
+mu_C_max(base,east)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       KKT_CAP(base,east)
+        1       complementarity4b(base,east)
+
+mu_C_max(base,south)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       KKT_CAP(base,south)
+        1       complementarity4b(base,south)
+
+REMAINING 9 ENTRIES SKIPPED
+
+---- mu_D_min  
+
+mu_D_min(1,west)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -1       KKT_load(1,west)
+        1       complementarity5b(1,west)
+
+mu_D_min(1,east)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -1       KKT_load(1,east)
+        1       complementarity5b(1,east)
+
+mu_D_min(1,south)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -1       KKT_load(1,south)
+        1       complementarity5b(1,south)
+
+REMAINING 27 ENTRIES SKIPPED
+GAMS 35.2.0  r33388c4 Released Jun  2, 2021 WEX-WEI x86 64bit/MS Windows - 10/08/21 13:39:26 Page 6
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Model Statistics    SOLVE LOCI Using MIQCP From line 223
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          22     SINGLE EQUATIONS        1,075
+BLOCKS OF VARIABLES          16     SINGLE VARIABLES          771
+NON ZERO ELEMENTS         2,569     NON LINEAR N-Z              0
+CODE LENGTH                   0     CONSTANT POOL              16     DISCRETE VARIABLES        304
+
+
+GENERATION TIME      =        0.079 SECONDS      4 MB  35.2.0 r33388c4 WEX-WEI
+GAMS 35.2.0  r33388c4 Released Jun  2, 2021 WEX-WEI x86 64bit/MS Windows - 10/08/21 13:39:26 Page 7
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Solution Report     SOLVE LOCI Using MIQCP From line 223
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   LOCI                OBJECTIVE  WF
+     TYPE    MIQCP               DIRECTION  MAXIMIZE
+     SOLVER  SBB                 FROM LINE  223
+
+**** SOLVER STATUS     8 User Interrupt            
+**** MODEL STATUS      14 No Solution Returned     
+**** OBJECTIVE VALUE                0.0000
+
+ RESOURCE USAGE, LIMIT        162.156     40000.000
+ ITERATION COUNT, LIMIT    145179    2147483647
+ EVALUATION ERRORS              0             0
+*** This solver runs with a community license. No commercial use.
+--- *** This solver runs with a community license. No commercial use.
+ 
+ 
+    C O N O P T 3   version 3.17K
+    Copyright (C)   ARKI Consulting and Development A/S
+                    Bagsvaerdvej 246 A
+                    DK-2880 Bagsvaerd, Denmark
+ 
+ 
+ ** Warning **  The value of LFITER is out of range.
+                LFITER is decreased from 2147483647 to 1000000000.
+ 
+ ** Warning **  The variance of the derivatives in the initial
+                point is large (= 5.6 ). A better initial
+                point, a better scaling, or better bounds on the
+                variables will probably help the optimization.
+ 
+ 
+                   Pre-triangular equations:   1
+                   Post-triangular equations:  0
+                   Definitional equations:     42
+ 
+ 
+ ** Optimal solution. Reduced gradient less than tolerance.
+ 
+ 
+ CONOPT time Total                            0.046 seconds
+   of which: Function evaluations             0.000 =  0.0%
+             1st Derivative evaluations       0.000 =  0.0%
+ 
+
+ ^^^ Detailed root node information above.
+
+ User Interrupt
+ Statistics:
+    B&B nodes     :             21672
+    MIP solution  :                 -
+    Best possible :          1.000000
+    Absolute gap  :                 -     optca :  0.000000
+    Relative gap  :          1.000000     optcr :  0.000100
+    Model Status  :                14
+    Solver Status :                 8
+
+No solution returned
+GAMS 35.2.0  r33388c4 Released Jun  2, 2021 WEX-WEI x86 64bit/MS Windows - 10/08/21 13:39:26 Page 8
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+E x e c u t i o n
+
+
+----    228 VARIABLE GEN.L  
+
+                      ( ALL       0.000 )
+
+
+----    228 VARIABLE CAP.L  
+
+                      ( ALL       0.000 )
+
+
+----    228 PARAMETER price  
+
+1  325.000,    2  325.000,    3  325.000,    4  325.000,    5  325.000,    6  325.000,    7  325.000,    8  325.000,    9  325.000,    10 325.000
+
+
+----    228 PARAMETER load_deviation  
+
+                      ( ALL       0.000 )
+
+
+
+EXECUTION TIME       =      162.422 SECONDS      4 MB  35.2.0 r33388c4 WEX-WEI
+
+
+USER: GAMS Community License for Anselm Eicke        G210709|0002AO-GEN
+      Hertie School of Governance GmbH                           CL1515
+      License for teaching and research at degree granting institutions
+
+
+**** FILE SUMMARY
+
+Input      C:\Users\ansel\OneDrive\PhD\2 - Where to place new power generation\Three node models\Model testing\MPC_large with big M as QCP.gms
+Output     C:\Users\ansel\OneDrive\PhD\2 - Where to place new power generation\Three node models\Model testing\MPC_large with big M as QCP.lst

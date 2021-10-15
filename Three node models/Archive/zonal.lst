@@ -1,0 +1,1951 @@
+GAMS 35.2.0  r33388c4 Released Jun  2, 2021 WEX-WEI x86 64bit/MS Windows - 09/08/21 11:55:57 Page 1
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+C o m p i l a t i o n
+
+
+   1  Sets
+   2  all_t       all hours               /1*10/
+   3  t(all_t)    hours                   /1*5/
+   4  tec         generators              /base, peak, wind, solar/
+   5  con(tec)    conventional generation /base, peak/
+   6  all_n       all buses               /west, east, south/
+   7  n(all_n)    selected buses          /west, east, south/
+   8  ;
+   9   
+  10  alias (n,m);
+  11  alias (all_n,all_m);
+  12   
+  13  * parameters for supply and demand functions
+  14  Parameter elasticity / -0.25 /;
+  15  Parameter p_ref / 65 /;
+  16  Parameter capacity_instr / 0 /;
+  17  Parameter specific_network_costs /150/;
+  18  *Source for network costs: EMMA (3400 EUR/MW/km discontiert mit i = 0.07 ueber 40 Jahre)
+  19   
+  20  Table B(all_n,all_m)        Susceptance of transmission lines
+  21           west   east    south
+  22  west        1    250      600
+  23  east      250      1      400
+  24  south     600    400        1
+  25  ;
+  26   
+  27  Parameters
+  28  * Input Parameters
+  29  i_cost(*,*)                 cost data to be loaded from sheet "cost"
+  30  i_load(all_t,all_n)         load data to be loaded from sheet "time series" in MWh
+  31  i_avail(all_t,tec,all_n)    availability data
+  32   
+  33  * Model Parameters
+  34  load(t,n)                   hourly load in GWh
+  35  avail(t,tec,n)              availability of wind and solar generation (1)
+  36  c_var(tec,n)                variable costs (EUR per MWh)
+  37  c_fix(tec,n)                annualized fixed costs (EUR per MW p.a.)
+  38  supply_slope
+  39  supply_slope_GEN(n)
+  40  cap_lim(tec,n)              capacity limit of generation in each node
+  41  grid_cost(n,m)
+  42  sc                          scaling factor
+  43   
+  44  * Output Parameters
+  45  consumer_surplus
+  46  generation_costs
+  47  total_network_cost
+  48  load_deviation(t,n)
+  49  res_share
+  50  marginal_fixed_costs(tec,n)
+  51  fixed_linear_costs(tec,n)
+  52  max_marginal_price_adder(tec,n)
+  53  variable_costs(tec,n)
+  54  o_WF
+  55  o_CS
+  56  o_GC
+  57  o_NC
+  58  o_RES_share
+  59  o_load(t,n)
+  60  o_cap(tec,n)
+  61  o_price(t,n)
+  62  o_cap_instr(tec,n)
+  63  o_instrument(tec,n)
+  64   
+  65  i_WF
+  66  i_instrument(tec,n)
+  67  i_cap(tec,n)
+  68  i_lambda(t)
+  69  i_load_real(t,n)
+  70  i_gen(t,tec,n)
+  71  i_grid_cap(n,m)
+  72  i_flow(t,n,m)
+  73  i_up(t,tec,n)
+  74  i_down(t,tec,n)
+  75  i_mu_G_min(t,tec,n)
+  76  i_mu_G_max(t,tec,n)
+  77  i_mu_C_min(tec,n)
+  78  i_mu_C_max(tec,n)
+  79  i_mu_D_min(t,n)
+  80  ;
+  81   
+  82  * Load data
+GDXIN   C:\Users\ansel\OneDrive\PhD\3 - Where to place new power generation\Three node models\in.gdx
+--- LOAD  i_cost = 1:i_cost
+--- LOAD  i_load = 2:i_load
+--- LOAD  i_avail = 3:i_avail
+  85   
+  86  * Data assignment
+  87  sc = card(t) / 8760;
+  88  load(t,n)                   = i_load(t,n) / 1000;
+  89  avail(t,tec,n)              = i_avail(t,tec,n);
+  90  avail(t,con,n)              = 1;
+  91  c_var(tec, n)               = i_cost(tec,"cost_var");
+  92  c_fix(tec, n)               = round(i_cost(tec,"cost_fix") * 1000 * sc);
+  93  supply_slope                = c_fix('wind','south')  * 0.2 / 50;
+  94  cap_lim(tec,n)              = 100;
+  95  grid_cost(n,m)              = round(B(n,m) * specific_network_costs * sc);
+  96   
+  97  supply_slope_GEN(n)         = 0.01;
+  98   
+  99   
+ 100  Parameters
+ 101  * Additional parameters for bilevel formulation
+ 102  GEN_FIX(t,tec,n)
+ 103  CAP_FIX(tec,n)
+ 104  LOAD_real_FIX(t,n)
+ 105  LAMBDA(t)
+ 106  price(t,n)
+ 107  ;
+ 108   
+ 109  Free variables
+ 110  GEN(t,tec,n)
+ 111  CAP(tec,n)
+ 112  SHARE(t,con)
+ 113   
+ 114  WF
+ 115  WF_inner
+ 116  FLOW(t,n,m)
+ 117  THETA(t,n)
+ 118  ;
+ 119   
+ 120  Positive variables
+ 121  GRID_CAP(n,m)
+ 122  LOAD_real(t,n)
+ 123  UP(t,tec,n)
+ 124  DOWN(t,tec,n)
+ 125  RESERVE_CAP(tec,n)
+ 126  ;
+ 127   
+ 128  Equations
+ 129  inner_objective,
+ 130  gen_max, gen_min, gen_share,
+ 131  cap_max, cap_min, demand_min,
+ 132  zonal_energy_balance,
+ 133   
+ 134  outer_objective,
+ 135  nodal_energy_balance,
+ 136  grid_eq1, grid_eq2, grid_eq3, grid_eq4,
+ 137  redispatch1, redispatch2;
+ 138   
+ 139  ** Inner problem
+ 140  inner_objective..           WF_inner =e= sum((t, n), p_ref * LOAD_real(t,n) * ((1-1/elasticity) + 1/2 * LOAD_real(t,n) / elasticity / load(t,n)))
+ 141                                      - sum((tec,n), CAP(tec,n) * c_fix(tec,n) + supply_slope * CAP(tec,n) * CAP(tec,n))
+ 142                                      - sum((t,tec,n), GEN(t,tec,n) * c_var(tec,n));
+ 143   
+ 144  gen_max(t,tec,n)..          0 =g= GEN(t,tec,n) - CAP(tec,n) * avail(t,tec,n);
+ 145  gen_min(t,tec,n)..          0 =g= -GEN(t,tec,n);
+ 146  gen_share(t,con,n)..        GEN(t,con,n) =e= CAP(con,n) * SHARE(t,con);
+ 147  cap_max(tec,n)..            0 =g= CAP(tec,n) - cap_lim(tec,n);
+ 148  cap_min(tec,n)..            0 =g= -CAP(tec,n);
+ 149  demand_min(t,n)..           0 =g= -LOAD_real(t,n);
+ 150   
+ 151  zonal_energy_balance(t)..   0 =e= sum((tec,n),GEN(t,tec,n)) - sum(n,LOAD_real(t,n));
+ 152   
+ 153  ** Outer problem
+ 154  outer_objective..           WF =e= sum((t, n), p_ref * LOAD_real_FIX(t,n) * ((1-1/elasticity) + 1/2 * LOAD_real_FIX(t,n) / elasticity / load(t,n)))
+ 155                                      - sum((tec,n), CAP_FIX(tec,n) * c_fix(tec,n) + supply_slope * CAP_FIX(tec,n) * CAP_FIX(tec,n))
+ 156                                      - sum((t,tec,n), GEN_FIX(t,tec,n) * c_var(tec,n))
+ 157                                      - sum((n,m),(GRID_CAP(n,m) * grid_cost(n,m)) / 2)
+ 158                                      - sum((t,tec,n), UP(t,tec,n) * c_var(tec,n) + DOWN(t,tec,n) * (LAMBDA(t) - c_var(tec,n)))
+ 159                                      - sum((tec,n), RESERVE_CAP(tec,n) * (c_fix(tec,n)));
+ 160   
+ 161  *nodal energy balance
+ 162  nodal_energy_balance(t,n).. sum(tec,GEN_FIX(t,tec,n) - DOWN(t,tec,n) + UP(t,tec,n)) - LOAD_real_FIX(t,n) =E= sum(m,FLOW(t,n,m));
+ 163   
+ 164  *network constraints
+ 165  grid_eq1(t,n,m)..           FLOW(t,n,m) =l= GRID_CAP(n,m);
+ 166  grid_eq2(n,m)..             GRID_CAP(n,m) =e= GRID_CAP(m,n);
+ 167  grid_eq3(t,n,m)..           FLOW(t,n,m) =e= B(n,m) *(THETA(t,n) - THETA(t,m));
+ 168  grid_eq4(t,n)..             THETA(t,'south') =e= 0;
+ 169   
+ 170  redispatch1(t,tec,n)..      DOWN(t,tec,n) =L= GEN_FIX(t,tec,n);
+ 171  redispatch2(t,tec,n)..      UP(t,tec,n) =L= CAP_FIX(tec,n) * avail(t,tec,n) - GEN_FIX(t,tec,n) + RESERVE_CAP(tec,n) * avail(t,tec,n);
+ 172   
+ 173   
+ 174  Model LOCI_inner /
+ 175  inner_objective
+ 176  gen_min
+ 177  gen_max
+ 178  gen_share
+ 179  cap_min
+ 180  cap_max
+ 181  demand_min
+ 182  zonal_energy_balance
+ 183  /;
+ 184   
+ 185  * Set starting values
+ 186  Model LOCI_outer /
+ 187  outer_objective
+ 188   
+ 189  nodal_energy_balance
+ 190   
+ 191  grid_eq1
+ 192  grid_eq2
+ 193  grid_eq3
+ 194  grid_eq4
+ 195   
+ 196  redispatch1
+ 197  redispatch2
+ 198  /;
+ 199   
+ 200  LOAD_real.L(t,n) =load(t,n);
+ 201  LOAD_real.lo(t,n) = 0.6 * load(t,n);
+ 202  *CAP.lo('base','south') = 5;
+ 203   
+ 204  option NLP=Baron;
+ 205  Solve LOCI_inner using NLP max WF_inner;
+ 206   
+ 207  price(t,n) = p_ref * ((1-1/elasticity) + LOAD_real.L(t,n) / elasticity / load(t,n));
+ 208  GEN_FIX(t,tec,n) = GEN.L(t,tec,n);
+ 209  CAP_FIX(tec,n) = CAP.L(tec,n);
+ 210  LOAD_real_FIX(t,n) = LOAD_real.L(t,n);
+ 211  LAMBDA(t) = zonal_energy_balance.M(t);
+ 212   
+ 213  Display CAP_FIX, GEN_FIX, LOAD_real_FIX, LAMBDA, price;
+ 214   
+ 215  Solve LOCI_outer using QCP max WF;
+ 216   
+ 217  consumer_surplus = sum((t,n), p_ref * LOAD_real.L(t,n) * ((1-1/elasticity) + 1/2 * LOAD_real.L(t,n) / elasticity / load(t,n)));
+ 218   
+ 219  generation_costs = sum((tec,n), CAP.L(tec,n) * c_fix(tec,n) + supply_slope * CAP.L(tec,n) * CAP.L(tec,n))
+ 220                                      + sum((t,tec,n), GEN.L(t,tec,n) * c_var(tec,n));
+ 221   
+ 222  total_network_cost = sum((n,m), GRID_CAP.L(n,m) * grid_cost(n,m) / 2)
+ 223                      + sum((t,tec,n), UP.L(t,tec,n) * c_var(tec,n) + DOWN.L(t,tec,n) * (LAMBDA(t) - c_var(tec,n)))
+ 224                      + sum((tec,n), RESERVE_CAP.L(tec,n) * (c_fix(tec,n)));
+ 225   
+ 226  load_deviation(t,n) = LOAD_real.L(t,n) / load(t,n);
+ 227  res_share = 1 - sum((t,con,n), GEN.L(t,con,n)) / sum((t,tec,n), GEN.L(t,tec,n));
+ 228   
+ 229   
+ 230  load_deviation(t,n) = LOAD_real.L(t,n) / load(t,n);
+ 231   
+ 232  Display WF.L, consumer_surplus, generation_costs, total_network_cost, RES_share;
+ 233   
+ 234  Display CAP.L, GEN.L, GRID_CAP.L, FLOW.L, THETA.L, load_deviation, res_share, LAMBDA,  LOAD_real.L, UP.L, DOWN.L;
+ 235   
+ 236   
+ 237   
+ 238   
+ 239  o_WF =WF.L;
+ 240  o_CS = consumer_surplus;
+ 241  o_GC = generation_costs;
+ 242  o_NC = total_network_cost;
+ 243  o_RES_share = res_share;
+ 244   
+ 245  o_price(t,n) = LAMBDA(t);
+ 246  o_cap(tec,n) = CAP.L(tec,n);
+ 247  o_load(t,n) = LOAD_real.L(t,n);
+ 248   
+ 249   
+ 250  execute_UNLOAD 'Output/Zonal/out.gdx' o_WF, o_CS, o_GC, o_NC, o_RES_share, o_cap, o_load, o_price, GEN;
+ 251   
+ 252  * Specify how files are organized in Excel
+GAMS 35.2.0  r33388c4 Released Jun  2, 2021 WEX-WEI x86 64bit/MS Windows - 09/08/21 11:55:57 Page 2
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Include File Summary
+
+
+   SEQ   GLOBAL TYPE      PARENT   LOCAL  FILENAME
+
+     1        1 INPUT          0       0  C:\Users\ansel\OneDrive\PhD\3 - Where to place new power generation\Three node models\zonal.gms
+     2       83 GDXIN          1      83  C:\Users\ansel\OneDrive\PhD\3 - Where to place new power generation\Three node models\in.gdx
+
+
+COMPILATION TIME     =        0.000 SECONDS      3 MB  35.2.0 r33388c4 WEX-WEI
+GAMS 35.2.0  r33388c4 Released Jun  2, 2021 WEX-WEI x86 64bit/MS Windows - 09/08/21 11:55:57 Page 3
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Equation Listing    SOLVE LOCI_inner Using NLP From line 205
+
+
+---- inner_objective  =E=  
+
+inner_objective..  60*GEN(1,base,west) + 60*GEN(1,base,east) + 60*GEN(1,base,south) + 80*GEN(1,peak,west) + 80*GEN(1,peak,east) + 80*GEN(1,peak,south) + 60*GEN(2,base,west) + 60*GEN(2,base,east) + 60*GEN(2,base,south) + 80*GEN(2,peak,west) + 80*GEN(2,peak,east) + 80*GEN(2,peak,south) + 60*GEN(3,base,west) + 60*GEN(3,base,east) + 60*GEN(3,base,south) + 80*GEN(3,peak,west) + 80*GEN(3,peak,east) + 80*GEN(3,peak,south) + 60*GEN(4,base,west) + 60*GEN(4,base,east) + 60*GEN(4,base,south) + 80*GEN(4,peak,west) + 80*GEN(4,peak,east) + 80*GEN(4,peak,south) + 60*GEN(5,base,west) + 60*GEN(5,base,east) + 60*GEN(5,base,south) + 80*GEN(5,peak,west) + 80*GEN(5,peak,east) + 80*GEN(5,peak,south) + (57)*CAP(base,west) + (57)*CAP(base,east) + (57)*CAP(base,south) + (18)*CAP(peak,west) + (18)*CAP(peak,east) + (18)*CAP(peak,south) + (46)*CAP(wind,west) + (46)*CAP(wind,east) + (46)*CAP(wind,south) + (26)*CAP(solar,west) + (26)*CAP(solar,east) + (26)*CAP(solar,south) + WF_inner - (65)*LOAD_real(1,west) - (65)*LOAD_real(1,east) - (65)*LOAD_real(1,south) - (65)*LOAD_real(2,west) - (65)*LOAD_real(2,east) - (65)*LOAD_real(2,south) - (65)*LOAD_real(3,west) - (65)*LOAD_real(3,east) - (65)*LOAD_real(3,south) - (65)*LOAD_real(4,west) - (65)*LOAD_real(4,east) - (65)*LOAD_real(4,south) - (65)*LOAD_real(5,west) - (65)*LOAD_real(5,east) - (65)*LOAD_real(5,south) =E= 0 ; (LHS = -102029.46, INFES = 102029.46 ****)
+     
+
+---- gen_min  =G=  
+
+gen_min(1,base,west)..  GEN(1,base,west) =G= 0 ; (LHS = 0)
+     
+gen_min(1,base,east)..  GEN(1,base,east) =G= 0 ; (LHS = 0)
+     
+gen_min(1,base,south)..  GEN(1,base,south) =G= 0 ; (LHS = 0)
+     
+REMAINING 57 ENTRIES SKIPPED
+
+
+---- gen_max  =G=  
+
+gen_max(1,base,west)..  - GEN(1,base,west) + CAP(base,west) =G= 0 ; (LHS = 0)
+     
+gen_max(1,base,east)..  - GEN(1,base,east) + CAP(base,east) =G= 0 ; (LHS = 0)
+     
+gen_max(1,base,south)..  - GEN(1,base,south) + CAP(base,south) =G= 0 ; (LHS = 0)
+     
+REMAINING 57 ENTRIES SKIPPED
+
+
+---- gen_share  =E=  
+
+gen_share(1,base,west)..  GEN(1,base,west) + (0)*CAP(base,west) + (0)*SHARE(1,base) =E= 0 ; (LHS = 0)
+     
+gen_share(1,base,east)..  GEN(1,base,east) + (0)*CAP(base,east) + (0)*SHARE(1,base) =E= 0 ; (LHS = 0)
+     
+gen_share(1,base,south)..  GEN(1,base,south) + (0)*CAP(base,south) + (0)*SHARE(1,base) =E= 0 ; (LHS = 0)
+     
+REMAINING 27 ENTRIES SKIPPED
+
+
+---- cap_min  =G=  
+
+cap_min(base,west)..  CAP(base,west) =G= 0 ; (LHS = 0)
+     
+cap_min(base,east)..  CAP(base,east) =G= 0 ; (LHS = 0)
+     
+cap_min(base,south)..  CAP(base,south) =G= 0 ; (LHS = 0)
+     
+REMAINING 9 ENTRIES SKIPPED
+
+
+---- cap_max  =G=  
+
+cap_max(base,west)..  - CAP(base,west) =G= -100 ; (LHS = 0)
+     
+cap_max(base,east)..  - CAP(base,east) =G= -100 ; (LHS = 0)
+     
+cap_max(base,south)..  - CAP(base,south) =G= -100 ; (LHS = 0)
+     
+REMAINING 9 ENTRIES SKIPPED
+
+
+---- demand_min  =G=  
+
+demand_min(1,west)..  LOAD_real(1,west) =G= 0 ; (LHS = 17.55765)
+     
+demand_min(1,east)..  LOAD_real(1,east) =G= 0 ; (LHS = 35.64735)
+     
+demand_min(1,south)..  LOAD_real(1,south) =G= 0 ; (LHS = 53.205)
+     
+REMAINING 12 ENTRIES SKIPPED
+
+
+---- zonal_energy_balance  =E=  
+
+zonal_energy_balance(1)..  - GEN(1,base,west) - GEN(1,base,east) - GEN(1,base,south) - GEN(1,peak,west) - GEN(1,peak,east) - GEN(1,peak,south) - GEN(1,wind,west) - GEN(1,wind,east) - GEN(1,wind,south) - GEN(1,solar,west) - GEN(1,solar,east) - GEN(1,solar,south) + LOAD_real(1,west) + LOAD_real(1,east) + LOAD_real(1,south) =E= 0 ; (LHS = 106.41, INFES = 106.41 ****)
+     
+zonal_energy_balance(2)..  - GEN(2,base,west) - GEN(2,base,east) - GEN(2,base,south) - GEN(2,peak,west) - GEN(2,peak,east) - GEN(2,peak,south) - GEN(2,wind,west) - GEN(2,wind,east) - GEN(2,wind,south) - GEN(2,solar,west) - GEN(2,solar,east) - GEN(2,solar,south) + LOAD_real(2,west) + LOAD_real(2,east) + LOAD_real(2,south) =E= 0 ; (LHS = 103.552, INFES = 103.552 ****)
+     
+zonal_energy_balance(3)..  - GEN(3,base,west) - GEN(3,base,east) - GEN(3,base,south) - GEN(3,peak,west) - GEN(3,peak,east) - GEN(3,peak,south) - GEN(3,wind,west) - GEN(3,wind,east) - GEN(3,wind,south) - GEN(3,solar,west) - GEN(3,solar,east) - GEN(3,solar,south) + LOAD_real(3,west) + LOAD_real(3,east) + LOAD_real(3,south) =E= 0 ; (LHS = 103.294, INFES = 103.294 ****)
+     
+REMAINING 2 ENTRIES SKIPPED
+
+GAMS 35.2.0  r33388c4 Released Jun  2, 2021 WEX-WEI x86 64bit/MS Windows - 09/08/21 11:55:57 Page 4
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Column Listing      SOLVE LOCI_inner Using NLP From line 205
+
+
+---- GEN  
+
+GEN(1,base,west)
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+       60       inner_objective
+        1       gen_min(1,base,west)
+       -1       gen_max(1,base,west)
+        1       gen_share(1,base,west)
+       -1       zonal_energy_balance(1)
+
+GEN(1,base,east)
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+       60       inner_objective
+        1       gen_min(1,base,east)
+       -1       gen_max(1,base,east)
+        1       gen_share(1,base,east)
+       -1       zonal_energy_balance(1)
+
+GEN(1,base,south)
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+       60       inner_objective
+        1       gen_min(1,base,south)
+       -1       gen_max(1,base,south)
+        1       gen_share(1,base,south)
+       -1       zonal_energy_balance(1)
+
+REMAINING 57 ENTRIES SKIPPED
+
+---- CAP  
+
+CAP(base,west)
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+      (57)      inner_objective
+        1       gen_max(1,base,west)
+        1       gen_max(2,base,west)
+        1       gen_max(3,base,west)
+        1       gen_max(4,base,west)
+        1       gen_max(5,base,west)
+       (0)      gen_share(1,base,west)
+       (0)      gen_share(2,base,west)
+       (0)      gen_share(3,base,west)
+       (0)      gen_share(4,base,west)
+       (0)      gen_share(5,base,west)
+        1       cap_min(base,west)
+       -1       cap_max(base,west)
+
+CAP(base,east)
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+      (57)      inner_objective
+        1       gen_max(1,base,east)
+        1       gen_max(2,base,east)
+        1       gen_max(3,base,east)
+        1       gen_max(4,base,east)
+        1       gen_max(5,base,east)
+       (0)      gen_share(1,base,east)
+       (0)      gen_share(2,base,east)
+       (0)      gen_share(3,base,east)
+       (0)      gen_share(4,base,east)
+       (0)      gen_share(5,base,east)
+        1       cap_min(base,east)
+       -1       cap_max(base,east)
+
+CAP(base,south)
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+      (57)      inner_objective
+        1       gen_max(1,base,south)
+        1       gen_max(2,base,south)
+        1       gen_max(3,base,south)
+        1       gen_max(4,base,south)
+        1       gen_max(5,base,south)
+       (0)      gen_share(1,base,south)
+       (0)      gen_share(2,base,south)
+       (0)      gen_share(3,base,south)
+       (0)      gen_share(4,base,south)
+       (0)      gen_share(5,base,south)
+        1       cap_min(base,south)
+       -1       cap_max(base,south)
+
+REMAINING 9 ENTRIES SKIPPED
+
+---- SHARE  
+
+SHARE(1,base)
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+       (0)      gen_share(1,base,west)
+       (0)      gen_share(1,base,east)
+       (0)      gen_share(1,base,south)
+
+SHARE(1,peak)
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+       (0)      gen_share(1,peak,west)
+       (0)      gen_share(1,peak,east)
+       (0)      gen_share(1,peak,south)
+
+SHARE(2,base)
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+       (0)      gen_share(2,base,west)
+       (0)      gen_share(2,base,east)
+       (0)      gen_share(2,base,south)
+
+REMAINING 7 ENTRIES SKIPPED
+
+---- WF_inner  
+
+WF_inner
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+        1       inner_objective
+
+
+---- LOAD_real  
+
+LOAD_real(1,west)
+                (.LO, .L, .UP, .M = 10.53459, 17.55765, +INF, 0)
+     (-65)      inner_objective
+        1       demand_min(1,west)
+        1       zonal_energy_balance(1)
+
+LOAD_real(1,east)
+                (.LO, .L, .UP, .M = 21.38841, 35.64735, +INF, 0)
+     (-65)      inner_objective
+        1       demand_min(1,east)
+        1       zonal_energy_balance(1)
+
+LOAD_real(1,south)
+                (.LO, .L, .UP, .M = 31.923, 53.205, +INF, 0)
+     (-65)      inner_objective
+        1       demand_min(1,south)
+        1       zonal_energy_balance(1)
+
+REMAINING 12 ENTRIES SKIPPED
+GAMS 35.2.0  r33388c4 Released Jun  2, 2021 WEX-WEI x86 64bit/MS Windows - 09/08/21 11:55:57 Page 5
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Model Statistics    SOLVE LOCI_inner Using NLP From line 205
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS           8     SINGLE EQUATIONS          195
+BLOCKS OF VARIABLES           5     SINGLE VARIABLES           98
+NON ZERO ELEMENTS           426     NON LINEAR N-Z             87
+CODE LENGTH                 329     CONSTANT POOL              37
+
+
+GENERATION TIME      =        0.015 SECONDS      4 MB  35.2.0 r33388c4 WEX-WEI
+GAMS 35.2.0  r33388c4 Released Jun  2, 2021 WEX-WEI x86 64bit/MS Windows - 09/08/21 11:55:57 Page 6
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Solution Report     SOLVE LOCI_inner Using NLP From line 205
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   LOCI_inner          OBJECTIVE  WF_inner
+     TYPE    NLP                 DIRECTION  MAXIMIZE
+     SOLVER  BARON               FROM LINE  205
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      2 Locally Optimal           
+**** OBJECTIVE VALUE            65741.4526
+
+ RESOURCE USAGE, LIMIT          0.480 10000000000.000
+ ITERATION COUNT, LIMIT         0    2147483647
+ EVALUATION ERRORS              0             0
+
+GAMS/BARON       35.2.0 r33388c4 Released Jun 02, 2021 WEI x86 64bit/MS Window
+
+BARON is a product of The Optimization Firm, LLC. http://www.minlp.com/
+Parts of the BARON software were created at the
+University of Illinois at Urbana-Champaign.
+
+*** This solver runs with a community license. No commercial use.
+
+===========================================================================
+ BARON version 21.1.13. Built: WIN-64 Wed Jan 13 16:04:12 EST 2021
+
+ BARON is a product of The Optimization Firm.
+ For information on BARON, see https://minlp.com/about-baron
+
+ If you use this software, please cite publications from
+ https://minlp.com/baron-publications, such as: 
+
+ Khajavirad, A. and N. V. Sahinidis,
+ A hybrid LP/NLP paradigm for global optimization relaxations,
+ Mathematical Programming Computation, 10, 383-421, 2018.
+===========================================================================
+ This BARON run may utilize the following subsolver(s)
+ For LP/MIP/QP: ILOG CPLEX                                      
+ For NLP: MINOS, SNOPT, GAMS external NLP, IPOPT, FILTERSD, FILTERSQP
+
+Solution      = 65741.4526212835  best solution found during preprocessing
+Best possible = 65748.027424
+Absolute gap  = 6.57480271646637  optca = 1E-9
+Relative gap  = 9.99999996055603E-5  optcr = 0.0001
+  (Note that BARON uses a different formula to compute the relative gap as
+   was used for the above reported value.)
+
+
+                           LOWER          LEVEL          UPPER         MARGINAL
+
+---- EQU inner_obj~          .              .              .             1.0000      
+
+---- EQU gen_min  
+
+                     LOWER          LEVEL          UPPER         MARGINAL
+
+1.base .west           .            25.0114        +INF             .          
+1.base .east           .            25.0114        +INF             .          
+1.base .south          .            25.0114        +INF             .          
+1.peak .west           .              .            +INF          -17.4857      
+1.peak .east           .              .            +INF          -17.4857      
+1.peak .south          .              .            +INF          -17.4857      
+1.wind .west           .            17.7065        +INF             .          
+1.wind .east           .             8.2390        +INF             .          
+1.wind .south          .              .            +INF      -8.038979E+8      
+1.solar.west           .             0.9252        +INF             .          
+1.solar.east           .             4.7235        +INF             .          
+1.solar.south          .              .            +INF      -8.038979E+8      
+2.base .west           .            25.0114        +INF             .          
+2.base .east           .            25.0114        +INF             .          
+2.base .south          .            25.0114        +INF             .          
+2.peak .west           .       1.2260964E-8        +INF           -2.6637      
+2.peak .east           .       1.2260964E-8        +INF           -2.6637      
+2.peak .south          .       1.2260964E-8        +INF           -2.6637      
+2.wind .west           .            10.6239        +INF             .          
+2.wind .east           .             9.8868        +INF             .          
+2.wind .south          .              .            +INF      -8.038976E+8      
+2.solar.west           .              .            +INF      -8.038976E+8      
+2.solar.east           .              .            +INF      -8.038976E+8      
+2.solar.south          .              .            +INF      -8.038976E+8      
+3.base .west           .            25.0114        +INF             .          
+3.base .east           .            25.0114        +INF             .          
+3.base .south          .            25.0114        +INF             .          
+3.peak .west           .              .            +INF          -10.6747      
+3.peak .east           .              .            +INF          -10.6747      
+3.peak .south          .              .            +INF          -10.6747      
+3.wind .west           .            14.1652        +INF             .          
+3.wind .east           .            11.5346        +INF             .          
+3.wind .south          .              .            +INF      -8.038974E+8      
+3.solar.west           .              .            +INF      -8.038974E+8      
+3.solar.east           .              .            +INF      -8.038974E+8      
+3.solar.south          .              .            +INF      -8.038974E+8      
+4.base .west           .            25.0114        +INF             .          
+4.base .east           .            25.0114        +INF             .          
+4.base .south          .            25.0114        +INF             .          
+4.peak .west           .              .            +INF          -10.9523      
+4.peak .east           .              .            +INF          -10.9523      
+4.peak .south          .              .            +INF          -10.9523      
+4.wind .west           .            17.7065        +INF             .          
+4.wind .east           .             8.2390        +INF             .          
+4.wind .south          .              .            +INF      -8.038975E+8      
+4.solar.west           .              .            +INF      -8.038975E+8      
+4.solar.east           .              .            +INF      -8.038975E+8      
+4.solar.south          .              .            +INF      -8.038975E+8      
+5.base .west           .            25.0114        +INF             .          
+5.base .east           .            25.0114        +INF             .          
+5.base .south          .            25.0114        +INF             .          
+5.peak .west           .              .            +INF           -8.0242      
+5.peak .east           .              .            +INF           -8.0242      
+5.peak .south          .              .            +INF           -8.0242      
+5.wind .west           .            10.6239        +INF             .          
+5.wind .east           .            11.5346        +INF             .          
+5.wind .south          .              .            +INF      -8.038983E+8      
+5.solar.west           .             0.9252        +INF             .          
+5.solar.east           .             4.7235        +INF             .          
+5.solar.south          .              .            +INF      -8.038983E+8      
+
+---- EQU gen_max  
+
+                     LOWER          LEVEL          UPPER         MARGINAL
+
+1.base .west           .       1.4977175E-8        +INF           -4.4664      
+1.base .east           .       1.4977179E-8        +INF           -4.4664      
+1.base .south          .       1.4977175E-8        +INF           -4.4664      
+1.peak .west           .       1.2826001E-8        +INF           -1.9527      
+1.peak .east           .       1.2826001E-8        +INF           -1.9527      
+1.peak .south          .       1.2826001E-8        +INF           -1.9527      
+1.wind .west           .              .            +INF          -64.4664      
+1.wind .east           .              .            +INF          -64.4664      
+1.wind .south          .              .            +INF      -8.038980E+8      
+1.solar.west           .              .            +INF          -64.4664      
+1.solar.east           .              .            +INF          -64.4664      
+1.solar.south          .              .            +INF      -8.038980E+8      
+2.base .west           .              .            +INF          -25.1043      
+2.base .east           .              .            +INF          -25.1043      
+2.base .south          .              .            +INF          -25.1043      
+2.peak .west           .              .            +INF           -7.7681      
+2.peak .east           .              .            +INF           -7.7681      
+2.peak .south          .              .            +INF           -7.7681      
+2.wind .west           .              .            +INF          -85.1043      
+2.wind .east           .              .            +INF          -85.1043      
+2.wind .south          .              .            +INF      -8.038977E+8      
+2.solar.west           .              .            +INF      -8.038977E+8      
+2.solar.east           .              .            +INF      -8.038977E+8      
+2.solar.south          .              .            +INF      -8.038977E+8      
+3.base .west           .              .            +INF          -11.4437      
+3.base .east           .              .            +INF          -11.4437      
+3.base .south          .              .            +INF          -11.4437      
+3.peak .west           .       1.2826001E-8        +INF           -2.1188      
+3.peak .east           .       1.2826001E-8        +INF           -2.1188      
+3.peak .south          .       1.2826001E-8        +INF           -2.1188      
+3.wind .west           .              .            +INF          -71.4437      
+3.wind .east           .              .            +INF          -71.4437      
+3.wind .south          .              .            +INF      -8.038975E+8      
+3.solar.west           .              .            +INF      -8.038975E+8      
+3.solar.east           .              .            +INF      -8.038975E+8      
+3.solar.south          .              .            +INF      -8.038975E+8      
+4.base .west           .              .            +INF          -11.1448      
+4.base .east           .              .            +INF          -11.1448      
+4.base .south          .              .            +INF          -11.1448      
+4.peak .west           .       1.2826001E-8        +INF           -2.0975      
+4.peak .east           .       1.2826001E-8        +INF           -2.0975      
+4.peak .south          .       1.2826001E-8        +INF           -2.0975      
+4.wind .west           .              .            +INF          -71.1448      
+4.wind .east           .              .            +INF          -71.1448      
+4.wind .south          .              .            +INF      -8.038976E+8      
+4.solar.west           .              .            +INF      -8.038976E+8      
+4.solar.east           .              .            +INF      -8.038976E+8      
+4.solar.south          .              .            +INF      -8.038976E+8      
+5.base .west           .              .            +INF          -14.0449      
+5.base .east           .              .            +INF          -14.0449      
+5.base .south          .              .            +INF          -14.0449      
+5.peak .west           .       1.2826001E-8        +INF           -2.0696      
+5.peak .east           .       1.2826001E-8        +INF           -2.0696      
+5.peak .south          .       1.2826001E-8        +INF           -2.0696      
+5.wind .west           .              .            +INF          -74.0449      
+5.wind .east           .              .            +INF          -74.0449      
+5.wind .south          .              .            +INF      -8.038984E+8      
+5.solar.west           .              .            +INF          -74.0449      
+5.solar.east           .              .            +INF          -74.0449      
+5.solar.south          .              .            +INF      -8.038984E+8      
+
+---- EQU gen_share  
+
+                    LOWER          LEVEL          UPPER         MARGINAL
+
+1.base.west           .              .              .              .          
+1.base.east           .              .              .              .          
+1.base.south          .              .              .              .          
+1.peak.west           .              .              .            -0.0005      
+1.peak.east           .              .              .            -0.0005      
+1.peak.south          .              .              .            -0.0005      
+2.base.west           .              .              .              .          
+2.base.east           .              .              .              .          
+2.base.south          .              .              .              .          
+2.peak.west           .              .              .            -0.0001      
+2.peak.east           .              .              .            -0.0001      
+2.peak.south          .              .              .            -0.0001      
+3.base.west           .              .              .              .          
+3.base.east           .              .              .              .          
+3.base.south          .              .              .              .          
+3.peak.west           .              .              .            -0.0004      
+3.peak.east           .              .              .            -0.0004      
+3.peak.south          .              .              .            -0.0004      
+4.base.west           .              .              .              .          
+4.base.east           .              .              .              .          
+4.base.south          .              .              .              .          
+4.peak.west           .              .              .            -0.0004      
+4.peak.east           .              .              .            -0.0004      
+4.peak.south          .              .              .            -0.0004      
+5.base.west           .              .              .              .          
+5.base.east           .              .              .              .          
+5.base.south          .              .              .              .          
+5.peak.west           .              .              .            -0.0005      
+5.peak.east           .              .              .            -0.0005      
+5.peak.south          .              .              .            -0.0005      
+
+---- EQU cap_min  
+
+                   LOWER          LEVEL          UPPER         MARGINAL
+
+base .west           .            25.0114        +INF             .          
+base .east           .            25.0114        +INF             .          
+base .south          .            25.0114        +INF             .          
+peak .west           .       1.2826001E-8        +INF           -1.9937      
+peak .east           .       1.2826001E-8        +INF           -1.9937      
+peak .south          .       1.2826001E-8        +INF           -1.9937      
+wind .west           .            70.8259        +INF             .          
+wind .east           .            54.9268        +INF             .          
+wind .south          .              .            +INF          -46.0000      
+solar.west           .             4.6258        +INF             .          
+solar.east           .            19.6813        +INF             .          
+solar.south          .              .            +INF          -26.0000      
+
+---- EQU cap_max  
+
+                   LOWER          LEVEL          UPPER         MARGINAL
+
+base .west       -100.0000       -25.0114        +INF             .          
+base .east       -100.0000       -25.0114        +INF             .          
+base .south      -100.0000       -25.0114        +INF             .          
+peak .west       -100.0000   -1.282600E-8        +INF             .          
+peak .east       -100.0000   -1.282600E-8        +INF             .          
+peak .south      -100.0000   -1.282600E-8        +INF             .          
+wind .west       -100.0000       -70.8259        +INF             .          
+wind .east       -100.0000       -54.9268        +INF             .          
+wind .south      -100.0000          .            +INF             .          
+solar.west       -100.0000        -4.6258        +INF             .          
+solar.east       -100.0000       -19.6813        +INF             .          
+solar.south      -100.0000          .            +INF             .          
+
+---- EQU demand_min  
+
+               LOWER          LEVEL          UPPER         MARGINAL
+
+1.west           .            17.5937        +INF             .          
+1.east           .            35.7205        +INF             .          
+1.south          .            53.3142        +INF             .          
+2.west           .            15.7649        +INF             .          
+2.east           .            32.0075        +INF             .          
+2.south          .            47.7725        +INF             .          
+3.west           .            16.6211        +INF             .          
+3.east           .            33.7459        +INF             .          
+3.south          .            50.3670        +INF             .          
+4.west           .            16.6617        +INF             .          
+4.east           .            33.8282        +INF             .          
+4.south          .            50.4898        +INF             .          
+5.west           .            16.9688        +INF             .          
+5.east           .            34.4519        +INF             .          
+5.south          .            51.4207        +INF             .          
+
+---- EQU zonal_energy_balance  
+
+         LOWER          LEVEL          UPPER         MARGINAL
+
+1          .              .              .            64.4664      
+2          .              .              .            85.1043      
+3          .              .              .            71.4437      
+4          .              .              .            71.1448      
+5          .       1.2748188E-8          .            74.0449      
+
+---- VAR GEN  
+
+                     LOWER          LEVEL          UPPER         MARGINAL
+
+1.base .west         -INF           25.0114        +INF             .          
+1.base .east         -INF           25.0114        +INF             .          
+1.base .south        -INF           25.0114        +INF             .          
+1.peak .west         -INF             .            +INF             .          
+1.peak .east         -INF             .            +INF             .          
+1.peak .south        -INF             .            +INF             .          
+1.wind .west         -INF           17.7065        +INF             .          
+1.wind .east         -INF            8.2390        +INF             .          
+1.wind .south        -INF             .            +INF             .          
+1.solar.west         -INF            0.9252        +INF             .          
+1.solar.east         -INF            4.7235        +INF             .          
+1.solar.south        -INF             .            +INF             .          
+2.base .west         -INF           25.0114        +INF             .          
+2.base .east         -INF           25.0114        +INF             .          
+2.base .south        -INF           25.0114        +INF             .          
+2.peak .west         -INF      1.2260964E-8        +INF             .          
+2.peak .east         -INF      1.2260964E-8        +INF             .          
+2.peak .south        -INF      1.2260964E-8        +INF             .          
+2.wind .west         -INF           10.6239        +INF             .          
+2.wind .east         -INF            9.8868        +INF             .          
+2.wind .south        -INF             .            +INF             .          
+2.solar.west         -INF             .            +INF             .          
+2.solar.east         -INF             .            +INF             .          
+2.solar.south        -INF             .            +INF             .          
+3.base .west         -INF           25.0114        +INF             .          
+3.base .east         -INF           25.0114        +INF             .          
+3.base .south        -INF           25.0114        +INF             .          
+3.peak .west         -INF             .            +INF             .          
+3.peak .east         -INF             .            +INF             .          
+3.peak .south        -INF             .            +INF             .          
+3.wind .west         -INF           14.1652        +INF             .          
+3.wind .east         -INF           11.5346        +INF             .          
+3.wind .south        -INF             .            +INF             .          
+3.solar.west         -INF             .            +INF             .          
+3.solar.east         -INF             .            +INF             .          
+3.solar.south        -INF             .            +INF             .          
+4.base .west         -INF           25.0114        +INF             .          
+4.base .east         -INF           25.0114        +INF             .          
+4.base .south        -INF           25.0114        +INF             .          
+4.peak .west         -INF             .            +INF             .          
+4.peak .east         -INF             .            +INF             .          
+4.peak .south        -INF             .            +INF             .          
+4.wind .west         -INF           17.7065        +INF             .          
+4.wind .east         -INF            8.2390        +INF             .          
+4.wind .south        -INF             .            +INF             .          
+4.solar.west         -INF             .            +INF             .          
+4.solar.east         -INF             .            +INF             .          
+4.solar.south        -INF             .            +INF             .          
+5.base .west         -INF           25.0114        +INF             .          
+5.base .east         -INF           25.0114        +INF             .          
+5.base .south        -INF           25.0114        +INF             .          
+5.peak .west         -INF             .            +INF             .          
+5.peak .east         -INF             .            +INF             .          
+5.peak .south        -INF             .            +INF             .          
+5.wind .west         -INF           10.6239        +INF             .          
+5.wind .east         -INF           11.5346        +INF             .          
+5.wind .south        -INF             .            +INF             .          
+5.solar.west         -INF            0.9252        +INF             .          
+5.solar.east         -INF            4.7235        +INF             .          
+5.solar.south        -INF             .            +INF             .          
+
+---- VAR CAP  
+
+                   LOWER          LEVEL          UPPER         MARGINAL
+
+base .west         -INF           25.0114        +INF             .          
+base .east         -INF           25.0114        +INF             .          
+base .south        -INF           25.0114        +INF             .          
+peak .west         -INF      1.2826001E-8        +INF             .          
+peak .east         -INF      1.2826001E-8        +INF             .          
+peak .south        -INF      1.2826001E-8        +INF             .          
+wind .west         -INF           70.8259        +INF             .          
+wind .east         -INF           54.9268        +INF             .          
+wind .south        -INF             .            +INF             .          
+solar.west         -INF            4.6258        +INF             .          
+solar.east         -INF           19.6813        +INF             .          
+solar.south        -INF             .            +INF             .          
+
+---- VAR SHARE  
+
+              LOWER          LEVEL          UPPER         MARGINAL
+
+1.base        -INF            1.0000        +INF             .          
+1.peak        -INF            0.1623        +INF             .          
+2.base        -INF            1.0000        +INF             .          
+2.peak        -INF            0.6658        +INF             .          
+3.base        -INF            1.0000        +INF             .          
+3.peak        -INF            0.2109        +INF             .          
+4.base        -INF            1.0000        +INF             .          
+4.peak        -INF            0.2084        +INF             .          
+5.base        -INF            1.0000        +INF             .          
+5.peak        -INF            0.2231        +INF             .          
+
+                           LOWER          LEVEL          UPPER         MARGINAL
+
+---- VAR WF_inner          -INF        65741.4526        +INF             .          
+
+---- VAR LOAD_real  
+
+               LOWER          LEVEL          UPPER         MARGINAL
+
+1.west         10.5346        17.5937        +INF             .          
+1.east         21.3884        35.7205        +INF             .          
+1.south        31.9230        53.3142        +INF             .          
+2.west         10.2516        15.7649        +INF             .          
+2.east         20.8140        32.0075        +INF             .          
+2.south        31.0656        47.7725        +INF             .          
+3.west         10.2261        16.6211        +INF             .          
+3.east         20.7621        33.7459        +INF             .          
+3.south        30.9882        50.3670        +INF             .          
+4.west         10.2390        16.6617        +INF             .          
+4.east         20.7882        33.8282        +INF             .          
+4.south        31.0272        50.4898        +INF             .          
+5.west         10.5483        16.9688        +INF             .          
+5.east         21.4161        34.4519        +INF             .          
+5.south        31.9644        51.4207        +INF             .          
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+                             0     ERRORS
+                            63  PROJECTED
+GAMS 35.2.0  r33388c4 Released Jun  2, 2021 WEX-WEI x86 64bit/MS Windows - 09/08/21 11:55:57 Page 7
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+E x e c u t i o n
+
+
+----    213 PARAMETER CAP_FIX  
+
+             west        east       south
+
+base       25.011      25.011      25.011
+peak  1.282600E-8 1.282600E-8 1.282600E-8
+wind       70.826      54.927
+solar       4.626      19.681
+
+
+----    213 PARAMETER GEN_FIX  
+
+               west        east       south
+
+1.base       25.011      25.011      25.011
+1.wind       17.706       8.239
+1.solar       0.925       4.724
+2.base       25.011      25.011      25.011
+2.peak  1.226096E-8 1.226096E-8 1.226096E-8
+2.wind       10.624       9.887
+3.base       25.011      25.011      25.011
+3.wind       14.165      11.535
+4.base       25.011      25.011      25.011
+4.wind       17.706       8.239
+5.base       25.011      25.011      25.011
+5.wind       10.624      11.535
+5.solar       0.925       4.724
+
+
+----    213 PARAMETER LOAD_real_FIX  
+
+         west        east       south
+
+1      17.594      35.721      53.314
+2      15.765      32.008      47.772
+3      16.621      33.746      50.367
+4      16.662      33.828      50.490
+5      16.969      34.452      51.421
+
+
+----    213 PARAMETER LAMBDA  
+
+1 64.466,    2 85.104,    3 71.444,    4 71.145,    5 74.045
+
+
+----    213 PARAMETER price  
+
+         west        east       south
+
+1      64.466      64.466      64.466
+2      85.104      85.104      85.104
+3      71.444      71.444      71.444
+4      71.145      71.145      71.145
+5      74.045      74.045      74.045
+
+GAMS 35.2.0  r33388c4 Released Jun  2, 2021 WEX-WEI x86 64bit/MS Windows - 09/08/21 11:55:57 Page 8
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Equation Listing    SOLVE LOCI_outer Using QCP From line 215
+
+
+---- outer_objective  =E=  
+
+outer_objective..  WF + 10.5*GRID_CAP(west,east) + 25.5*GRID_CAP(west,south) + 10.5*GRID_CAP(east,west) + 17*GRID_CAP(east,south) + 25.5*GRID_CAP(south,west) + 17*GRID_CAP(south,east) + 60*UP(1,base,west) + 60*UP(1,base,east) + 60*UP(1,base,south) + 80*UP(1,peak,west) + 80*UP(1,peak,east) + 80*UP(1,peak,south) + 60*UP(2,base,west) + 60*UP(2,base,east) + 60*UP(2,base,south) + 80*UP(2,peak,west) + 80*UP(2,peak,east) + 80*UP(2,peak,south) + 60*UP(3,base,west) + 60*UP(3,base,east) + 60*UP(3,base,south) + 80*UP(3,peak,west) + 80*UP(3,peak,east) + 80*UP(3,peak,south) + 60*UP(4,base,west) + 60*UP(4,base,east) + 60*UP(4,base,south) + 80*UP(4,peak,west) + 80*UP(4,peak,east) + 80*UP(4,peak,south) + 60*UP(5,base,west) + 60*UP(5,base,east) + 60*UP(5,base,south) + 80*UP(5,peak,west) + 80*UP(5,peak,east) + 80*UP(5,peak,south) + 4.46644281498332*DOWN(1,base,west) + 4.46644281498332*DOWN(1,base,east) + 4.46644281498332*DOWN(1,base,south) - 15.5335571850167*DOWN(1,peak,west) - 15.5335571850167*DOWN(1,peak,east) - 15.5335571850167*DOWN(1,peak,south) + 64.4664428149833*DOWN(1,wind,west) + 64.4664428149833*DOWN(1,wind,east) + 64.4664428149833*DOWN(1,wind,south) + 64.4664428149833*DOWN(1,solar,west) + 64.4664428149833*DOWN(1,solar,east) + 64.4664428149833*DOWN(1,solar,south) + 25.104323498026*DOWN(2,base,west) + 25.104323498026*DOWN(2,base,east) + 25.104323498026*DOWN(2,base,south) + 5.10432349802605*DOWN(2,peak,west) + 5.10432349802605*DOWN(2,peak,east) + 5.10432349802605*DOWN(2,peak,south) + 85.104323498026*DOWN(2,wind,west) + 85.104323498026*DOWN(2,wind,east) + 85.104323498026*DOWN(2,wind,south) + 85.104323498026*DOWN(2,solar,west) + 85.104323498026*DOWN(2,solar,east) + 85.104323498026*DOWN(2,solar,south) + 11.4437104578093*DOWN(3,base,west) + 11.4437104578093*DOWN(3,base,east) + 11.4437104578093*DOWN(3,base,south) - 8.55628954219074*DOWN(3,peak,west) - 8.55628954219074*DOWN(3,peak,east) - 8.55628954219074*DOWN(3,peak,south) + 71.4437104578093*DOWN(3,wind,west) + 71.4437104578093*DOWN(3,wind,east) + 71.4437104578093*DOWN(3,wind,south) + 71.4437104578093*DOWN(3,solar,west) + 71.4437104578093*DOWN(3,solar,east) + 71.4437104578093*DOWN(3,solar,south) + 11.1447866160222*DOWN(4,base,west) + 11.1447866160222*DOWN(4,base,east) + 11.1447866160222*DOWN(4,base,south) - 8.85521338397777*DOWN(4,peak,west) - 8.85521338397777*DOWN(4,peak,east) - 8.85521338397777*DOWN(4,peak,south) + 71.1447866160222*DOWN(4,wind,west) + 71.1447866160222*DOWN(4,wind,east) + 71.1447866160222*DOWN(4,wind,south) + 71.1447866160222*DOWN(4,solar,west) + 71.1447866160222*DOWN(4,solar,east) + 71.1447866160222*DOWN(4,solar,south) + 14.0449310723549*DOWN(5,base,west) + 14.0449310723549*DOWN(5,base,east) + 14.0449310723549*DOWN(5,base,south) - 5.95506892764509*DOWN(5,peak,west) - 5.95506892764509*DOWN(5,peak,east) - 5.95506892764509*DOWN(5,peak,south) + 74.0449310723549*DOWN(5,wind,west) + 74.0449310723549*DOWN(5,wind,east) + 74.0449310723549*DOWN(5,wind,south) + 74.0449310723549*DOWN(5,solar,west) + 74.0449310723549*DOWN(5,solar,east) + 74.0449310723549*DOWN(5,solar,south) + 57*RESERVE_CAP(base,west) + 57*RESERVE_CAP(base,east) + 57*RESERVE_CAP(base,south) + 18*RESERVE_CAP(peak,west) + 18*RESERVE_CAP(peak,east) + 18*RESERVE_CAP(peak,south) + 46*RESERVE_CAP(wind,west) + 46*RESERVE_CAP(wind,east) + 46*RESERVE_CAP(wind,south) + 26*RESERVE_CAP(solar,west) + 26*RESERVE_CAP(solar,east) + 26*RESERVE_CAP(solar,south) =E= 65741.4526212835 ; (LHS = 0, INFES = 65741.4526212835 ****)
+     
+
+---- nodal_energy_balance  =E=  
+
+nodal_energy_balance(1,west)..  - FLOW(1,west,west) - FLOW(1,west,east) - FLOW(1,west,south) + UP(1,base,west) + UP(1,peak,west) + UP(1,wind,west) + UP(1,solar,west) - DOWN(1,base,west) - DOWN(1,peak,west) - DOWN(1,wind,west) - DOWN(1,solar,west) =E= -26.0493471385684 ; (LHS = 0, INFES = 26.0493471385684 ****)
+     
+nodal_energy_balance(1,east)..  - FLOW(1,east,west) - FLOW(1,east,east) - FLOW(1,east,south) + UP(1,base,east) + UP(1,peak,east) + UP(1,wind,east) + UP(1,solar,east) - DOWN(1,base,east) - DOWN(1,peak,east) - DOWN(1,wind,east) - DOWN(1,solar,east) =E= -2.25343951262142 ; (LHS = 0, INFES = 2.25343951262142 ****)
+     
+nodal_energy_balance(1,south)..  - FLOW(1,south,west) - FLOW(1,south,east) - FLOW(1,south,south) + UP(1,base,south) + UP(1,peak,south) + UP(1,wind,south) + UP(1,solar,south) - DOWN(1,base,south) - DOWN(1,peak,south) - DOWN(1,wind,south) - DOWN(1,solar,south) =E= 28.3027866521657 ; (LHS = 0, INFES = 28.3027866521657 ****)
+     
+REMAINING 12 ENTRIES SKIPPED
+
+
+---- grid_eq1  =L=  
+
+grid_eq1(1,west,west)..  FLOW(1,west,west) - GRID_CAP(west,west) =L= 0 ; (LHS = 0)
+     
+grid_eq1(1,west,east)..  FLOW(1,west,east) - GRID_CAP(west,east) =L= 0 ; (LHS = 0)
+     
+grid_eq1(1,west,south)..  FLOW(1,west,south) - GRID_CAP(west,south) =L= 0 ; (LHS = 0)
+     
+REMAINING 42 ENTRIES SKIPPED
+
+
+---- grid_eq2  =E=  
+
+grid_eq2(west,east)..  GRID_CAP(west,east) - GRID_CAP(east,west) =E= 0 ; (LHS = 0)
+     
+grid_eq2(west,south)..  GRID_CAP(west,south) - GRID_CAP(south,west) =E= 0 ; (LHS = 0)
+     
+grid_eq2(east,west)..  - GRID_CAP(west,east) + GRID_CAP(east,west) =E= 0 ; (LHS = 0)
+     
+REMAINING 3 ENTRIES SKIPPED
+
+
+---- grid_eq3  =E=  
+
+grid_eq3(1,west,west)..  FLOW(1,west,west) =E= 0 ; (LHS = 0)
+     
+grid_eq3(1,west,east)..  FLOW(1,west,east) - 250*THETA(1,west) + 250*THETA(1,east) =E= 0 ; (LHS = 0)
+     
+grid_eq3(1,west,south)..  FLOW(1,west,south) - 600*THETA(1,west) + 600*THETA(1,south) =E= 0 ; (LHS = 0)
+     
+REMAINING 42 ENTRIES SKIPPED
+
+
+---- grid_eq4  =E=  
+
+grid_eq4(1,west)..  THETA(1,south) =E= 0 ; (LHS = 0)
+     
+grid_eq4(1,east)..  THETA(1,south) =E= 0 ; (LHS = 0)
+     
+grid_eq4(1,south)..  THETA(1,south) =E= 0 ; (LHS = 0)
+     
+REMAINING 12 ENTRIES SKIPPED
+
+
+---- redispatch1  =L=  
+
+redispatch1(1,base,west)..  DOWN(1,base,west) =L= 25.0113976173729 ; (LHS = 0)
+     
+redispatch1(1,base,east)..  DOWN(1,base,east) =L= 25.0113976173729 ; (LHS = 0)
+     
+redispatch1(1,base,south)..  DOWN(1,base,south) =L= 25.0113976173728 ; (LHS = 0)
+     
+REMAINING 57 ENTRIES SKIPPED
+
+
+---- redispatch2  =L=  
+
+redispatch2(1,base,west)..  UP(1,base,west) - RESERVE_CAP(base,west) =L= 1.49771750557193E-8 ; (LHS = 0)
+     
+redispatch2(1,base,east)..  UP(1,base,east) - RESERVE_CAP(base,east) =L= 1.4977178608433E-8 ; (LHS = 0)
+     
+redispatch2(1,base,south)..  UP(1,base,south) - RESERVE_CAP(base,south) =L= 1.49771750557193E-8 ; (LHS = 0)
+     
+REMAINING 57 ENTRIES SKIPPED
+
+GAMS 35.2.0  r33388c4 Released Jun  2, 2021 WEX-WEI x86 64bit/MS Windows - 09/08/21 11:55:57 Page 9
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Column Listing      SOLVE LOCI_outer Using QCP From line 215
+
+
+---- WF  
+
+WF
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+        1       outer_objective
+
+
+---- FLOW  
+
+FLOW(1,west,west)
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+       -1       nodal_energy_balance(1,west)
+        1       grid_eq1(1,west,west)
+        1       grid_eq3(1,west,west)
+
+FLOW(1,west,east)
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+       -1       nodal_energy_balance(1,west)
+        1       grid_eq1(1,west,east)
+        1       grid_eq3(1,west,east)
+
+FLOW(1,west,south)
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+       -1       nodal_energy_balance(1,west)
+        1       grid_eq1(1,west,south)
+        1       grid_eq3(1,west,south)
+
+REMAINING 42 ENTRIES SKIPPED
+
+---- THETA  
+
+THETA(1,west)
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+     -250       grid_eq3(1,west,east)
+     -600       grid_eq3(1,west,south)
+      250       grid_eq3(1,east,west)
+      600       grid_eq3(1,south,west)
+
+THETA(1,east)
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+      250       grid_eq3(1,west,east)
+     -250       grid_eq3(1,east,west)
+     -400       grid_eq3(1,east,south)
+      400       grid_eq3(1,south,east)
+
+THETA(1,south)
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+      600       grid_eq3(1,west,south)
+      400       grid_eq3(1,east,south)
+     -600       grid_eq3(1,south,west)
+     -400       grid_eq3(1,south,east)
+        1       grid_eq4(1,west)
+        1       grid_eq4(1,east)
+        1       grid_eq4(1,south)
+
+REMAINING 12 ENTRIES SKIPPED
+
+---- GRID_CAP  
+
+GRID_CAP(west,west)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -1       grid_eq1(1,west,west)
+       -1       grid_eq1(2,west,west)
+       -1       grid_eq1(3,west,west)
+       -1       grid_eq1(4,west,west)
+       -1       grid_eq1(5,west,west)
+
+GRID_CAP(west,east)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       10.5     outer_objective
+       -1       grid_eq1(1,west,east)
+       -1       grid_eq1(2,west,east)
+       -1       grid_eq1(3,west,east)
+       -1       grid_eq1(4,west,east)
+       -1       grid_eq1(5,west,east)
+        1       grid_eq2(west,east)
+       -1       grid_eq2(east,west)
+
+GRID_CAP(west,south)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       25.5     outer_objective
+       -1       grid_eq1(1,west,south)
+       -1       grid_eq1(2,west,south)
+       -1       grid_eq1(3,west,south)
+       -1       grid_eq1(4,west,south)
+       -1       grid_eq1(5,west,south)
+        1       grid_eq2(west,south)
+       -1       grid_eq2(south,west)
+
+REMAINING 6 ENTRIES SKIPPED
+
+---- UP  
+
+UP(1,base,west)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       60       outer_objective
+        1       nodal_energy_balance(1,west)
+        1       redispatch2(1,base,west)
+
+UP(1,base,east)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       60       outer_objective
+        1       nodal_energy_balance(1,east)
+        1       redispatch2(1,base,east)
+
+UP(1,base,south)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       60       outer_objective
+        1       nodal_energy_balance(1,south)
+        1       redispatch2(1,base,south)
+
+REMAINING 57 ENTRIES SKIPPED
+
+---- DOWN  
+
+DOWN(1,base,west)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        4.4664  outer_objective
+       -1       nodal_energy_balance(1,west)
+        1       redispatch1(1,base,west)
+
+DOWN(1,base,east)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        4.4664  outer_objective
+       -1       nodal_energy_balance(1,east)
+        1       redispatch1(1,base,east)
+
+DOWN(1,base,south)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        4.4664  outer_objective
+       -1       nodal_energy_balance(1,south)
+        1       redispatch1(1,base,south)
+
+REMAINING 57 ENTRIES SKIPPED
+
+---- RESERVE_CAP  
+
+RESERVE_CAP(base,west)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       57       outer_objective
+       -1       redispatch2(1,base,west)
+       -1       redispatch2(2,base,west)
+       -1       redispatch2(3,base,west)
+       -1       redispatch2(4,base,west)
+       -1       redispatch2(5,base,west)
+
+RESERVE_CAP(base,east)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       57       outer_objective
+       -1       redispatch2(1,base,east)
+       -1       redispatch2(2,base,east)
+       -1       redispatch2(3,base,east)
+       -1       redispatch2(4,base,east)
+       -1       redispatch2(5,base,east)
+
+RESERVE_CAP(base,south)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       57       outer_objective
+       -1       redispatch2(1,base,south)
+       -1       redispatch2(2,base,south)
+       -1       redispatch2(3,base,south)
+       -1       redispatch2(4,base,south)
+       -1       redispatch2(5,base,south)
+
+REMAINING 9 ENTRIES SKIPPED
+GAMS 35.2.0  r33388c4 Released Jun  2, 2021 WEX-WEI x86 64bit/MS Windows - 09/08/21 11:55:57 Page 10
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Model Statistics    SOLVE LOCI_outer Using QCP From line 215
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS           8     SINGLE EQUATIONS          247
+BLOCKS OF VARIABLES           7     SINGLE VARIABLES          202
+NON ZERO ELEMENTS           660     NON LINEAR N-Z              0
+CODE LENGTH                   0     CONSTANT POOL              16
+
+
+GENERATION TIME      =        0.015 SECONDS      4 MB  35.2.0 r33388c4 WEX-WEI
+GAMS 35.2.0  r33388c4 Released Jun  2, 2021 WEX-WEI x86 64bit/MS Windows - 09/08/21 11:55:57 Page 11
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Solution Report     SOLVE LOCI_outer Using QCP From line 215
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   LOCI_outer          OBJECTIVE  WF
+     TYPE    QCP                 DIRECTION  MAXIMIZE
+     SOLVER  CONOPT              FROM LINE  215
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      1 Optimal                   
+**** OBJECTIVE VALUE            64236.7131
+
+ RESOURCE USAGE, LIMIT          0.016 10000000000.000
+ ITERATION COUNT, LIMIT        28    2147483647
+ EVALUATION ERRORS              0             0
+--- *** This solver runs with a community license. No commercial use.
+ 
+ 
+    C O N O P T 3   version 3.17K
+    Copyright (C)   ARKI Consulting and Development A/S
+                    Bagsvaerdvej 246 A
+                    DK-2880 Bagsvaerd, Denmark
+ 
+ 
+ ** Warning **  The value of LFITER is out of range.
+                LFITER is decreased from 2147483647 to 1000000000.
+ 
+                   Pre-triangular equations:   30
+                   Post-triangular equations:  16
+ 
+ 
+ ** Optimal solution. There are no superbasic variables.
+ 
+ 
+ CONOPT time Total                            0.016 seconds
+   of which: Function evaluations             0.000 =  0.0%
+             1st Derivative evaluations       0.000 =  0.0%
+ 
+
+                           LOWER          LEVEL          UPPER         MARGINAL
+
+---- EQU outer_obj~     65741.4526     65741.4526     65741.4526         1.0000      
+
+---- EQU nodal_energy_balance  
+
+               LOWER          LEVEL          UPPER         MARGINAL
+
+1.west        -26.0493       -26.0493       -26.0493       -19.4082      
+1.east         -2.2534        -2.2534        -2.2534       -44.3878      
+1.south        28.3028        28.3028        28.3028       -60.0000      
+2.west        -19.8704       -19.8704       -19.8704         EPS         
+2.east         -2.8907        -2.8907        -2.8907         EPS         
+2.south        22.7611        22.7611        22.7611         EPS         
+3.west        -22.5555       -22.5555       -22.5555          .          
+3.east         -2.8001        -2.8001        -2.8001         EPS         
+3.south        25.3556        25.3556        25.3556         EPS         
+4.west        -26.0562       -26.0562       -26.0562       -49.2857      
+4.east          0.5778         0.5778         0.5778       -60.0000      
+4.south        25.4785        25.4785        25.4785       -53.5714      
+5.west        -19.5916       -19.5916       -19.5916       -73.0612      
+5.east         -6.8177        -6.8177        -6.8177       -56.4082      
+5.south        26.4093        26.4093        26.4093       -80.0000      
+
+---- EQU grid_eq1  
+
+                     LOWER          LEVEL          UPPER         MARGINAL
+
+1.west .west         -INF             .              .              .          
+1.west .east         -INF           -0.8681          .              .          
+1.west .south        -INF             .              .            51.0000      
+1.east .west         -INF          -10.1208          .              .          
+1.east .east         -INF             .              .              .          
+1.east .south        -INF           -1.8491          .              .          
+1.south.west         -INF          -42.8460          .              .          
+1.south.east         -INF          -15.6087          .              .          
+1.south.south        -INF             .              .              .          
+2.west .west         -INF             .              .              .          
+2.west .east         -INF           -2.3242          .              .          
+2.west .south        -INF           -4.7229          .              .          
+2.east .west         -INF           -8.6647          .              .          
+2.east .east         -INF             .              .              .          
+2.east .south        -INF           -2.6680          .              .          
+2.south.west         -INF          -38.1231          .              .          
+2.south.east         -INF          -14.7899          .              .          
+2.south.south        -INF             .              .              .          
+3.west .west         -INF             .              .              .          
+3.west .east         -INF           -1.7485          .              .          
+3.west .south        -INF           -2.6135          .              .          
+3.east .west         -INF           -9.2404          .              .          
+3.east .east         -INF             .              .              .          
+3.east .south        -INF           -2.1828          .              .          
+3.south.west         -INF          -40.2325          .              .          
+3.south.east         -INF          -15.2750          .              .          
+3.south.south        -INF             .              .              .          
+4.west .west         -INF             .              .              .          
+4.west .east         -INF             .              .            21.0000      
+4.west .south        -INF           -0.8612          .              .          
+4.east .west         -INF          -10.9889          .              .          
+4.east .east         -INF             .              .              .          
+4.east .south        -INF           -3.8122          .              .          
+4.south.west         -INF          -41.9847          .              .          
+4.south.east         -INF          -13.6456          .              .          
+4.south.south        -INF             .              .              .          
+5.west .west         -INF             .              .              .          
+5.west .east         -INF           -3.5832          .              .          
+5.west .south        -INF           -3.7426          .              .          
+5.east .west         -INF           -7.4057          .              .          
+5.east .east         -INF             .              .              .          
+5.east .south        -INF             .              .            34.0000      
+5.south.west         -INF          -39.1033          .              .          
+5.south.east         -INF          -17.4579          .              .          
+5.south.south        -INF             .              .              .          
+
+---- EQU grid_eq2  
+
+                   LOWER          LEVEL          UPPER         MARGINAL
+
+west .east           .              .              .            10.5000      
+west .south          .              .              .              .          
+east .west           .              .              .              .          
+east .south          .              .              .            17.0000      
+south.west           .              .              .           -25.5000      
+south.east           .              .              .              .          
+
+---- EQU grid_eq3  
+
+                     LOWER          LEVEL          UPPER         MARGINAL
+
+1.west .west           .              .              .           -19.4082      
+1.west .east           .              .              .           -19.4082      
+1.west .south          .              .              .           -70.4082      
+1.east .west           .              .              .           -44.3878      
+1.east .east           .              .              .           -44.3878      
+1.east .south          .              .              .           -44.3878      
+1.south.west           .              .              .           -60.0000      
+1.south.east           .              .              .           -60.0000      
+1.south.south          .              .              .           -60.0000      
+2.west .west           .              .              .             EPS         
+2.west .east           .              .              .             EPS         
+2.west .south          .              .              .             EPS         
+2.east .west           .              .              .             EPS         
+2.east .east           .              .              .             EPS         
+2.east .south          .              .              .             EPS         
+2.south.west           .              .              .             EPS         
+2.south.east           .              .              .             EPS         
+2.south.south          .              .              .             EPS         
+3.west .west           .              .              .             EPS         
+3.west .east           .              .              .             EPS         
+3.west .south          .              .              .             EPS         
+3.east .west           .              .              .             EPS         
+3.east .east           .              .              .             EPS         
+3.east .south          .              .              .             EPS         
+3.south.west           .              .              .             EPS         
+3.south.east           .              .              .             EPS         
+3.south.south          .              .              .             EPS         
+4.west .west           .              .              .           -49.2857      
+4.west .east           .              .              .           -70.2857      
+4.west .south          .              .              .           -49.2857      
+4.east .west           .              .              .           -60.0000      
+4.east .east           .              .              .           -60.0000      
+4.east .south          .              .              .           -60.0000      
+4.south.west           .              .              .           -53.5714      
+4.south.east           .              .              .           -53.5714      
+4.south.south          .              .              .           -53.5714      
+5.west .west           .              .              .           -73.0612      
+5.west .east           .              .              .           -73.0612      
+5.west .south          .              .              .           -73.0612      
+5.east .west           .              .              .           -56.4082      
+5.east .east           .              .              .           -56.4082      
+5.east .south          .              .              .           -90.4082      
+5.south.west           .              .              .           -80.0000      
+5.south.east           .              .              .           -80.0000      
+5.south.south          .              .              .           -80.0000      
+
+---- EQU grid_eq4  
+
+               LOWER          LEVEL          UPPER         MARGINAL
+
+1.west           .              .              .              .          
+1.east           .              .              .             EPS         
+1.south          .              .              .              .          
+2.west           .              .              .              .          
+2.east           .              .              .             EPS         
+2.south          .              .              .              .          
+3.west           .              .              .              .          
+3.east           .              .              .             EPS         
+3.south          .              .              .              .          
+4.west           .              .              .              .          
+4.east           .              .              .             EPS         
+4.south          .              .              .              .          
+5.west           .              .              .              .          
+5.east           .              .              .             EPS         
+5.south          .              .              .              .          
+
+---- EQU redispatch1  
+
+                     LOWER          LEVEL          UPPER         MARGINAL
+
+1.base .west         -INF             .            25.0114          .          
+1.base .east         -INF             .            25.0114          .          
+1.base .south        -INF             .            25.0114          .          
+1.peak .west         -INF             .              .              .          
+1.peak .east         -INF             .              .              .          
+1.peak .south        -INF             .              .              .          
+1.wind .west         -INF             .            17.7065          .          
+1.wind .east         -INF             .             8.2390          .          
+1.wind .south        -INF             .              .              .          
+1.solar.west         -INF             .             0.9252          .          
+1.solar.east         -INF             .             4.7235          .          
+1.solar.south        -INF             .              .              .          
+2.base .west         -INF             .            25.0114          .          
+2.base .east         -INF             .            25.0114          .          
+2.base .south        -INF             .            25.0114          .          
+2.peak .west         -INF             .       1.2260964E-8          .          
+2.peak .east         -INF             .       1.2260964E-8          .          
+2.peak .south        -INF             .       1.2260964E-8          .          
+2.wind .west         -INF             .            10.6239          .          
+2.wind .east         -INF             .             9.8868          .          
+2.wind .south        -INF             .              .              .          
+2.solar.west         -INF             .              .              .          
+2.solar.east         -INF             .              .              .          
+2.solar.south        -INF             .              .              .          
+3.base .west         -INF             .            25.0114          .          
+3.base .east         -INF             .            25.0114          .          
+3.base .south        -INF             .            25.0114          .          
+3.peak .west         -INF             .              .             8.5563      
+3.peak .east         -INF             .              .             8.5563      
+3.peak .south        -INF             .              .             8.5563      
+3.wind .west         -INF             .            14.1652          .          
+3.wind .east         -INF             .            11.5346          .          
+3.wind .south        -INF             .              .              .          
+3.solar.west         -INF             .              .              .          
+3.solar.east         -INF             .              .              .          
+3.solar.south        -INF             .              .              .          
+4.base .west         -INF             .            25.0114          .          
+4.base .east         -INF             .            25.0114          .          
+4.base .south        -INF             .            25.0114          .          
+4.peak .west         -INF             .              .              .          
+4.peak .east         -INF             .              .              .          
+4.peak .south        -INF             .              .              .          
+4.wind .west         -INF             .            17.7065          .          
+4.wind .east         -INF             .             8.2390          .          
+4.wind .south        -INF             .              .              .          
+4.solar.west         -INF             .              .              .          
+4.solar.east         -INF             .              .              .          
+4.solar.south        -INF             .              .              .          
+5.base .west         -INF             .            25.0114          .          
+5.base .east         -INF             .            25.0114          .          
+5.base .south        -INF             .            25.0114          .          
+5.peak .west         -INF             .              .              .          
+5.peak .east         -INF             .              .              .          
+5.peak .south        -INF             .              .              .          
+5.wind .west         -INF             .            10.6239          .          
+5.wind .east         -INF             .            11.5346          .          
+5.wind .south        -INF             .              .              .          
+5.solar.west         -INF             .             0.9252          .          
+5.solar.east         -INF             .             4.7235          .          
+5.solar.south        -INF             .              .              .          
+
+---- EQU redispatch2  
+
+                     LOWER          LEVEL          UPPER         MARGINAL
+
+1.base .west         -INF             .       1.4977175E-8          .          
+1.base .east         -INF             .       1.4977179E-8          .          
+1.base .south        -INF      8.097482E-10   1.4977175E-8          .          
+1.peak .west         -INF             .       1.2826001E-8          .          
+1.peak .east         -INF             .       1.2826001E-8          .          
+1.peak .south        -INF             .       1.2826001E-8          .          
+1.wind .west         -INF      2.450662E-11   2.450662E-11        19.4082      
+1.wind .east         -INF      2.460432E-11   2.460432E-11        44.3878      
+1.wind .south        -INF             .              .            60.0000      
+1.solar.west         -INF      9.226797E-11   9.226797E-11        19.4082      
+1.solar.east         -INF      2.484946E-11   2.484946E-11        44.3878      
+1.solar.south        -INF             .              .            60.0000      
+2.base .west         -INF      1.867413E-10   1.867413E-10          .          
+2.base .east         -INF      1.867413E-10   1.867413E-10          .          
+2.base .south        -INF      1.867413E-10   1.867413E-10          .          
+2.peak .west         -INF      5.650363E-10   5.650363E-10          .          
+2.peak .east         -INF      5.650363E-10   5.650363E-10          .          
+2.peak .south        -INF      5.650363E-10   5.650363E-10          .          
+2.wind .west         -INF      -1.33173E-11   -1.33173E-11         EPS         
+2.wind .east         -INF      -1.32605E-11   -1.32605E-11          .          
+2.wind .south        -INF             .              .              .          
+2.solar.west         -INF             .              .              .          
+2.solar.east         -INF             .              .              .          
+2.solar.south        -INF             .              .              .          
+3.base .west         -INF      1.2597852E-9   1.2597852E-9          .          
+3.base .east         -INF      1.2597852E-9   1.2597852E-9          .          
+3.base .south        -INF      1.2597852E-9   1.2597852E-9          .          
+3.peak .west         -INF             .       1.2826001E-8          .          
+3.peak .east         -INF             .       1.2826001E-8          .          
+3.peak .south        -INF             .       1.2826001E-8          .          
+3.wind .west         -INF      2.068035E-11   2.068035E-11          .          
+3.wind .east         -INF      2.062528E-11   2.062528E-11          .          
+3.wind .south        -INF             .              .             EPS         
+3.solar.west         -INF             .              .             EPS         
+3.solar.east         -INF             .              .             EPS         
+3.solar.south        -INF             .              .             EPS         
+4.base .west         -INF      1.2252457E-9   1.2252457E-9          .          
+4.base .east         -INF      1.2252492E-9   1.2252492E-9          .          
+4.base .south        -INF      1.2252492E-9   1.2252492E-9          .          
+4.peak .west         -INF             .       1.2826001E-8          .          
+4.peak .east         -INF             .       1.2826001E-8          .          
+4.peak .south        -INF             .       1.2826001E-8          .          
+4.wind .west         -INF      1.997336E-11   1.997336E-11        49.2857      
+4.wind .east         -INF      2.000000E-11   2.000000E-11        60.0000      
+4.wind .south        -INF             .              .            53.5714      
+4.solar.west         -INF             .              .            49.2857      
+4.solar.east         -INF             .              .            60.0000      
+4.solar.south        -INF             .              .            53.5714      
+5.base .west         -INF      2.697220E-11   2.697220E-11        13.0612      
+5.base .east         -INF      2.697220E-11   2.697220E-11          .          
+5.base .south        -INF      2.697220E-11   2.697220E-11        20.0000      
+5.peak .west         -INF             .       1.2826001E-8          .          
+5.peak .east         -INF             .       1.2826001E-8          .          
+5.peak .south        -INF      1.2826001E-8   1.2826001E-8          .          
+5.wind .west         -INF      -1.36637E-11   -1.36637E-11        73.0612      
+5.wind .east         -INF      -1.37081E-11   -1.37081E-11        56.4082      
+5.wind .south        -INF             .              .            80.0000      
+5.solar.west         -INF      2.950251E-11   2.950251E-11        73.0612      
+5.solar.east         -INF      -1.35403E-11   -1.35403E-11        56.4082      
+5.solar.south        -INF             .              .            80.0000      
+
+                           LOWER          LEVEL          UPPER         MARGINAL
+
+---- VAR WF                -INF        64236.7131        +INF             .          
+
+---- VAR FLOW  
+
+                     LOWER          LEVEL          UPPER         MARGINAL
+
+1.west .west         -INF             .            +INF             .          
+1.west .east         -INF            4.6264        +INF             .          
+1.west .south        -INF           21.4230        +INF             .          
+1.east .west         -INF           -4.6264        +INF             .          
+1.east .east         -INF             .            +INF             .          
+1.east .south        -INF            6.8798        +INF             .          
+1.south.west         -INF          -21.4230        +INF             .          
+1.south.east         -INF           -6.8798        +INF             .          
+1.south.south        -INF             .            +INF             .          
+2.west .west         -INF             .            +INF             .          
+2.west .east         -INF            3.1703        +INF             .          
+2.west .south        -INF           16.7001        +INF             .          
+2.east .west         -INF           -3.1703        +INF             .          
+2.east .east         -INF             .            +INF             .          
+2.east .south        -INF            6.0610        +INF             .          
+2.south.west         -INF          -16.7001        +INF             .          
+2.south.east         -INF           -6.0610        +INF             .          
+2.south.south        -INF             .            +INF             .          
+3.west .west         -INF             .            +INF             .          
+3.west .east         -INF            3.7460        +INF             .          
+3.west .south        -INF           18.8095        +INF             .          
+3.east .west         -INF           -3.7460        +INF             .          
+3.east .east         -INF             .            +INF             .          
+3.east .south        -INF            6.5461        +INF             .          
+3.south.west         -INF          -18.8095        +INF             .          
+3.south.east         -INF           -6.5461        +INF             .          
+3.south.south        -INF             .            +INF             .          
+4.west .west         -INF             .            +INF             .          
+4.west .east         -INF            5.4945        +INF             .          
+4.west .south        -INF           20.5618        +INF             .          
+4.east .west         -INF           -5.4945        +INF             .          
+4.east .east         -INF             .            +INF             .          
+4.east .south        -INF            4.9167        +INF             .          
+4.south.west         -INF          -20.5618        +INF             .          
+4.south.east         -INF           -4.9167        +INF             .          
+4.south.south        -INF             .            +INF             .          
+5.west .west         -INF             .            +INF             .          
+5.west .east         -INF            1.9112        +INF             .          
+5.west .south        -INF           17.6804        +INF             .          
+5.east .west         -INF           -1.9112        +INF             .          
+5.east .east         -INF             .            +INF             .          
+5.east .south        -INF            8.7289        +INF             .          
+5.south.west         -INF          -17.6804        +INF             .          
+5.south.east         -INF           -8.7289        +INF             .          
+5.south.south        -INF             .            +INF             .          
+
+---- VAR THETA  
+
+               LOWER          LEVEL          UPPER         MARGINAL
+
+1.west         -INF            0.0357        +INF             .          
+1.east         -INF            0.0172        +INF             .          
+1.south        -INF             .            +INF             .          
+2.west         -INF            0.0278        +INF             .          
+2.east         -INF            0.0152        +INF             .          
+2.south        -INF             .            +INF             .          
+3.west         -INF            0.0313        +INF             .          
+3.east         -INF            0.0164        +INF             .          
+3.south        -INF             .            +INF             .          
+4.west         -INF            0.0343        +INF             .          
+4.east         -INF            0.0123        +INF             .          
+4.south        -INF             .            +INF             .          
+5.west         -INF            0.0295        +INF             .          
+5.east         -INF            0.0218        +INF             .          
+5.south        -INF             .            +INF             .          
+
+---- VAR GRID_CAP  
+
+                   LOWER          LEVEL          UPPER         MARGINAL
+
+west .west           .              .            +INF            EPS         
+west .east           .             5.4945        +INF             .          
+west .south          .            21.4230        +INF             .          
+east .west           .             5.4945        +INF             .          
+east .east           .              .            +INF            EPS         
+east .south          .             8.7289        +INF             .          
+south.west           .            21.4230        +INF             .          
+south.east           .             8.7289        +INF             .          
+south.south          .              .            +INF            EPS         
+
+---- VAR UP  
+
+                     LOWER          LEVEL          UPPER         MARGINAL
+
+1.base .west           .              .            +INF          -40.5918      
+1.base .east           .              .            +INF          -15.6122      
+1.base .south          .              .            +INF             .          
+1.peak .west           .              .            +INF          -60.5918      
+1.peak .east           .              .            +INF          -35.6122      
+1.peak .south          .              .            +INF          -20.0000      
+1.wind .west           .              .            +INF             .          
+1.wind .east           .              .            +INF             .          
+1.wind .south          .              .            +INF             .          
+1.solar.west           .              .            +INF             .          
+1.solar.east           .              .            +INF             .          
+1.solar.south          .              .            +INF             .          
+2.base .west           .              .            +INF          -60.0000      
+2.base .east           .              .            +INF          -60.0000      
+2.base .south          .              .            +INF          -60.0000      
+2.peak .west           .              .            +INF          -80.0000      
+2.peak .east           .              .            +INF          -80.0000      
+2.peak .south          .              .            +INF          -80.0000      
+2.wind .west           .              .            +INF             .          
+2.wind .east           .              .            +INF             .          
+2.wind .south          .              .            +INF            EPS         
+2.solar.west           .              .            +INF            EPS         
+2.solar.east           .              .            +INF            EPS         
+2.solar.south          .              .            +INF            EPS         
+3.base .west           .              .            +INF          -60.0000      
+3.base .east           .              .            +INF          -60.0000      
+3.base .south          .              .            +INF          -60.0000      
+3.peak .west           .              .            +INF          -80.0000      
+3.peak .east           .              .            +INF          -80.0000      
+3.peak .south          .              .            +INF          -80.0000      
+3.wind .west           .              .            +INF            EPS         
+3.wind .east           .              .            +INF            EPS         
+3.wind .south          .              .            +INF             .          
+3.solar.west           .              .            +INF             .          
+3.solar.east           .              .            +INF             .          
+3.solar.south          .              .            +INF             .          
+4.base .west           .              .            +INF          -10.7143      
+4.base .east           .              .            +INF             .          
+4.base .south          .              .            +INF           -6.4286      
+4.peak .west           .              .            +INF          -30.7143      
+4.peak .east           .              .            +INF          -20.0000      
+4.peak .south          .              .            +INF          -26.4286      
+4.wind .west           .              .            +INF             .          
+4.wind .east           .              .            +INF             .          
+4.wind .south          .              .            +INF             .          
+4.solar.west           .              .            +INF             .          
+4.solar.east           .              .            +INF             .          
+4.solar.south          .              .            +INF             .          
+5.base .west           .              .            +INF             .          
+5.base .east           .              .            +INF           -3.5918      
+5.base .south          .              .            +INF             .          
+5.peak .west           .              .            +INF           -6.9388      
+5.peak .east           .              .            +INF          -23.5918      
+5.peak .south          .       1.2705646E-8        +INF             .          
+5.wind .west           .              .            +INF             .          
+5.wind .east           .              .            +INF             .          
+5.wind .south          .              .            +INF             .          
+5.solar.west           .              .            +INF             .          
+5.solar.east           .              .            +INF             .          
+5.solar.south          .              .            +INF             .          
+
+---- VAR DOWN  
+
+                     LOWER          LEVEL          UPPER         MARGINAL
+
+1.base .west           .              .            +INF          -23.8746      
+1.base .east           .              .            +INF          -48.8542      
+1.base .south          .              .            +INF          -64.4664      
+1.peak .west           .              .            +INF           -3.8746      
+1.peak .east           .              .            +INF          -28.8542      
+1.peak .south          .              .            +INF          -44.4664      
+1.wind .west           .              .            +INF          -83.8746      
+1.wind .east           .              .            +INF         -108.8542      
+1.wind .south          .              .            +INF         -124.4664      
+1.solar.west           .              .            +INF          -83.8746      
+1.solar.east           .              .            +INF         -108.8542      
+1.solar.south          .              .            +INF         -124.4664      
+2.base .west           .              .            +INF          -25.1043      
+2.base .east           .              .            +INF          -25.1043      
+2.base .south          .              .            +INF          -25.1043      
+2.peak .west           .              .            +INF           -5.1043      
+2.peak .east           .              .            +INF           -5.1043      
+2.peak .south          .              .            +INF           -5.1043      
+2.wind .west           .              .            +INF          -85.1043      
+2.wind .east           .              .            +INF          -85.1043      
+2.wind .south          .              .            +INF          -85.1043      
+2.solar.west           .              .            +INF          -85.1043      
+2.solar.east           .              .            +INF          -85.1043      
+2.solar.south          .              .            +INF          -85.1043      
+3.base .west           .              .            +INF          -11.4437      
+3.base .east           .              .            +INF          -11.4437      
+3.base .south          .              .            +INF          -11.4437      
+3.peak .west           .              .            +INF             .          
+3.peak .east           .              .            +INF             .          
+3.peak .south          .              .            +INF             .          
+3.wind .west           .              .            +INF          -71.4437      
+3.wind .east           .              .            +INF          -71.4437      
+3.wind .south          .              .            +INF          -71.4437      
+3.solar.west           .              .            +INF          -71.4437      
+3.solar.east           .              .            +INF          -71.4437      
+3.solar.south          .              .            +INF          -71.4437      
+4.base .west           .              .            +INF          -60.4305      
+4.base .east           .              .            +INF          -71.1448      
+4.base .south          .              .            +INF          -64.7162      
+4.peak .west           .              .            +INF          -40.4305      
+4.peak .east           .              .            +INF          -51.1448      
+4.peak .south          .              .            +INF          -44.7162      
+4.wind .west           .              .            +INF         -120.4305      
+4.wind .east           .              .            +INF         -131.1448      
+4.wind .south          .              .            +INF         -124.7162      
+4.solar.west           .              .            +INF         -120.4305      
+4.solar.east           .              .            +INF         -131.1448      
+4.solar.south          .              .            +INF         -124.7162      
+5.base .west           .              .            +INF          -87.1062      
+5.base .east           .              .            +INF          -70.4531      
+5.base .south          .              .            +INF          -94.0449      
+5.peak .west           .              .            +INF          -67.1062      
+5.peak .east           .              .            +INF          -50.4531      
+5.peak .south          .              .            +INF          -74.0449      
+5.wind .west           .              .            +INF         -147.1062      
+5.wind .east           .              .            +INF         -130.4531      
+5.wind .south          .              .            +INF         -154.0449      
+5.solar.west           .              .            +INF         -147.1062      
+5.solar.east           .              .            +INF         -130.4531      
+5.solar.south          .              .            +INF         -154.0449      
+
+---- VAR RESERVE_CAP  
+
+                   LOWER          LEVEL          UPPER         MARGINAL
+
+base .west           .              .            +INF          -43.9388      
+base .east           .              .            +INF          -57.0000      
+base .south          .              .            +INF          -37.0000      
+peak .west           .              .            +INF          -18.0000      
+peak .east           .              .            +INF          -18.0000      
+peak .south          .              .            +INF          -18.0000      
+wind .west           .              .            +INF          -17.8673      
+wind .east           .              .            +INF          -18.4961      
+wind .south          .              .            +INF          -46.0000      
+solar.west           .              .            +INF           -7.5061      
+solar.east           .              .            +INF           -1.8090      
+solar.south          .              .            +INF          -26.0000      
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+                             0     ERRORS
+                            30  PROJECTED
+GAMS 35.2.0  r33388c4 Released Jun  2, 2021 WEX-WEI x86 64bit/MS Windows - 09/08/21 11:55:57 Page 12
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+E x e c u t i o n
+
+
+----    232 VARIABLE WF.L                  =    64236.713  
+            PARAMETER consumer_surplus     =   100843.917  
+            PARAMETER generation_costs     =    35102.464  
+            PARAMETER total_network_cost   =     1504.739  
+            PARAMETER res_share            =        0.260  
+
+----    234 VARIABLE CAP.L  
+
+             west        east       south
+
+base       25.011      25.011      25.011
+peak  1.282600E-8 1.282600E-8 1.282600E-8
+wind       70.826      54.927
+solar       4.626      19.681
+
+
+----    234 VARIABLE GEN.L  
+
+               west        east       south
+
+1.base       25.011      25.011      25.011
+1.wind       17.706       8.239
+1.solar       0.925       4.724
+2.base       25.011      25.011      25.011
+2.peak  1.226096E-8 1.226096E-8 1.226096E-8
+2.wind       10.624       9.887
+3.base       25.011      25.011      25.011
+3.wind       14.165      11.535
+4.base       25.011      25.011      25.011
+4.wind       17.706       8.239
+5.base       25.011      25.011      25.011
+5.wind       10.624      11.535
+5.solar       0.925       4.724
+
+
+----    234 VARIABLE GRID_CAP.L  
+
+             west        east       south
+
+west                    5.494      21.423
+east        5.494                   8.729
+south      21.423       8.729
+
+
+----    234 VARIABLE FLOW.L  
+
+               west        east       south
+
+1.west                    4.626      21.423
+1.east       -4.626                   6.880
+1.south     -21.423      -6.880
+2.west                    3.170      16.700
+2.east       -3.170                   6.061
+2.south     -16.700      -6.061
+3.west                    3.746      18.809
+3.east       -3.746                   6.546
+3.south     -18.809      -6.546
+4.west                    5.494      20.562
+4.east       -5.494                   4.917
+4.south     -20.562      -4.917
+5.west                    1.911      17.680
+5.east       -1.911                   8.729
+5.south     -17.680      -8.729
+
+
+----    234 VARIABLE THETA.L  
+
+         west        east
+
+1       0.036       0.017
+2       0.028       0.015
+3       0.031       0.016
+4       0.034       0.012
+5       0.029       0.022
+
+
+----    234 PARAMETER load_deviation  
+
+         west        east       south
+
+1       1.002       1.002       1.002
+2       0.923       0.923       0.923
+3       0.975       0.975       0.975
+4       0.976       0.976       0.976
+5       0.965       0.965       0.965
+
+
+----    234 PARAMETER res_share            =        0.260  
+
+----    234 PARAMETER LAMBDA  
+
+1 64.466,    2 85.104,    3 71.444,    4 71.145,    5 74.045
+
+
+----    234 VARIABLE LOAD_real.L  
+
+         west        east       south
+
+1      17.594      35.721      53.314
+2      15.765      32.008      47.772
+3      16.621      33.746      50.367
+4      16.662      33.828      50.490
+5      16.969      34.452      51.421
+
+
+----    234 VARIABLE UP.L  
+
+              south
+
+5.peak  1.270565E-8
+
+
+----    234 VARIABLE DOWN.L  
+
+                      ( ALL       0.000 )
+
+
+
+EXECUTION TIME       =        0.890 SECONDS      4 MB  35.2.0 r33388c4 WEX-WEI
+
+
+USER: GAMS Community License for Anselm Eicke        G210709|0002AO-GEN
+      Hertie School of Governance GmbH                           CL1515
+      License for teaching and research at degree granting institutions
+
+
+**** FILE SUMMARY
+
+Input      C:\Users\ansel\OneDrive\PhD\3 - Where to place new power generation\Three node models\zonal.gms
+Output     C:\Users\ansel\OneDrive\PhD\3 - Where to place new power generation\Three node models\zonal.lst

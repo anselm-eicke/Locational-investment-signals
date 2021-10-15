@@ -1,0 +1,213 @@
+
+--- Job MPC_new_formulation_RS.gms Start 09/17/21 13:56:31 35.2.0 r33388c4 WEX-WEI x86 64bit/MS Windows
+--- Applying:
+    C:\Program Files\GAMS-35\gmsprmNT.txt
+--- GAMS Parameters defined
+    Input "C:\Users\ansel\OneDrive\PhD\2 - Where to place new power generation\Three node models\MPC_new_formulation_RS.gms"
+    PageSize 0
+    ScrDir "C:\Users\ansel\OneDrive\PhD\2 - Where to place new power generation\Three node models\225c\"
+    SysDir "C:\Program Files\GAMS-35\"
+    LogOption 3
+    ErrMsg 1
+    ErrorLog 99
+    IDE 1
+    LstTitleLeftAligned 1
+Licensee: GAMS Community License for Anselm Eicke        G210709|0002AO-GEN
+          Hertie School of Governance GmbH                           CL1515
+          C:\Users\ansel\OneDrive\Dokumente\GAMS\gamslice.txt
+          Anselm Eicke, eicke@hertie-school.org                            
+          Community license for demonstration and instructional purposes only
+GAMS 35.2.0   Copyright (C) 1987-2021 GAMS Development. All rights reserved
+--- Starting compilation
+--- MPC_new_formulation_RS.gms(48) 3 Mb
+--- GDXin=C:\Users\ansel\OneDrive\PhD\2 - Where to place new power generation\Three node models\in.gdx
+--- GDX File ($gdxIn) C:\Users\ansel\OneDrive\PhD\2 - Where to place new power generation\Three node models\in.gdx
+--- MPC_new_formulation_RS.gms(163) 3 Mb
+--- Starting execution: elapsed 0:00:00.027
+--- MPC_new_formulation_RS.gms(157) 4 Mb
+--- Generating MCP model LOCI
+--- MPC_new_formulation_RS.gms(159) 6 Mb
+---   396 rows  396 columns  2,156 non-zeroes
+---   0 nl-code  0 nl-non-zeroes
+--- MPC_new_formulation_RS.gms(159) 4 Mb
+--- Executing PATH (Solvelink=2): elapsed 0:00:00.065
+Reading dictionary...
+Reading row data...
+Evaluating functions...
+Checking model...
+Calculating Jacobian...
+
+PATH             35.2.0 r33388c4 Released Jun 02, 2021 WEI x86 64bit/MS Window
+
+*** This solver runs with a community license. No commercial use.
+396 row/cols, 2156 non-zeros, 1.37% dense.
+
+Path 5.0.02 (Wed Jun  2 14:31:08 2021)
+Written by Todd Munson, Steven Dirkse, Youngdae Kim, and Michael Ferris
+
+MCPR: Imp:    0 IBd:    0 Dup:   26 DBd:   26
+Preprocessed size   : 370
+
+INITIAL POINT STATISTICS
+Maximum of X. . . . . . . . . .  0.0000e+00 var: (mu_G_min(1,base,west))
+Maximum of F. . . . . . . . . .  1.0000e+05 eqn: (cap_max(base,west))
+Maximum of Grad F . . . . . . .  1.0000e+01 eqn: (KKT_CAP(base,west))
+                                            var: (mu_C_min(base,west))
+
+INITIAL JACOBIAN NORM STATISTICS
+Maximum Row Norm. . . . . . . .  3.2205e+01 eqn: (KKT_GEN(3,base,west))
+Minimum Row Norm. . . . . . . .  1.0000e+00 eqn: (gen_min(1,base,west))
+Maximum Column Norm . . . . . .  3.2205e+01 var: (GEN(3,base,west))
+Minimum Column Norm . . . . . .  1.0000e+00 var: (mu_G_min(1,base,west))
+
+Crash Log
+major  func  diff  size  residual    step       prox   (label)
+    0     0             3.2017e+03             0.0e+00 (KKT_GEN(1,wind,west))
+    1     1    94   158 2.1663e+03  1.0e+00    1.0e+01 (KKT_GEN(10,peak,west))
+    2     2   128   252 1.3814e+03  1.0e+00    9.0e+00 (KKT_GEN(10,wind,west))
+    3     3    44   222 9.0291e+02  1.0e+00    8.1e+00 (KKT_GEN(10,peak,west))
+    4     4    25   217 7.0549e+02  1.0e+00    7.3e+00 (KKT_CAP(base,west))
+    5     9    18   222 7.0412e+02  2.6e-01    6.6e+00 (KKT_CAP(base,west))
+pn_search terminated: no progress.
+
+Major Iteration Log
+major minor  func  grad  residual    step  type prox    inorm  (label)
+    0     0    22     6 7.0412e+02           I 5.9e+00 1.3e+02 (KKT_CAP(base,we)
+
+Minor Iteration Log
+minor      t          z     w     v   art ckpts  enter    leave
+  500 -7.9570e-01   228   141     0     0     9 z[  173] w[  164]
+    1    28    23     7 7.9163e+02  1.0e+00 RM 2.4e+00 1.3e+02 (KKT_CAP(base,we)
+    2    19    24     8 7.9163e+02  1.0e+00 CO 9.4e-01 1.3e+02 (KKT_CAP(base,we)
+    3    23    25     9 7.9163e+02  1.0e+00 CO 3.8e-01 1.3e+02 (KKT_CAP(base,we)
+    4    49    26    10 7.9163e+02  1.0e+00 CO 1.5e-01 1.3e+02 (KKT_CAP(base,we)
+    5    19    27    11 7.9163e+02  1.0e+00 CO 6.0e-02 1.3e+02 (KKT_CAP(base,we)
+    6     2    38    12 6.2600e+02  1.9e-03 RG 2.4e+00 9.9e+01 (KKT_CAP(base,we)
+
+Minor Iteration Log
+minor      t          z     w     v   art ckpts  enter    leave
+  500 -2.0296e-06   327    42     0     0     9 w[   27] z[   26]
+
+Major Iteration Log
+major minor  func  grad  residual    step  type prox    inorm  (label)
+    7   509    39    13 6.2652e+02  1.0e+00 CO 9.4e-01 9.9e+01 (KKT_CAP(base,ea)
+
+Minor Iteration Log
+minor      t          z     w     v   art ckpts  enter    leave
+  500  3.5030e-07   320    49     0     0     9 w[   77] z[   76]
+
+Major Iteration Log
+major minor  func  grad  residual    step  type prox    inorm  (label)
+    8   792    40    14 6.2672e+02  1.0e+00 IO 3.8e-01 9.9e+01 (KKT_CAP(base,ea)
+    9   228    41    15 6.2618e+02  1.0e+00 CO 1.5e-01 9.9e+01 (KKT_CAP(base,ea)
+   10   168    42    16 6.2619e+02  1.0e+00 CO 6.0e-02 9.9e+01 (KKT_CAP(base,ea)
+   11     2    52    17 6.7759e+02  9.2e-03 RB 2.4e-02 1.0e+02 (KKT_CAP(base,ea)
+
+Minor Iteration Log
+minor      t          z     w     v   art ckpts  enter    leave
+  500 -1.3065e-04   274    95     0     0     9 w[  220] z[  219]
+
+Major Iteration Log
+major minor  func  grad  residual    step  type prox    inorm  (label)
+   12   509    62    18 5.5544e+02  1.2e-02 CG 2.4e+00 7.0e+01 (KKT_GEN(10,peak)
+
+Minor Iteration Log
+minor      t          z     w     v   art ckpts  enter    leave
+  500 -1.6938e-03   299    70     0     0     9 w[  159] z[  158]
+
+Major Iteration Log
+major minor  func  grad  residual    step  type prox    inorm  (label)
+   13   542    63    19 5.6593e+02  1.0e+00 CO 9.4e-01 9.1e+01 (KKT_CAP(wind,so)
+
+Minor Iteration Log
+minor      t          z     w     v   art ckpts  enter    leave
+  500 -3.9231e-06   321    48     0     0     9 w[   88] z[   90]
+
+Major Iteration Log
+major minor  func  grad  residual    step  type prox    inorm  (label)
+   14   519    64    20 5.6704e+02  1.0e+00 CO 3.8e-01 9.1e+01 (KKT_CAP(wind,so)
+
+Minor Iteration Log
+minor      t          z     w     v   art ckpts  enter    leave
+  500  3.3782e-01   252   117     0     0     9 w[  201] z[  202]
+
+Major Iteration Log
+major minor  func  grad  residual    step  type prox    inorm  (label)
+   15   510    73    21 6.0460e+02  2.3e-02 CB 1.5e-01 2.5e+02 (KKT_CAP(peak,we)
+   16     2    82    22 6.5369e+02  2.3e-02 RB 6.0e-02 2.5e+02 (KKT_CAP(peak,we)
+
+Minor Iteration Log
+minor      t          z     w     v   art ckpts  enter    leave
+  500  9.5680e-01   266   103     0     0     9 w[  129] z[  127]
+
+Major Iteration Log
+major minor  func  grad  residual    step  type prox    inorm  (label)
+   17   503   107    23 5.0758e+02  1.9e-03 SG 2.4e+00 7.3e+01 (KKT_GEN(2,peak,)
+   18    57   108    24 5.1145e+02  1.0e+00 RD 9.4e-01 7.4e+01 (KKT_GEN(2,peak,)
+   19   266   109    25 5.6265e+02  1.0e+00 CD 3.8e-01 8.3e+01 (KKT_GEN(2,peak,)
+   20   270   110    26 4.6224e+02  1.0e+00 CO 1.5e-01 6.8e+01 (KKT_GEN(2,peak,)
+   21   130   111    27 4.3549e+02  1.0e+00 CO 6.0e-02 6.6e+01 (KKT_GEN(2,peak,)
+
+Minor Iteration Log
+minor      t          z     w     v   art ckpts  enter    leave
+  500  3.2974e-01   251   118     0     0     9 w[   61] z[   27]
+
+Major Iteration Log
+major minor  func  grad  residual    step  type prox    inorm  (label)
+   22   656   112    28 2.8632e+02  1.0e+00 CO 2.4e-02 4.4e+01 (KKT_GEN(2,peak,)
+   23     2   123    29 2.7518e+02  1.9e-03 RG 9.7e-03 3.3e+01 (KKT_GEN(2,wind,)
+
+Minor Iteration Log
+minor      t          z     w     v   art ckpts  enter    leave
+  500  4.4718e-01   254   115     0     0     9 z[   14] z[  133]
+
+Major Iteration Log
+major minor  func  grad  residual    step  type prox    inorm  (label)
+   24   592   124    30 2.6438e+00  1.0e+00 SO 3.9e-03 1.1e+00 (KKT_CAP(wind,we)
+   25    36   125    31 4.4778e-02  1.0e+00 SO 1.5e-03 2.0e-02 (KKT_GEN(1,wind,)
+   26     8   126    32 9.8063e-03  1.0e+00 SO 6.2e-04 6.9e-03 (KKT_GEN(1,wind,)
+   27    59   127    33 4.7018e-03  1.0e+00 SO 2.5e-04 2.7e-03 (KKT_GEN(1,wind,)
+   28    26   128    34 1.8788e-03  1.0e+00 SO 9.9e-05 1.1e-03 (KKT_GEN(1,solar)
+   29    22   129    35 7.5151e-04  1.0e+00 SO 4.0e-05 4.4e-04 (KKT_GEN(1,wind,)
+   30    21   130    36 3.0058e-04  1.0e+00 SO 1.6e-05 1.8e-04 (KKT_GEN(1,wind,)
+   31    21   131    37 1.2023e-04  1.0e+00 SO 6.3e-06 7.0e-05 (KKT_GEN(1,wind,)
+   32    21   132    38 4.8091e-05  1.0e+00 SO 2.5e-06 2.8e-05 (KKT_GEN(1,wind,)
+   33    21   133    39 1.9236e-05  1.0e+00 SO 1.0e-06 1.1e-05 (KKT_GEN(1,wind,)
+   34    13   134    40 7.6945e-06  1.0e+00 SO 4.1e-07 4.5e-06 (KKT_GEN(1,wind,)
+   35    13   135    41 3.0778e-06  1.0e+00 SO 1.6e-07 1.8e-06 (KKT_GEN(1,wind,)
+   36     9   136    42 1.5874e-06  1.0e+00 SO 6.5e-08 1.0e-06 (KKT_CAP(peak,so)
+   37     9   137    43 4.9245e-07  1.0e+00 SO 2.6e-08 2.9e-07 (KKT_GEN(1,solar)
+
+FINAL STATISTICS
+Inf-Norm of Complementarity . .  2.8749e-07 eqn: (KKT_GEN(1,solar,east))
+Inf-Norm of Normal Map. . . . .  2.8749e-07 eqn: (KKT_GEN(1,solar,east))
+Inf-Norm of Minimum Map . . . .  2.8749e-07 eqn: (KKT_GEN(1,solar,east))
+Inf-Norm of Fischer Function. .  2.8749e-07 eqn: (KKT_GEN(1,solar,east))
+Inf-Norm of Grad Fischer Fcn. .  1.1600e-06 eqn: (cap_min(peak,west))
+Two-Norm of Grad Fischer Fcn. .  2.4412e-06
+
+FINAL POINT STATISTICS
+Maximum of X. . . . . . . . . .  3.1434e+02 var: (CAP(wind,west))
+Maximum of F. . . . . . . . . .  1.0000e+05 eqn: (cap_max(base,west))
+Maximum of Grad F . . . . . . .  1.0000e+01 eqn: (KKT_CAP(base,west))
+                                            var: (mu_C_min(base,west))
+
+ ** EXIT - solution found.
+
+Major Iterations. . . . 37
+Minor Iterations. . . . 7468
+Restarts. . . . . . . . 0
+Crash Iterations. . . . 5
+Gradient Steps. . . . . 4
+Function Evaluations. . 137
+Gradient Evaluations. . 43
+Basis Time. . . . . . . 0.345000
+Total Time. . . . . . . 0.360000
+Residual. . . . . . . . 4.924480e-07
+Postsolved residual: 4.9245e-07
+
+--- Reading solution for model LOCI
+--- Executing after solve: elapsed 0:00:00.495
+--- MPC_new_formulation_RS.gms(163) 4 Mb
+*** Status: Normal completion
+--- Job MPC_new_formulation_RS.gms Stop 09/17/21 13:56:32 elapsed 0:00:00.516

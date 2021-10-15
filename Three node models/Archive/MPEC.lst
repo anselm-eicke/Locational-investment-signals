@@ -1,0 +1,1449 @@
+GAMS 35.2.0  r33388c4 Released Jun  2, 2021 WEX-WEI x86 64bit/MS Windows - 09/09/21 15:33:50 Page 1
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+C o m p i l a t i o n
+
+
+   1  Sets
+   2  all_t       all hours               /1*10/
+   3  t(all_t)    hours                   /1*2/
+   4  tec         generators              /base, peak, wind, solar/
+   5  con(tec)    conventional generation /base, peak/
+   6  all_n       all buses               /west, east, south/
+   7  n(all_n)    selected buses          /west, east/
+   8  ;
+   9   
+  10  alias (n,m);
+  11  alias (all_n,all_m);
+  12   
+  13  * parameters for supply and demand functions
+  14  Parameter elasticity / -0.25 /;
+  15  Parameter p_ref / 65 /;
+  16  Parameter capacity_instr / 1 /;
+  17  Parameter specific_network_costs /150/;
+  18  *Source for network costs: EMMA (3400 EUR/MW/km discontiert mit i = 0.07 ueber 40 Jahre)
+  19   
+  20  Table B(all_n,all_m)        Susceptance of transmission lines
+  21           west   east    south
+  22  west        1    250      600
+  23  east      250      1      400
+  24  south     600    400        1
+  25  ;
+  26   
+  27  Parameters
+  28  * Input Parameters
+  29  i_cost(*,*)                 cost data to be loaded from sheet "cost"
+  30  i_load(all_t,all_n)         load data to be loaded from sheet "time series" in MWh
+  31  i_avail(all_t,tec,all_n)    availability data
+  32   
+  33  * Model Parameters
+  34  load(t,n)                   hourly load in GWh
+  35  avail(t,tec,n)              availability of wind and solar generation (1)
+  36  c_var(tec,n)                variable costs (EUR per MWh)
+  37  c_fix(tec,n)                annualized fixed costs (EUR per MW p.a.)
+  38  supply_slope
+  39  cap_lim(tec,n)              capacity limit of generation in each node
+  40  grid_cost(n,m)
+  41  sc                          scaling factor
+  42   
+  43  * Output Parameters
+  44  consumer_surplus
+  45  generation_costs
+  46  total_network_cost
+  47  load_deviation(t,n)
+  48  res_share
+  49  marginal_fixed_costs(tec,n)
+  50  fixed_linear_costs(tec,n)
+  51  max_marginal_price_adder(tec,n)
+  52  variable_costs(tec,n)
+  53  o_WF
+  54  o_CS
+  55  o_GC
+  56  o_NC
+  57  o_RES_share
+  58  o_load(t,n)
+  59  o_cap(tec,n)
+  60  o_price(t,n)
+  61  o_cap_instr(tec,n)
+  62  o_instrument(tec,n)
+  63   
+  64  i_instrument(tec,n)
+  65  i_cap(tec,n)
+  66  i_lambda(t)
+  67  i_load_real(t,n)
+  68  i_gen(t,tec,n)
+  69  i_grid_cap(n,m)
+  70  i_flow(t,n,m)
+  71  i_up(t,tec,n)
+  72  i_down(t,tec,n)
+  73  i_mu_G_min(t,tec,n)
+  74  i_mu_G_max(t,tec,n)
+  75  i_mu_C_min(tec,n)
+  76  i_mu_C_max(tec,n)
+  77  i_mu_D_min(t,n)
+  78  ;
+  79   
+  80  * Load data
+GDXIN   C:\Users\ansel\OneDrive\PhD\3 - Where to place new power generation\Three node models\in.gdx
+--- LOAD  i_cost = 1:i_cost
+--- LOAD  i_load = 2:i_load
+--- LOAD  i_avail = 3:i_avail
+  83  *, i_instrument, i_cap, i_lambda, i_load_real, i_gen, i_grid_cap, i_flow, i_mu_G_min, i_mu_G_max, i_mu_C_min, i_mu_C_max, i_mu_D_min, i_up, i_down
+  84   
+  85   
+  86  * Data assignment
+  87  sc = card(t) / 8760;
+  88  load(t,n)                   = i_load(t,n) / 1000;
+  89  avail(t,tec,n)              = i_avail(t,tec,n);
+  90  avail(t,con,n)              = 1;
+  91  c_var(tec, n)               = i_cost(tec,"cost_var");
+  92  c_fix(tec, n)               = round(i_cost(tec,"cost_fix") * 1000 * sc);
+  93  supply_slope                = c_fix('wind','east')  * 0.2 / 50;
+  94  cap_lim(tec,n)              = 100;
+  95  grid_cost(n,m)              = round(B(n,m) * specific_network_costs * sc);
+  96   
+  97   
+  98   
+  99   
+ 100  Free variables
+ 101  GEN(t,tec,n)
+ 102  CAP(tec,n)
+ 103  LAMBDA(t)
+ 104  RHO(t,con,n)
+ 105  WF
+ 106  FLOW(t,n,m)
+ 107  INSTRUMENT(tec,n)
+ 108  THETA(t,n)
+ 109  ;
+ 110   
+ 111  Positive variables
+ 112  mu_G_min(t,tec,n)
+ 113  mu_G_max(t,tec,n)
+ 114  mu_C_min(tec,n)
+ 115  mu_C_max(tec,n)
+ 116  mu_D_min(t,n)
+ 117  GRID_CAP(n,m)
+ 118  LOAD_real(t,n)
+ 119  UP(t,tec,n)
+ 120  DOWN(t,tec,n)
+ 121  SHARE(t,con)
+ 122  ;
+ 123   
+ 124  Equations
+ 125  objective, instr_const,
+ 126  nodal_energy_balance,
+ 127  grid_eq1, grid_eq2, grid_eq3, grid_eq4,
+ 128  redispatch1, redispatch2,
+ 129  gen_min, gen_max, cap_min, cap_max, demand_min,
+ 130  zonal_energy_balance,
+ 131  KKT_GEN, KKT_CAP, KKT_load;
+ 132   
+ 133  ** Outer problem
+ 134  objective..                 WF =e= sum((t, n), p_ref * LOAD_real(t,n) * ((1-1/elasticity) + 1/2 * LOAD_real(t,n) / elasticity / load(t,n)))
+ 135                                      - sum((tec,n), CAP(tec,n) * c_fix(tec,n) + supply_slope * CAP(tec,n) * CAP(tec,n))
+ 136                                      - sum((t,tec,n), GEN(t,tec,n) * c_var(tec,n))
+ 137                                      - sum((n,m),(GRID_CAP(n,m) * grid_cost(n,m)) / 2)
+ 138                                      - sum((t,tec,n), UP(t,tec,n) * c_var(tec,n) + DOWN(t,tec,n) * (LAMBDA(t) - c_var(tec,n)))
+ 139                                      ;
+ 140   
+ 141  instr_const..               INSTRUMENT('solar','east') =e= 0;
+ 142   
+ 143  nodal_energy_balance(t,n).. sum(tec,GEN(t,tec,n) - DOWN(t,tec,n) + UP(t,tec,n)) - LOAD_real(t,n) =E= sum(m,FLOW(t,n,m));
+ 144   
+ 145  *network constraints
+ 146  grid_eq1(t,n,m)..           FLOW(t,n,m) =l= GRID_CAP(n,m);
+ 147  grid_eq2(n,m)..             GRID_CAP(n,m) =e= GRID_CAP(m,n);
+ 148  grid_eq3(t,n,m)..           FLOW(t,n,m) =e= B(n,m) * (THETA(t,n) - THETA(t,m));
+ 149  grid_eq4(t,n)..             THETA(t,'east') =e= 0;
+ 150   
+ 151  redispatch1(t,tec,n)..      DOWN(t,tec,n) =L= GEN(t,tec,n);
+ 152  redispatch2(t,tec,n)..      UP(t,tec,n) =L= CAP(tec,n) * avail(t,tec,n) - GEN(t,tec,n);
+ 153   
+ 154  ** Inner problem
+ 155  *Primal constraints
+ 156  gen_max(t,tec,n)..          0 =g= GEN(t,tec,n) - CAP(tec,n) * avail(t,tec,n);
+ 157  gen_min(t,tec,n)..          0 =g= -GEN(t,tec,n);
+ 158  cap_max(tec,n)..            0 =g= CAP(tec,n) - cap_lim(tec,n);
+ 159  cap_min(tec,n)..            0 =g= -CAP(tec,n);
+ 160  demand_min(t,n)..           0 =g= -LOAD_real(t,n);
+ 161   
+ 162  zonal_energy_balance(t)..   0 =e= sum((tec,n),GEN(t,tec,n)) - sum(n,LOAD_real(t,n));
+ 163   
+ 164  *KKT conditions
+ 165  KKT_GEN(t,tec,n)..      c_var(tec,n) + mu_G_max(t,tec,n) - mu_G_min(t,tec,n) - LAMBDA(t) =e= 0;
+ 166  KKT_CAP(tec,n)..        c_fix(tec,n) + 2 * supply_slope * CAP(tec,n) + INSTRUMENT(tec,n) - sum(t,avail(t,tec,n) * mu_G_max(t,tec,n)) + mu_C_max(tec,n) - mu_C_min(tec,n) =e= 0;
+ 167  KKT_load(t,n)..         -p_ref* ((1-1/elasticity) + LOAD_real(t,n) / (elasticity * load(t,n))) - mu_D_min(t,n) + LAMBDA(t) =e= 0;
+ 168   
+ 169  Model LOCI /
+ 170  objective
+ 171  *instr_const
+ 172  nodal_energy_balance
+ 173   
+ 174  grid_eq1
+ 175  grid_eq2
+ 176  grid_eq3
+ 177  grid_eq4
+ 178   
+ 179  redispatch1
+ 180  redispatch2
+ 181   
+ 182  gen_min.mu_G_min
+ 183  gen_max.mu_G_max
+ 184  cap_min.mu_C_min
+ 185  cap_max.mu_C_max
+ 186  demand_min.mu_D_min
+ 187   
+ 188  zonal_energy_balance.LAMBDA
+ 189   
+ 190  KKT_GEN
+ 191  KKT_CAP
+ 192  KKT_load
+ 193   
+ 194  /;
+ 195   
+ 196  * Set starting values
+ 197   
+ 198  *INSTRUMENT.L(tec,n) = i_instrument(tec,n);
+ 199  *CAP.L(tec,n) = i_cap(tec,n);
+ 200  *LAMBDA.L(t) = i_lambda(t);
+ 201  *LOAD_real.L(t,n) = i_load_real(t,n);
+ 202  *GEN.L(t,tec,n) = i_gen(t,tec,n);
+ 203  *GRID_CAP.L(n,m) = i_grid_cap(n,m);
+ 204  *FLOW.L(t,n,m) = i_flow(t,n,m);
+ 205   
+ 206  *UP.L(t,tec,n) = i_up(t,tec,n);
+ 207  *DOWN.L(t,tec,n) = i_down(t,tec,n);
+ 208   
+ 209  *mu_G_min.L(t,tec,n) = i_mu_G_min(t,tec,n);
+ 210  *mu_G_max.L(t,tec,n) = i_mu_G_max(t,tec,n);
+ 211  *mu_C_min.L(tec,n) = i_mu_C_min(tec,n);
+ 212  *mu_C_max.L(tec,n) = i_mu_C_max(tec,n);
+ 213  *mu_D_min.L(t,n) = i_mu_D_min(t,n);
+ 214   
+ 215  INSTRUMENT.lo(tec,n) = -250;
+ 216  INSTRUMENT.up(tec,n) = 750;
+ 217   
+ 218  LAMBDA.lo(t) = -20;
+ 219  LAMBDA.up(t) = 350;
+ 220   
+ 221  LOCI.nodlim = 5000000;
+ 222  LOCI.resLim = 40000
+ 223   
+ 224  option NLP=Baron;
+ 225  Solve LOCI using NLP max WF;
+ 226   
+ 227   
+ 228  consumer_surplus = sum((t, n), p_ref * LOAD_real.L(t,n) * ((1-1/elasticity) + 1/2 * LOAD_real.L(t,n) / elasticity / load(t,n)));
+ 229   
+ 230  generation_costs = sum((tec,n), CAP.L(tec,n) * c_fix(tec,n) + supply_slope * CAP.L(tec,n) * CAP.L(tec,n))
+ 231                                      + sum((t,tec,n), GEN.L(t,tec,n) * c_var(tec,n));
+ 232   
+ 233  total_network_cost = sum((n,m), GRID_CAP.L(n,m) * grid_cost(n,m) / 2)
+ 234                      + sum((t,tec,n), UP.L(t,tec,n) * c_var(tec,n) + DOWN.L(t,tec,n) * (LAMBDA.L(t) - c_var(tec,n)));
+ 235   
+ 236  load_deviation(t,n) = LOAD_real.L(t,n) / load(t,n);
+ 237  res_share = 1 - sum((t,con,n), GEN.L(t,con,n)) / sum((t,tec,n), GEN.L(t,tec,n));
+ 238   
+ 239  load_deviation(t,n) = LOAD_real.L(t,n) / load(t,n);
+ 240   
+ 241  o_instrument(tec,n) = round(INSTRUMENT.L(tec,n) / card(t) * 8760) / 1000;
+ 242   
+ 243  o_WF =WF.L;
+ 244  o_CS = consumer_surplus;
+ 245  o_GC = generation_costs;
+ 246  o_NC = total_network_cost;
+ 247  o_RES_share = res_share;
+ 248   
+ 249  o_price(t,n) = LAMBDA.L(t);
+ 250  o_cap(tec,n) = CAP.L(tec,n);
+ 251  o_load(t,n) = LOAD_real.L(t,n);
+ 252   
+ 253  Display WF.L, consumer_surplus, generation_costs, total_network_cost, RES_share;
+ 254  Display CAP.L, GEN.L, o_instrument, INSTRUMENT.L, GRID_CAP.L, FLOW.L, LAMBDA.L, o_price, LOAD_real.L, load, load_deviation, UP.L, DOWN.L;
+GAMS 35.2.0  r33388c4 Released Jun  2, 2021 WEX-WEI x86 64bit/MS Windows - 09/09/21 15:33:50 Page 2
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Include File Summary
+
+
+   SEQ   GLOBAL TYPE      PARENT   LOCAL  FILENAME
+
+     1        1 INPUT          0       0  C:\Users\ansel\OneDrive\PhD\3 - Where to place new power generation\Three node models\MPEC.gms
+     2       81 GDXIN          1      81  C:\Users\ansel\OneDrive\PhD\3 - Where to place new power generation\Three node models\in.gdx
+
+
+COMPILATION TIME     =        0.000 SECONDS      3 MB  35.2.0 r33388c4 WEX-WEI
+GAMS 35.2.0  r33388c4 Released Jun  2, 2021 WEX-WEI x86 64bit/MS Windows - 09/09/21 15:33:50 Page 3
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Equation Listing    SOLVE LOCI Using NLP From line 225
+
+
+---- objective  =E=  
+
+objective..  65*GEN(1,base,west) + 65*GEN(1,base,east) + 80*GEN(1,peak,west) + 80*GEN(1,peak,east) + 65*GEN(2,base,west) + 65*GEN(2,base,east) + 80*GEN(2,peak,west) + 80*GEN(2,peak,east) + (25)*CAP(base,west) + (25)*CAP(base,east) + (7)*CAP(peak,west) + (7)*CAP(peak,east) + (18)*CAP(wind,west) + (18)*CAP(wind,east) + (10)*CAP(solar,west) + (10)*CAP(solar,east) + (0)*LAMBDA(1) + (0)*LAMBDA(2) + WF + 4.5*GRID_CAP(west,east) + 4.5*GRID_CAP(east,west) - (325)*LOAD_real(1,west) - (325)*LOAD_real(1,east) - (325)*LOAD_real(2,west) - (325)*LOAD_real(2,east) + 65*UP(1,base,west) + 65*UP(1,base,east) + 80*UP(1,peak,west) + 80*UP(1,peak,east) + 65*UP(2,base,west) + 65*UP(2,base,east) + 80*UP(2,peak,west) + 80*UP(2,peak,east) - (65)*DOWN(1,base,west) - (65)*DOWN(1,base,east) - (80)*DOWN(1,peak,west) - (80)*DOWN(1,peak,east) + (0)*DOWN(1,wind,west) + (0)*DOWN(1,wind,east) + (0)*DOWN(1,solar,west) + (0)*DOWN(1,solar,east) - (65)*DOWN(2,base,west) - (65)*DOWN(2,base,east) - (80)*DOWN(2,peak,west) - (80)*DOWN(2,peak,east) + (0)*DOWN(2,wind,west) + (0)*DOWN(2,wind,east) + (0)*DOWN(2,solar,west) + (0)*DOWN(2,solar,east) =E= 0 ; (LHS = 0)
+     
+
+---- nodal_energy_balance  =E=  
+
+nodal_energy_balance(1,west)..  GEN(1,base,west) + GEN(1,peak,west) + GEN(1,wind,west) + GEN(1,solar,west) - FLOW(1,west,west) - FLOW(1,west,east) - LOAD_real(1,west) + UP(1,base,west) + UP(1,peak,west) + UP(1,wind,west) + UP(1,solar,west) - DOWN(1,base,west) - DOWN(1,peak,west) - DOWN(1,wind,west) - DOWN(1,solar,west) =E= 0 ; (LHS = 0)
+     
+nodal_energy_balance(1,east)..  GEN(1,base,east) + GEN(1,peak,east) + GEN(1,wind,east) + GEN(1,solar,east) - FLOW(1,east,west) - FLOW(1,east,east) - LOAD_real(1,east) + UP(1,base,east) + UP(1,peak,east) + UP(1,wind,east) + UP(1,solar,east) - DOWN(1,base,east) - DOWN(1,peak,east) - DOWN(1,wind,east) - DOWN(1,solar,east) =E= 0 ; (LHS = 0)
+     
+nodal_energy_balance(2,west)..  GEN(2,base,west) + GEN(2,peak,west) + GEN(2,wind,west) + GEN(2,solar,west) - FLOW(2,west,west) - FLOW(2,west,east) - LOAD_real(2,west) + UP(2,base,west) + UP(2,peak,west) + UP(2,wind,west) + UP(2,solar,west) - DOWN(2,base,west) - DOWN(2,peak,west) - DOWN(2,wind,west) - DOWN(2,solar,west) =E= 0 ; (LHS = 0)
+     
+REMAINING ENTRY SKIPPED
+
+
+---- grid_eq1  =L=  
+
+grid_eq1(1,west,west)..  FLOW(1,west,west) - GRID_CAP(west,west) =L= 0 ; (LHS = 0)
+     
+grid_eq1(1,west,east)..  FLOW(1,west,east) - GRID_CAP(west,east) =L= 0 ; (LHS = 0)
+     
+grid_eq1(1,east,west)..  FLOW(1,east,west) - GRID_CAP(east,west) =L= 0 ; (LHS = 0)
+     
+REMAINING 5 ENTRIES SKIPPED
+
+
+---- grid_eq2  =E=  
+
+grid_eq2(west,east)..  GRID_CAP(west,east) - GRID_CAP(east,west) =E= 0 ; (LHS = 0)
+     
+grid_eq2(east,west)..  - GRID_CAP(west,east) + GRID_CAP(east,west) =E= 0 ; (LHS = 0)
+     
+
+---- grid_eq3  =E=  
+
+grid_eq3(1,west,west)..  FLOW(1,west,west) =E= 0 ; (LHS = 0)
+     
+grid_eq3(1,west,east)..  FLOW(1,west,east) - 250*THETA(1,west) + 250*THETA(1,east) =E= 0 ; (LHS = 0)
+     
+grid_eq3(1,east,west)..  FLOW(1,east,west) + 250*THETA(1,west) - 250*THETA(1,east) =E= 0 ; (LHS = 0)
+     
+REMAINING 5 ENTRIES SKIPPED
+
+
+---- grid_eq4  =E=  
+
+grid_eq4(1,west)..  THETA(1,east) =E= 0 ; (LHS = 0)
+     
+grid_eq4(1,east)..  THETA(1,east) =E= 0 ; (LHS = 0)
+     
+grid_eq4(2,west)..  THETA(2,east) =E= 0 ; (LHS = 0)
+     
+REMAINING ENTRY SKIPPED
+
+
+---- redispatch1  =L=  
+
+redispatch1(1,base,west)..  - GEN(1,base,west) + DOWN(1,base,west) =L= 0 ; (LHS = 0)
+     
+redispatch1(1,base,east)..  - GEN(1,base,east) + DOWN(1,base,east) =L= 0 ; (LHS = 0)
+     
+redispatch1(1,peak,west)..  - GEN(1,peak,west) + DOWN(1,peak,west) =L= 0 ; (LHS = 0)
+     
+REMAINING 13 ENTRIES SKIPPED
+
+
+---- redispatch2  =L=  
+
+redispatch2(1,base,west)..  GEN(1,base,west) - CAP(base,west) + UP(1,base,west) =L= 0 ; (LHS = 0)
+     
+redispatch2(1,base,east)..  GEN(1,base,east) - CAP(base,east) + UP(1,base,east) =L= 0 ; (LHS = 0)
+     
+redispatch2(1,peak,west)..  GEN(1,peak,west) - CAP(peak,west) + UP(1,peak,west) =L= 0 ; (LHS = 0)
+     
+REMAINING 13 ENTRIES SKIPPED
+
+
+---- gen_min  =G=  
+
+gen_min(1,base,west)..  GEN(1,base,west) =G= 0 ; (LHS = 0)
+     
+gen_min(1,base,east)..  GEN(1,base,east) =G= 0 ; (LHS = 0)
+     
+gen_min(1,peak,west)..  GEN(1,peak,west) =G= 0 ; (LHS = 0)
+     
+REMAINING 13 ENTRIES SKIPPED
+
+
+---- gen_max  =G=  
+
+gen_max(1,base,west)..  - GEN(1,base,west) + CAP(base,west) =G= 0 ; (LHS = 0)
+     
+gen_max(1,base,east)..  - GEN(1,base,east) + CAP(base,east) =G= 0 ; (LHS = 0)
+     
+gen_max(1,peak,west)..  - GEN(1,peak,west) + CAP(peak,west) =G= 0 ; (LHS = 0)
+     
+REMAINING 13 ENTRIES SKIPPED
+
+
+---- cap_min  =G=  
+
+cap_min(base,west)..  CAP(base,west) =G= 0 ; (LHS = 0)
+     
+cap_min(base,east)..  CAP(base,east) =G= 0 ; (LHS = 0)
+     
+cap_min(peak,west)..  CAP(peak,west) =G= 0 ; (LHS = 0)
+     
+REMAINING 5 ENTRIES SKIPPED
+
+
+---- cap_max  =G=  
+
+cap_max(base,west)..  - CAP(base,west) =G= -100 ; (LHS = 0)
+     
+cap_max(base,east)..  - CAP(base,east) =G= -100 ; (LHS = 0)
+     
+cap_max(peak,west)..  - CAP(peak,west) =G= -100 ; (LHS = 0)
+     
+REMAINING 5 ENTRIES SKIPPED
+
+
+---- demand_min  =G=  
+
+demand_min(1,west)..  LOAD_real(1,west) =G= 0 ; (LHS = 0)
+     
+demand_min(1,east)..  LOAD_real(1,east) =G= 0 ; (LHS = 0)
+     
+demand_min(2,west)..  LOAD_real(2,west) =G= 0 ; (LHS = 0)
+     
+REMAINING ENTRY SKIPPED
+
+
+---- zonal_energy_balance  =E=  
+
+zonal_energy_balance(1)..  - GEN(1,base,west) - GEN(1,base,east) - GEN(1,peak,west) - GEN(1,peak,east) - GEN(1,wind,west) - GEN(1,wind,east) - GEN(1,solar,west) - GEN(1,solar,east) + LOAD_real(1,west) + LOAD_real(1,east) =E= 0 ; (LHS = 0)
+     
+zonal_energy_balance(2)..  - GEN(2,base,west) - GEN(2,base,east) - GEN(2,peak,west) - GEN(2,peak,east) - GEN(2,wind,west) - GEN(2,wind,east) - GEN(2,solar,west) - GEN(2,solar,east) + LOAD_real(2,west) + LOAD_real(2,east) =E= 0 ; (LHS = 0)
+     
+
+---- KKT_GEN  =E=  
+
+KKT_GEN(1,base,west)..  - LAMBDA(1) - mu_G_min(1,base,west) + mu_G_max(1,base,west) =E= -65 ; (LHS = 0, INFES = 65 ****)
+     
+KKT_GEN(1,base,east)..  - LAMBDA(1) - mu_G_min(1,base,east) + mu_G_max(1,base,east) =E= -65 ; (LHS = 0, INFES = 65 ****)
+     
+KKT_GEN(1,peak,west)..  - LAMBDA(1) - mu_G_min(1,peak,west) + mu_G_max(1,peak,west) =E= -80 ; (LHS = 0, INFES = 80 ****)
+     
+REMAINING 13 ENTRIES SKIPPED
+
+
+---- KKT_CAP  =E=  
+
+KKT_CAP(base,west)..  0.144*CAP(base,west) + INSTRUMENT(base,west) - mu_G_max(1,base,west) - mu_G_max(2,base,west) - mu_C_min(base,west) + mu_C_max(base,west) =E= -25 ; (LHS = 0, INFES = 25 ****)
+     
+KKT_CAP(base,east)..  0.144*CAP(base,east) + INSTRUMENT(base,east) - mu_G_max(1,base,east) - mu_G_max(2,base,east) - mu_C_min(base,east) + mu_C_max(base,east) =E= -25 ; (LHS = 0, INFES = 25 ****)
+     
+KKT_CAP(peak,west)..  0.144*CAP(peak,west) + INSTRUMENT(peak,west) - mu_G_max(1,peak,west) - mu_G_max(2,peak,west) - mu_C_min(peak,west) + mu_C_max(peak,west) =E= -7 ; (LHS = 0, INFES = 7 ****)
+     
+REMAINING 5 ENTRIES SKIPPED
+
+
+---- KKT_load  =E=  
+
+KKT_load(1,west)..  LAMBDA(1) - mu_D_min(1,west) + 14.8083598887095*LOAD_real(1,west) =E= 325 ; (LHS = 0, INFES = 325 ****)
+     
+KKT_load(1,east)..  LAMBDA(1) - mu_D_min(1,east) + 7.29366979593154*LOAD_real(1,east) =E= 325 ; (LHS = 0, INFES = 325 ****)
+     
+KKT_load(2,west)..  LAMBDA(2) - mu_D_min(2,west) + 15.2170655878938*LOAD_real(2,west) =E= 325 ; (LHS = 0, INFES = 325 ****)
+     
+REMAINING ENTRY SKIPPED
+
+GAMS 35.2.0  r33388c4 Released Jun  2, 2021 WEX-WEI x86 64bit/MS Windows - 09/09/21 15:33:50 Page 4
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Column Listing      SOLVE LOCI Using NLP From line 225
+
+
+---- GEN  
+
+GEN(1,base,west)
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+       65       objective
+        1       nodal_energy_balance(1,west)
+       -1       redispatch1(1,base,west)
+        1       redispatch2(1,base,west)
+        1       gen_min(1,base,west)
+       -1       gen_max(1,base,west)
+       -1       zonal_energy_balance(1)
+
+GEN(1,base,east)
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+       65       objective
+        1       nodal_energy_balance(1,east)
+       -1       redispatch1(1,base,east)
+        1       redispatch2(1,base,east)
+        1       gen_min(1,base,east)
+       -1       gen_max(1,base,east)
+       -1       zonal_energy_balance(1)
+
+GEN(1,peak,west)
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+       80       objective
+        1       nodal_energy_balance(1,west)
+       -1       redispatch1(1,peak,west)
+        1       redispatch2(1,peak,west)
+        1       gen_min(1,peak,west)
+       -1       gen_max(1,peak,west)
+       -1       zonal_energy_balance(1)
+
+REMAINING 13 ENTRIES SKIPPED
+
+---- CAP  
+
+CAP(base,west)
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+      (25)      objective
+       -1       redispatch2(1,base,west)
+       -1       redispatch2(2,base,west)
+        1       gen_max(1,base,west)
+        1       gen_max(2,base,west)
+        1       cap_min(base,west)
+       -1       cap_max(base,west)
+        0.144   KKT_CAP(base,west)
+
+CAP(base,east)
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+      (25)      objective
+       -1       redispatch2(1,base,east)
+       -1       redispatch2(2,base,east)
+        1       gen_max(1,base,east)
+        1       gen_max(2,base,east)
+        1       cap_min(base,east)
+       -1       cap_max(base,east)
+        0.144   KKT_CAP(base,east)
+
+CAP(peak,west)
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+       (7)      objective
+       -1       redispatch2(1,peak,west)
+       -1       redispatch2(2,peak,west)
+        1       gen_max(1,peak,west)
+        1       gen_max(2,peak,west)
+        1       cap_min(peak,west)
+       -1       cap_max(peak,west)
+        0.144   KKT_CAP(peak,west)
+
+REMAINING 5 ENTRIES SKIPPED
+
+---- LAMBDA  
+
+LAMBDA(1)
+                (.LO, .L, .UP, .M = -20, 0, 350, 0)
+       (0)      objective
+       -1       KKT_GEN(1,base,west)
+       -1       KKT_GEN(1,base,east)
+       -1       KKT_GEN(1,peak,west)
+       -1       KKT_GEN(1,peak,east)
+       -1       KKT_GEN(1,wind,west)
+       -1       KKT_GEN(1,wind,east)
+       -1       KKT_GEN(1,solar,west)
+       -1       KKT_GEN(1,solar,east)
+        1       KKT_load(1,west)
+        1       KKT_load(1,east)
+
+LAMBDA(2)
+                (.LO, .L, .UP, .M = -20, 0, 350, 0)
+       (0)      objective
+       -1       KKT_GEN(2,base,west)
+       -1       KKT_GEN(2,base,east)
+       -1       KKT_GEN(2,peak,west)
+       -1       KKT_GEN(2,peak,east)
+       -1       KKT_GEN(2,wind,west)
+       -1       KKT_GEN(2,wind,east)
+       -1       KKT_GEN(2,solar,west)
+       -1       KKT_GEN(2,solar,east)
+        1       KKT_load(2,west)
+        1       KKT_load(2,east)
+
+
+---- WF  
+
+WF
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+        1       objective
+
+
+---- FLOW  
+
+FLOW(1,west,west)
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+       -1       nodal_energy_balance(1,west)
+        1       grid_eq1(1,west,west)
+        1       grid_eq3(1,west,west)
+
+FLOW(1,west,east)
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+       -1       nodal_energy_balance(1,west)
+        1       grid_eq1(1,west,east)
+        1       grid_eq3(1,west,east)
+
+FLOW(1,east,west)
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+       -1       nodal_energy_balance(1,east)
+        1       grid_eq1(1,east,west)
+        1       grid_eq3(1,east,west)
+
+REMAINING 5 ENTRIES SKIPPED
+
+---- INSTRUMENT  
+
+INSTRUMENT(base,west)
+                (.LO, .L, .UP, .M = -250, 0, 750, 0)
+        1       KKT_CAP(base,west)
+
+INSTRUMENT(base,east)
+                (.LO, .L, .UP, .M = -250, 0, 750, 0)
+        1       KKT_CAP(base,east)
+
+INSTRUMENT(peak,west)
+                (.LO, .L, .UP, .M = -250, 0, 750, 0)
+        1       KKT_CAP(peak,west)
+
+REMAINING 5 ENTRIES SKIPPED
+
+---- THETA  
+
+THETA(1,west)
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+     -250       grid_eq3(1,west,east)
+      250       grid_eq3(1,east,west)
+
+THETA(1,east)
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+      250       grid_eq3(1,west,east)
+     -250       grid_eq3(1,east,west)
+        1       grid_eq4(1,west)
+        1       grid_eq4(1,east)
+
+THETA(2,west)
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+     -250       grid_eq3(2,west,east)
+      250       grid_eq3(2,east,west)
+
+REMAINING ENTRY SKIPPED
+
+---- mu_G_min  
+
+mu_G_min(1,base,west)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -1       KKT_GEN(1,base,west)
+
+mu_G_min(1,base,east)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -1       KKT_GEN(1,base,east)
+
+mu_G_min(1,peak,west)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -1       KKT_GEN(1,peak,west)
+
+REMAINING 13 ENTRIES SKIPPED
+
+---- mu_G_max  
+
+mu_G_max(1,base,west)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       KKT_GEN(1,base,west)
+       -1       KKT_CAP(base,west)
+
+mu_G_max(1,base,east)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       KKT_GEN(1,base,east)
+       -1       KKT_CAP(base,east)
+
+mu_G_max(1,peak,west)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       KKT_GEN(1,peak,west)
+       -1       KKT_CAP(peak,west)
+
+REMAINING 13 ENTRIES SKIPPED
+
+---- mu_C_min  
+
+mu_C_min(base,west)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -1       KKT_CAP(base,west)
+
+mu_C_min(base,east)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -1       KKT_CAP(base,east)
+
+mu_C_min(peak,west)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -1       KKT_CAP(peak,west)
+
+REMAINING 5 ENTRIES SKIPPED
+
+---- mu_C_max  
+
+mu_C_max(base,west)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       KKT_CAP(base,west)
+
+mu_C_max(base,east)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       KKT_CAP(base,east)
+
+mu_C_max(peak,west)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       KKT_CAP(peak,west)
+
+REMAINING 5 ENTRIES SKIPPED
+
+---- mu_D_min  
+
+mu_D_min(1,west)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -1       KKT_load(1,west)
+
+mu_D_min(1,east)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -1       KKT_load(1,east)
+
+mu_D_min(2,west)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -1       KKT_load(2,west)
+
+REMAINING ENTRY SKIPPED
+
+---- GRID_CAP  
+
+GRID_CAP(west,west)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -1       grid_eq1(1,west,west)
+       -1       grid_eq1(2,west,west)
+
+GRID_CAP(west,east)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        4.5     objective
+       -1       grid_eq1(1,west,east)
+       -1       grid_eq1(2,west,east)
+        1       grid_eq2(west,east)
+       -1       grid_eq2(east,west)
+
+GRID_CAP(east,west)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        4.5     objective
+       -1       grid_eq1(1,east,west)
+       -1       grid_eq1(2,east,west)
+       -1       grid_eq2(west,east)
+        1       grid_eq2(east,west)
+
+REMAINING ENTRY SKIPPED
+
+---- LOAD_real  
+
+LOAD_real(1,west)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+    (-325)      objective
+       -1       nodal_energy_balance(1,west)
+        1       demand_min(1,west)
+        1       zonal_energy_balance(1)
+       14.8084  KKT_load(1,west)
+
+LOAD_real(1,east)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+    (-325)      objective
+       -1       nodal_energy_balance(1,east)
+        1       demand_min(1,east)
+        1       zonal_energy_balance(1)
+        7.2937  KKT_load(1,east)
+
+LOAD_real(2,west)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+    (-325)      objective
+       -1       nodal_energy_balance(2,west)
+        1       demand_min(2,west)
+        1       zonal_energy_balance(2)
+       15.2171  KKT_load(2,west)
+
+REMAINING ENTRY SKIPPED
+
+---- UP  
+
+UP(1,base,west)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       65       objective
+        1       nodal_energy_balance(1,west)
+        1       redispatch2(1,base,west)
+
+UP(1,base,east)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       65       objective
+        1       nodal_energy_balance(1,east)
+        1       redispatch2(1,base,east)
+
+UP(1,peak,west)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       80       objective
+        1       nodal_energy_balance(1,west)
+        1       redispatch2(1,peak,west)
+
+REMAINING 13 ENTRIES SKIPPED
+
+---- DOWN  
+
+DOWN(1,base,west)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+     (-65)      objective
+       -1       nodal_energy_balance(1,west)
+        1       redispatch1(1,base,west)
+
+DOWN(1,base,east)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+     (-65)      objective
+       -1       nodal_energy_balance(1,east)
+        1       redispatch1(1,base,east)
+
+DOWN(1,peak,west)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+     (-80)      objective
+       -1       nodal_energy_balance(1,west)
+        1       redispatch1(1,peak,west)
+
+REMAINING 13 ENTRIES SKIPPED
+GAMS 35.2.0  r33388c4 Released Jun  2, 2021 WEX-WEI x86 64bit/MS Windows - 09/09/21 15:33:50 Page 5
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Model Statistics    SOLVE LOCI Using NLP From line 225
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          17     SINGLE EQUATIONS          141
+BLOCKS OF VARIABLES          16     SINGLE VARIABLES          139
+NON ZERO ELEMENTS           419     NON LINEAR N-Z             30
+CODE LENGTH                 142     CONSTANT POOL              27
+
+
+GENERATION TIME      =        0.000 SECONDS      4 MB  35.2.0 r33388c4 WEX-WEI
+GAMS 35.2.0  r33388c4 Released Jun  2, 2021 WEX-WEI x86 64bit/MS Windows - 09/09/21 15:33:50 Page 6
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Solution Report     SOLVE LOCI Using NLP From line 225
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   LOCI                OBJECTIVE  WF
+     TYPE    NLP                 DIRECTION  MAXIMIZE
+     SOLVER  BARON               FROM LINE  225
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      2 Locally Optimal           
+**** OBJECTIVE VALUE            13360.7989
+
+ RESOURCE USAGE, LIMIT          5.140     40000.000
+ ITERATION COUNT, LIMIT         0    2147483647
+ EVALUATION ERRORS              0             0
+
+GAMS/BARON       35.2.0 r33388c4 Released Jun 02, 2021 WEI x86 64bit/MS Window
+
+BARON is a product of The Optimization Firm, LLC. http://www.minlp.com/
+Parts of the BARON software were created at the
+University of Illinois at Urbana-Champaign.
+
+*** This solver runs with a community license. No commercial use.
+
+===========================================================================
+ BARON version 21.1.13. Built: WIN-64 Wed Jan 13 16:04:12 EST 2021
+
+ BARON is a product of The Optimization Firm.
+ For information on BARON, see https://minlp.com/about-baron
+
+ If you use this software, please cite publications from
+ https://minlp.com/baron-publications, such as: 
+
+ Khajavirad, A. and N. V. Sahinidis,
+ A hybrid LP/NLP paradigm for global optimization relaxations,
+ Mathematical Programming Computation, 10, 383-421, 2018.
+===========================================================================
+ This BARON run may utilize the following subsolver(s)
+ For LP/MIP/QP: ILOG CPLEX                                      
+ For NLP: MINOS, SNOPT, GAMS external NLP, IPOPT, FILTERSD, FILTERSQP
+
+Solution      = 13360.7989250018  found at node 3
+Best possible = 13362.1351385
+Absolute gap  = 1.33621349818713  optca = 1E-9
+Relative gap  = 9.99999988278172E-5  optcr = 0.0001
+  (Note that BARON uses a different formula to compute the relative gap as
+   was used for the above reported value.)
+
+
+                           LOWER          LEVEL          UPPER         MARGINAL
+
+---- EQU objective           .              .              .             1.0000      
+
+---- EQU nodal_energy_balance  
+
+              LOWER          LEVEL          UPPER         MARGINAL
+
+1.west          .              .              .           -62.6491      
+1.east          .              .              .           -66.6334      
+2.west          .              .              .           -91.5554      
+2.east          .              .              .           -92.4446      
+
+---- EQU grid_eq1  
+
+                   LOWER          LEVEL          UPPER         MARGINAL
+
+1.west.west        -INF       -99696.5648          .              .          
+1.west.east        -INF             .              .             6.0475      
+1.east.west        -INF             .              .             2.0632      
+1.east.east        -INF       -99696.5648          .              .          
+2.west.west        -INF       -99696.5648          .              .          
+2.west.east        -INF             .              .             0.8892      
+2.east.west        -INF             .              .              .          
+2.east.east        -INF       -99696.5648          .              .          
+
+---- EQU grid_eq2  
+
+                 LOWER          LEVEL          UPPER         MARGINAL
+
+west.east          .              .              .             2.4368      
+east.west          .              .              .              .          
+
+---- EQU grid_eq3  
+
+                   LOWER          LEVEL          UPPER         MARGINAL
+
+1.west.west          .              .              .           -62.6491      
+1.west.east          .              .              .           -68.6966      
+1.east.west          .              .              .           -68.6966      
+1.east.east          .              .              .           -66.6334      
+2.west.west          .              .              .           -91.5554      
+2.west.east          .              .              .           -92.4446      
+2.east.west          .              .              .           -92.4446      
+2.east.east          .              .              .           -92.4446      
+
+---- EQU grid_eq4  
+
+              LOWER          LEVEL          UPPER         MARGINAL
+
+1.west          .              .              .              .          
+1.east          .              .              .              .          
+2.west          .              .              .              .          
+2.east          .              .              .              .          
+
+---- EQU redispatch1  
+
+                    LOWER          LEVEL          UPPER         MARGINAL
+
+1.base .west        -INF             .              .            22.3509      
+1.base .east        -INF             .              .            20.0000      
+1.peak .west        -INF             .              .            37.3509      
+1.peak .east        -INF             .              .            33.3666      
+1.wind .west        -INF             .              .            20.0000      
+1.wind .east        -INF             .              .            20.0000      
+1.solar.west        -INF             .              .            20.0000      
+1.solar.east        -INF             .              .            20.0000      
+2.base .west        -INF             .              .             7.5554      
+2.base .east        -INF             .              .             7.5554      
+2.peak .west        -INF             .              .             8.4446      
+2.peak .east        -INF             .              .             7.5554      
+2.wind .west        -INF             .              .             7.5554      
+2.wind .east        -INF             .              .             7.5554      
+2.solar.west        -INF             .              .              .          
+2.solar.east        -INF             .              .              .          
+
+---- EQU redispatch2  
+
+                    LOWER          LEVEL          UPPER         MARGINAL
+
+1.base .west        -INF           -3.2041          .              .          
+1.base .east        -INF             .              .             1.6334      
+1.peak .west        -INF           -6.3088          .              .          
+1.peak .east        -INF           -6.3097          .              .          
+1.wind .west        -INF             .              .            62.6491      
+1.wind .east        -INF             .              .            66.6334      
+1.solar.west        -INF             .              .            62.6491      
+1.solar.east        -INF             .              .            66.6334      
+2.base .west        -INF             .              .            26.5554      
+2.base .east        -INF             .              .            27.4446      
+2.peak .west        -INF             .              .            12.4446      
+2.peak .east        -INF             .              .            12.4446      
+2.wind .west        -INF             .              .            91.5554      
+2.wind .east        -INF             .              .            92.4446      
+2.solar.west        -INF             .              .            91.5554      
+2.solar.east        -INF             .              .            92.4446      
+
+---- EQU gen_min  
+
+                    LOWER          LEVEL          UPPER         MARGINAL
+
+1.base .west          .             7.5974        +INF             .          
+1.base .east          .              .            +INF             .          
+1.peak .west          .            31.5012        +INF             .          
+1.peak .east          .            31.5004        +INF             .          
+1.wind .west          .              .            +INF             .          
+1.wind .east          .              .            +INF             .          
+1.solar.west          .              .            +INF             .          
+1.solar.east          .              .            +INF             .          
+2.base .west          .              .            +INF             .          
+2.base .east          .              .            +INF             .          
+2.peak .west          .            37.8100        +INF             .          
+2.peak .east          .            30.8927        +INF             .          
+2.wind .west          .              .            +INF             .          
+2.wind .east          .              .            +INF             .          
+2.solar.west          .              .            +INF           -7.5554      
+2.solar.east          .              .            +INF           -7.5554      
+
+---- EQU gen_max  
+
+                    LOWER          LEVEL          UPPER         MARGINAL
+
+1.base .west          .             3.2041        +INF             .          
+1.base .east          .            28.3198        +INF             .          
+1.peak .west          .             6.3088        +INF             .          
+1.peak .east          .             6.3097        +INF             .          
+1.wind .west          .            19.7840        +INF             .          
+1.wind .east          .             8.9948        +INF             .          
+1.solar.west          .             3.5136        +INF             .          
+1.solar.east          .             9.9867        +INF             .          
+2.base .west          .            10.8015        +INF             .          
+2.base .east          .            28.3198        +INF             .          
+2.peak .west          .              .            +INF             .          
+2.peak .east          .             6.9173        +INF             .          
+2.wind .west          .            11.8704        +INF             .          
+2.wind .east          .            10.7938        +INF             .          
+2.solar.west          .              .            +INF             .          
+2.solar.east          .              .            +INF             .          
+
+---- EQU cap_min  
+
+                  LOWER          LEVEL          UPPER         MARGINAL
+
+base .west          .            10.8015        +INF             .          
+base .east          .            28.3198        +INF             .          
+peak .west          .            37.8100        +INF             .          
+peak .east          .            37.8100        +INF             .          
+wind .west          .            79.1360        +INF             .          
+wind .east          .            59.9656        +INF             .          
+solar.west          .            17.5682        +INF             .          
+solar.east          .            41.6112        +INF             .          
+
+---- EQU cap_max  
+
+                  LOWER          LEVEL          UPPER         MARGINAL
+
+base .west      -100.0000       -10.8015        +INF             .          
+base .east      -100.0000       -28.3198        +INF             .          
+peak .west      -100.0000       -37.8100        +INF             .          
+peak .east      -100.0000       -37.8100        +INF             .          
+wind .west      -100.0000       -79.1360        +INF             .          
+wind .east      -100.0000       -59.9656        +INF             .          
+solar.west      -100.0000       -17.5682        +INF             .          
+solar.east      -100.0000       -41.6112        +INF             .          
+
+---- EQU demand_min  
+
+              LOWER          LEVEL          UPPER         MARGINAL
+
+1.west          .            23.2977        +INF             .          
+1.east          .            47.3013        +INF             .          
+2.west          .            22.6719        +INF             .          
+2.east          .            46.0309        +INF             .          
+
+---- EQU zonal_energy_balance  
+
+         LOWER          LEVEL          UPPER         MARGINAL
+
+1          .              .              .           -20.0000      
+2          .              .              .            -7.5554      
+
+---- EQU KKT_GEN  
+
+                    LOWER          LEVEL          UPPER         MARGINAL
+
+1.base .west       -65.0000       -65.0000       -65.0000          .          
+1.base .east       -65.0000       -65.0000       -65.0000          .          
+1.peak .west       -80.0000       -80.0000       -80.0000          .          
+1.peak .east       -80.0000       -80.0000       -80.0000          .          
+1.wind .west          .              .              .              .          
+1.wind .east          .              .              .              .          
+1.solar.west          .              .              .              .          
+1.solar.east          .              .              .              .          
+2.base .west       -65.0000       -65.0000       -65.0000          .          
+2.base .east       -65.0000       -65.0000       -65.0000          .          
+2.peak .west       -80.0000       -80.0000       -80.0000          .          
+2.peak .east       -80.0000       -80.0000       -80.0000          .          
+2.wind .west          .              .              .              .          
+2.wind .east          .              .              .              .          
+2.solar.west          .              .              .              .          
+2.solar.east          .              .              .              .          
+
+---- EQU KKT_CAP  
+
+                  LOWER          LEVEL          UPPER         MARGINAL
+
+base .west       -25.0000       -25.0000       -25.0000          .          
+base .east       -25.0000       -25.0000       -25.0000          .          
+peak .west        -7.0000        -7.0000        -7.0000          .          
+peak .east        -7.0000        -7.0000        -7.0000          .          
+wind .west       -18.0000       -18.0000       -18.0000          .          
+wind .east       -18.0000       -18.0000       -18.0000          .          
+solar.west       -10.0000       -10.0000       -10.0000          .          
+solar.east       -10.0000       -10.0000       -10.0000          .          
+
+---- EQU KKT_load  
+
+              LOWER          LEVEL          UPPER         MARGINAL
+
+1.west       325.0000       325.0000       325.0000        -4.2307      
+1.east       325.0000       325.0000       325.0000        -9.1358      
+2.west       325.0000       325.0000       325.0000        -6.8344      
+2.east       325.0000       325.0000       325.0000       -13.9946      
+
+---- VAR GEN  
+
+                    LOWER          LEVEL          UPPER         MARGINAL
+
+1.base .west        -INF            7.5974        +INF             .          
+1.base .east        -INF             .            +INF             .          
+1.peak .west        -INF           31.5012        +INF             .          
+1.peak .east        -INF           31.5004        +INF             .          
+1.wind .west        -INF             .            +INF             .          
+1.wind .east        -INF             .            +INF             .          
+1.solar.west        -INF             .            +INF             .          
+1.solar.east        -INF             .            +INF             .          
+2.base .west        -INF             .            +INF             .          
+2.base .east        -INF             .            +INF             .          
+2.peak .west        -INF           37.8100        +INF             .          
+2.peak .east        -INF           30.8927        +INF             .          
+2.wind .west        -INF             .            +INF             .          
+2.wind .east        -INF             .            +INF             .          
+2.solar.west        -INF             .            +INF             .          
+2.solar.east        -INF             .            +INF             .          
+
+---- VAR CAP  
+
+                  LOWER          LEVEL          UPPER         MARGINAL
+
+base .west        -INF           10.8015        +INF             .          
+base .east        -INF           28.3198        +INF             .          
+peak .west        -INF           37.8100        +INF             .          
+peak .east        -INF           37.8100        +INF             .          
+wind .west        -INF           79.1360        +INF             .          
+wind .east        -INF           59.9656        +INF             .          
+solar.west        -INF           17.5682        +INF             .          
+solar.east        -INF           41.6112        +INF             .          
+
+---- VAR LAMBDA  
+
+         LOWER          LEVEL          UPPER         MARGINAL
+
+1       -20.0000       -20.0000       350.0000       -57.2325      
+2       -20.0000       -20.0000       350.0000       -47.8737      
+
+                           LOWER          LEVEL          UPPER         MARGINAL
+
+---- VAR WF                -INF        13360.7989        +INF             .          
+
+---- VAR FLOW  
+
+                   LOWER          LEVEL          UPPER         MARGINAL
+
+1.west.west        -INF             .            +INF             .          
+1.west.east        -INF             .            +INF             .          
+1.east.west        -INF             .            +INF             .          
+1.east.east        -INF             .            +INF             .          
+2.west.west        -INF             .            +INF             .          
+2.west.east        -INF             .            +INF             .          
+2.east.west        -INF             .            +INF             .          
+2.east.east        -INF             .            +INF             .          
+
+---- VAR INSTRUMENT  
+
+                  LOWER          LEVEL          UPPER         MARGINAL
+
+base .west      -250.0000       250.6312       750.0000          .          
+base .east      -250.0000       250.6312       750.0000          .          
+peak .west      -250.0000       250.6288       750.0000          .          
+peak .east      -250.0000       250.6287       750.0000          .          
+wind .west      -250.0000       250.2156       750.0000          .          
+wind .east      -250.0000       250.1789       750.0000          .          
+solar.west      -250.0000       250.1042       750.0000          .          
+solar.east      -250.0000       250.1275       750.0000          .          
+
+---- VAR THETA  
+
+              LOWER          LEVEL          UPPER         MARGINAL
+
+1.west        -INF             .            +INF             .          
+1.east        -INF             .            +INF             .          
+2.west        -INF             .            +INF             .          
+2.east        -INF             .            +INF             .          
+
+---- VAR mu_G_min  
+
+                    LOWER          LEVEL          UPPER         MARGINAL
+
+1.base .west          .         78185.7694        +INF             .          
+1.base .east          .         78186.6585        +INF             .          
+1.peak .west          .         78190.4009        +INF             .          
+1.peak .east          .         78190.8334        +INF             .          
+1.wind .west          .         97330.7383        +INF             .          
+1.wind .east          .         98459.1085        +INF             .          
+1.solar.west          .         98663.9319        +INF             .          
+1.solar.east          .         98256.0400        +INF             .          
+2.base .west          .         78341.3493        +INF             .          
+2.base .east          .         78342.1862        +INF             .          
+2.peak .west          .         78350.5350        +INF             .          
+2.peak .east          .         78350.9397        +INF             .          
+2.wind .west          .         98323.4492        +INF             .          
+2.wind .east          .         98314.4296        +INF             .          
+2.solar.west          .         99706.5959        +INF             .          
+2.solar.east          .         99706.5959        +INF             .          
+
+---- VAR mu_G_max  
+
+                    LOWER          LEVEL          UPPER         MARGINAL
+
+1.base .west          .         78100.7694        +INF             .          
+1.base .east          .         78101.6585        +INF             .          
+1.peak .west          .         78090.4009        +INF             .          
+1.peak .east          .         78090.8334        +INF             .          
+1.wind .west          .         97310.7383        +INF             .          
+1.wind .east          .         98439.1085        +INF             .          
+1.solar.west          .         98643.9319        +INF             .          
+1.solar.east          .         98236.0400        +INF             .          
+2.base .west          .         78256.3493        +INF             .          
+2.base .east          .         78257.1862        +INF             .          
+2.peak .west          .         78250.5350        +INF             .          
+2.peak .east          .         78250.9397        +INF             .          
+2.wind .west          .         98303.4492        +INF             .          
+2.wind .east          .         98294.4296        +INF             .          
+2.solar.west          .         99686.5959        +INF             .          
+2.solar.east          .         99686.5959        +INF             .          
+
+---- VAR mu_C_min  
+
+                  LOWER          LEVEL          UPPER         MARGINAL
+
+base .west          .         64463.7705        +INF             .          
+base .east          .         64461.0712        +INF             .          
+peak .west          .         64464.0082        +INF             .          
+peak .east          .         64462.4534        +INF             .          
+wind .west          .         83963.5960        +INF             .          
+wind .east          .         86153.4361        +INF             .          
+solar.west          .         90923.3092        +INF             .          
+solar.east          .         89406.2821        +INF             .          
+
+---- VAR mu_C_max  
+
+                  LOWER          LEVEL          UPPER         MARGINAL
+
+base .west          .        220543.7026        +INF             .          
+base .east          .        220540.2067        +INF             .          
+peak .west          .        220541.8706        +INF             .          
+peak .east          .        220541.1531        +INF             .          
+wind .west          .        122757.1867        +INF             .          
+wind .east          .        118335.4857        +INF             .          
+solar.west          .        110389.4615        +INF             .          
+solar.east          .        112716.8122        +INF             .          
+
+---- VAR mu_D_min  
+
+              LOWER          LEVEL          UPPER         MARGINAL
+
+1.west          .              .            +INF           -4.2307      
+1.east          .              .            +INF           -9.1358      
+2.west          .              .            +INF           -6.8344      
+2.east          .              .            +INF          -13.9946      
+
+---- VAR GRID_CAP  
+
+                 LOWER          LEVEL          UPPER         MARGINAL
+
+west.west          .         99696.5648        +INF             .          
+west.east          .              .            +INF             .          
+east.west          .              .            +INF             .          
+east.east          .         99696.5648        +INF             .          
+
+---- VAR LOAD_real  
+
+              LOWER          LEVEL          UPPER         MARGINAL
+
+1.west          .            23.2977        +INF             .          
+1.east          .            47.3013        +INF             .          
+2.west          .            22.6719        +INF             .          
+2.east          .            46.0309        +INF             .          
+
+---- VAR UP  
+
+                    LOWER          LEVEL          UPPER         MARGINAL
+
+1.base .west          .              .            +INF           -2.3509      
+1.base .east          .            28.3198        +INF             .          
+1.peak .west          .              .            +INF          -17.3509      
+1.peak .east          .              .            +INF          -13.3666      
+1.wind .west          .            19.7840        +INF             .          
+1.wind .east          .             8.9948        +INF             .          
+1.solar.west          .             3.5136        +INF             .          
+1.solar.east          .             9.9867        +INF             .          
+2.base .west          .            10.8015        +INF             .          
+2.base .east          .            28.3198        +INF             .          
+2.peak .west          .              .            +INF           -0.8892      
+2.peak .east          .             6.9173        +INF             .          
+2.wind .west          .            11.8704        +INF             .          
+2.wind .east          .            10.7938        +INF             .          
+2.solar.west          .              .            +INF             .          
+2.solar.east          .              .            +INF             .          
+
+---- VAR DOWN  
+
+                    LOWER          LEVEL          UPPER         MARGINAL
+
+1.base .west          .             7.5974        +INF             .          
+1.base .east          .              .            +INF           -1.6334      
+1.peak .west          .            31.5012        +INF             .          
+1.peak .east          .            31.5004        +INF             .          
+1.wind .west          .              .            +INF          -62.6491      
+1.wind .east          .              .            +INF          -66.6334      
+1.solar.west          .              .            +INF          -62.6491      
+1.solar.east          .              .            +INF          -66.6334      
+2.base .west          .              .            +INF          -14.1108      
+2.base .east          .              .            +INF          -15.0000      
+2.peak .west          .            37.8100        +INF             .          
+2.peak .east          .            30.8927        +INF             .          
+2.wind .west          .              .            +INF          -79.1108      
+2.wind .east          .              .            +INF          -80.0000      
+2.solar.west          .              .            +INF          -71.5554      
+2.solar.east          .              .            +INF          -72.4446      
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+                             0     ERRORS
+                            47  PROJECTED
+GAMS 35.2.0  r33388c4 Released Jun  2, 2021 WEX-WEI x86 64bit/MS Windows - 09/09/21 15:33:50 Page 7
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+E x e c u t i o n
+
+
+----    253 VARIABLE WF.L                  =    13360.799  
+            PARAMETER consumer_surplus     =    21243.511  
+            PARAMETER generation_costs     =    16761.873  
+            PARAMETER total_network_cost   =    -8879.161  
+            PARAMETER res_share            =        0.000  
+
+----    254 VARIABLE CAP.L  
+
+             west        east
+
+base       10.802      28.320
+peak       37.810      37.810
+wind       79.136      59.966
+solar      17.568      41.611
+
+
+----    254 VARIABLE GEN.L  
+
+               west        east
+
+1.base        7.597
+1.peak       31.501      31.500
+2.peak       37.810      30.893
+
+
+----    254 PARAMETER o_instrument  
+
+             west        east
+
+base     1097.765    1097.765
+peak     1097.754    1097.754
+wind     1095.945    1095.784
+solar    1095.457    1095.559
+
+
+----    254 VARIABLE INSTRUMENT.L  
+
+             west        east
+
+base      250.631     250.631
+peak      250.629     250.629
+wind      250.216     250.179
+solar     250.104     250.128
+
+
+----    254 VARIABLE GRID_CAP.L  
+
+            west        east
+
+west   99696.565
+east               99696.565
+
+
+----    254 VARIABLE FLOW.L  
+
+                      ( ALL       0.000 )
+
+
+----    254 VARIABLE LAMBDA.L  
+
+1 -20.000,    2 -20.000
+
+
+----    254 PARAMETER o_price  
+
+         west        east
+
+1     -20.000     -20.000
+2     -20.000     -20.000
+
+
+----    254 VARIABLE LOAD_real.L  
+
+         west        east
+
+1      23.298      47.301
+2      22.672      46.031
+
+
+----    254 PARAMETER load  hourly load in GWh
+
+         west        east
+
+1      17.558      35.647
+2      17.086      34.690
+
+
+----    254 PARAMETER load_deviation  
+
+         west        east
+
+1       1.327       1.327
+2       1.327       1.327
+
+
+----    254 VARIABLE UP.L  
+
+               west        east
+
+1.base                   28.320
+1.wind       19.784       8.995
+1.solar       3.514       9.987
+2.base       10.802      28.320
+2.peak                    6.917
+2.wind       11.870      10.794
+
+
+----    254 VARIABLE DOWN.L  
+
+               west        east
+
+1.base        7.597
+1.peak       31.501      31.500
+2.peak       37.810      30.893
+
+
+
+EXECUTION TIME       =        5.375 SECONDS      4 MB  35.2.0 r33388c4 WEX-WEI
+
+
+USER: GAMS Community License for Anselm Eicke        G210709|0002AO-GEN
+      Hertie School of Governance GmbH                           CL1515
+      License for teaching and research at degree granting institutions
+
+
+**** FILE SUMMARY
+
+Input      C:\Users\ansel\OneDrive\PhD\3 - Where to place new power generation\Three node models\MPEC.gms
+Output     C:\Users\ansel\OneDrive\PhD\3 - Where to place new power generation\Three node models\MPEC.lst

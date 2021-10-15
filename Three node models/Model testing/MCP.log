@@ -1,0 +1,122 @@
+
+--- Job MCP.gms Start 10/06/21 11:09:18 35.2.0 r33388c4 WEX-WEI x86 64bit/MS Windows
+--- Applying:
+    C:\Program Files\GAMS-35\gmsprmNT.txt
+--- GAMS Parameters defined
+    Input "C:\Users\ansel\OneDrive\PhD\2 - Where to place new power generation\Three node models\Model testing\MCP.gms"
+    PageSize 0
+    ScrDir "C:\Users\ansel\OneDrive\PhD\2 - Where to place new power generation\Three node models\Model testing\225a\"
+    SysDir "C:\Program Files\GAMS-35\"
+    LogOption 3
+    ErrMsg 1
+    ErrorLog 99
+    IDE 1
+    LstTitleLeftAligned 1
+Licensee: GAMS Community License for Anselm Eicke        G210709|0002AO-GEN
+          Hertie School of Governance GmbH                           CL1515
+          C:\Users\ansel\OneDrive\Dokumente\GAMS\gamslice.txt
+          Anselm Eicke, eicke@hertie-school.org                            
+          Community license for demonstration and instructional purposes only
+GAMS 35.2.0   Copyright (C) 1987-2021 GAMS Development. All rights reserved
+--- Starting compilation
+--- MCP.gms(83) 3 Mb
+--- GDXin=C:\Users\ansel\OneDrive\PhD\2 - Where to place new power generation\Three node models\Model testing\in.gdx
+--- GDX File ($gdxIn) C:\Users\ansel\OneDrive\PhD\2 - Where to place new power generation\Three node models\Model testing\in.gdx
+--- MCP.gms(86) 3 Mb
+--- GDXin=C:\Users\ansel\OneDrive\PhD\2 - Where to place new power generation\Three node models\Model testing\instrument.gdx
+--- GDX File ($gdxIn) C:\Users\ansel\OneDrive\PhD\2 - Where to place new power generation\Three node models\Model testing\instrument.gdx
+--- MCP.gms(175) 3 Mb
+--- Starting execution: elapsed 0:00:00.015
+--- MCP.gms(168) 4 Mb
+--- Generating MCP model LOCI
+--- MCP.gms(169) 6 Mb
+---   466 rows  466 columns  1,118 non-zeroes
+---   0 nl-code  0 nl-non-zeroes
+--- MCP.gms(169) 4 Mb
+--- Executing PATH (Solvelink=2): elapsed 0:00:00.028
+Reading dictionary...
+Reading row data...
+Evaluating functions...
+Checking model...
+Calculating Jacobian...
+
+PATH             35.2.0 r33388c4 Released Jun 02, 2021 WEI x86 64bit/MS Window
+
+*** This solver runs with a community license. No commercial use.
+466 row/cols, 1118 non-zeros, 0.51% dense.
+
+Path 5.0.02 (Wed Jun  2 14:31:08 2021)
+Written by Todd Munson, Steven Dirkse, Youngdae Kim, and Michael Ferris
+
+Zero:     0 Single:   200 Double:     0
+MCPR: One:    0 Two:    0 Thr:    0 Qua:    0 WBd:    0 Fix:    2 IFx:    0
+Preprocessed size   : 238
+
+INITIAL POINT STATISTICS
+Maximum of X. . . . . . . . . .  0.0000e+00 var: (mu_G_max(1,base,west))
+Maximum of F. . . . . . . . . .  3.2500e+02 eqn: (KKT_load(1,west))
+Maximum of Grad F . . . . . . .  1.5255e+01 eqn: (KKT_load(3,west))
+                                            var: (LOAD_real(3,west))
+
+INITIAL JACOBIAN NORM STATISTICS
+Maximum Row Norm. . . . . . . .  1.6255e+01 eqn: (KKT_load(3,west))
+Minimum Row Norm. . . . . . . .  1.0100e+00 eqn: (gen_max(2,solar,west))
+Maximum Column Norm . . . . . .  1.6255e+01 var: (LOAD_real(3,west))
+Minimum Column Norm . . . . . .  1.0100e+00 var: (mu_G_max(2,solar,west))
+
+Crash Log
+major  func  diff  size  residual    step       prox   (label)
+    0     0             3.5602e+03             0.0e+00 (KKT_load(1,west))
+    1     3    97    40 3.4564e+03  6.4e-01    0.0e+00 (KKT_GEN(3,wind,west))
+    2     4   215   134 3.4389e+03  1.0e+00    1.0e+01 (KKT_GEN(2,wind,west))
+pn_search terminated: no progress.
+
+Major Iteration Log
+major minor  func  grad  residual    step  type prox    inorm  (label)
+    0     0    17     3 3.4389e+03           I 9.0e+00 4.3e+02 (KKT_GEN(2,wind,)
+    1    38    18     4 1.3795e+04  1.0e+00 SM 3.6e+00 2.4e+03 (energy_balance()
+    2   239    19     5 2.2242e+03  1.0e+00 RO 1.4e+00 2.9e+02 (KKT_GEN(10,wind)
+    3   126    20     6 3.2822e+02  1.0e+00 SO 5.8e-01 1.1e+02 (energy_balance()
+    4    76    21     7 8.2009e+01  1.0e+00 SO 2.3e-01 1.9e+01 (energy_balance()
+    5    17    22     8 7.4876e+00  1.0e+00 SO 9.2e-02 3.0e+00 (KKT_CAP(solar,e)
+    6     7    23     9 1.6913e+00  1.0e+00 SO 3.7e-02 3.9e-01 (KKT_CAP(solar,e)
+    7     3    24    10 5.3661e-01  1.0e+00 SO 1.5e-02 1.2e-01 (KKT_GEN(9,base,)
+    8     5    25    11 1.5595e-01  1.0e+00 SO 5.9e-03 3.8e-02 (KKT_GEN(1,base,)
+    9     1    26    12 2.3153e-02  1.0e+00 SO 2.4e-03 5.7e-03 (KKT_GEN(3,base,)
+   10     5    27    13 1.5098e-03  1.0e+00 SO 9.4e-04 3.7e-04 (KKT_GEN(3,base,)
+   11     1    28    14 1.6665e-05  1.0e+00 SO 1.5e-04 4.1e-06 (KKT_GEN(3,base,)
+   12    15    29    15 1.4284e-09  1.0e+00 SO 1.7e-06 4.1e-10 (KKT_CAP(base,we)
+
+FINAL STATISTICS
+Inf-Norm of Complementarity . .  1.6887e-08 eqn: (KKT_CAP(wind,east))
+Inf-Norm of Normal Map. . . . .  3.1426e-10 eqn: (KKT_GEN(4,base,south))
+Inf-Norm of Minimum Map . . . .  3.1426e-10 eqn: (KKT_GEN(4,base,south))
+Inf-Norm of Fischer Function. .  4.1033e-10 eqn: (KKT_CAP(base,west))
+Inf-Norm of Grad Fischer Fcn. .  8.1983e-10 eqn: (gen_max(1,base,west))
+Two-Norm of Grad Fischer Fcn. .  2.5475e-09
+
+FINAL POINT STATISTICS
+Maximum of X. . . . . . . . . .  1.0528e+02 var: (mu_G_max(8,wind,west))
+Maximum of F. . . . . . . . . .  1.9876e+01 eqn: (gen_max(1,base,south))
+Maximum of Grad F . . . . . . .  1.5255e+01 eqn: (KKT_load(3,west))
+                                            var: (LOAD_real(3,west))
+
+ ** EXIT - solution found.
+
+Major Iterations. . . . 12
+Minor Iterations. . . . 533
+Restarts. . . . . . . . 0
+Crash Iterations. . . . 2
+Gradient Steps. . . . . 0
+Function Evaluations. . 29
+Gradient Evaluations. . 15
+Basis Time. . . . . . . 0.016000
+Total Time. . . . . . . 0.016000
+Residual. . . . . . . . 1.428448e-09
+Postsolved residual: 2.3525e-09
+
+--- Reading solution for model LOCI
+--- Executing after solve: elapsed 0:00:00.177
+--- MCP.gms(174) 4 Mb
+*** Status: Normal completion
+--- Job MCP.gms Stop 10/06/21 11:09:18 elapsed 0:00:00.185
