@@ -1,6 +1,6 @@
 Sets
 all_t       all hours               /1*48/
-t(all_t)    hours                   /1*48/
+t(all_t)    hours                   /1*24/
 tec         generators              /base, peak, wind, solar/
 con(tec)    conventional generation /base, peak/
 all_n       all buses               /north, south, total/
@@ -315,6 +315,6 @@ o_cap(tec,n) = CAP.L(tec,n);
 o_gen(t,tec,n) = GEN.L(t,tec,n);
 
 
-Display GEN.L, CAP.L, price, load_deviation, i_instrument, sum_instrument, network_cost;
+Display GEN.L, CAP.L, price, load_deviation, i_instrument, sum_instrument, network_cost, GRID_CAP.L;
 
 execute_UNLOAD 'Output/with_instrument.gdx' consumer_surplus, generation_costs, network_cost, res_share, i_instrument, o_cap, o_gen, price;

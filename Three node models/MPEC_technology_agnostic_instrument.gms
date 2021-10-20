@@ -1,10 +1,10 @@
 Sets
-all_t       all hours               /1*10/
-t(all_t)    hours                   /1*10/
+all_t       all hours               /1*48/
+t(all_t)    hours                   /1*16/
 tec         generators              /base, peak, wind, solar/
 con(tec)    conventional generation /base, peak/
-all_n       all buses               /west, east, south/
-n(all_n)    selected buses          /west, east/
+all_n       all buses               /north, south, total/
+n(all_n)    selected buses          /north, south/
 ;
 
 alias (n,m);
@@ -14,15 +14,15 @@ alias (all_n,all_m);
 Parameter elasticity / -0.25 /; 
 Parameter p_ref / 65 /;
 Parameter specific_network_costs /255/;
+*in EUR/MW/km/a
 *Source for network costs: EMMA (3400 EUR/MW/km discontiert mit i = 0.07 ueber 40 Jahre)
 
 Table B(all_n,all_m)        Susceptance of transmission lines
-         west   east    south
-west        1    300      800
-east      300      1      500
-south     800    500        1
+         north  south   total
+north        1     600    250
+south      600       1    500
+total      250     500      1
 ;
-
 Parameters
 * Input Parameters
 i_cost(*,*)                 cost data to be loaded from sheet "cost"
@@ -93,7 +93,6 @@ avail(t,con,n)              = 1;
 c_var(tec, n)               = i_cost(tec,"cost_var");
 c_fix(tec, n)               = round(i_cost(tec,"cost_fix") * 1000 * sc);
 capacity_slope              = 0.15;
-*c_fix('wind','south')  * 0.25 / 50;
 cap_lim(tec,n)              = 100;
 grid_cost(n,m)              = round(B(n,m) * specific_network_costs * sc);
 
@@ -195,7 +194,7 @@ nodal_energy_balance(t,n)..     sum(tec,GEN(t,tec,n) - DOWN(t,tec,n) + UP(t,tec,
 grid_eq1(t,n,m)..               FLOW(t,n,m) =l= GRID_CAP(n,m);
 grid_eq2(n,m)..                 GRID_CAP(n,m) =e= GRID_CAP(m,n);
 grid_eq3(t,n,m)..               FLOW(t,n,m) =e= B(n,m) *(THETA(t,n) - THETA(t,m));
-grid_eq4(t,n)..                 THETA(t,'west') =e= 0;
+grid_eq4(t,n)..                 THETA(t,'south') =e= 0;
 
 redispatch1(t,tec,n)..          DOWN(t,tec,n) =L= GEN(t,tec,n);
 redispatch2(t,tec,n)..          UP(t,tec,n) =L= CAP(tec,n) * avail(t,tec,n) - GEN(t,tec,n);
@@ -275,8 +274,8 @@ complementarity6b
 /;
 
 
-INSTRUMENT.lo(n) = -250;
-INSTRUMENT.up(n) = 750;
+*INSTRUMENT.lo(n) = -250;
+*INSTRUMENT.up(n) = 750;
 
 GEN.up(t,tec,n) = 100;
 GEN.lo(t,tec,n) = 0;
@@ -287,27 +286,28 @@ DOWN.lo(t,tec,n) = 0;
 UP.up(t,tec,n) = 100;
 UP.lo(t,tec,n) = 0;
 
-LOCI.nodlim = 25000000;
-LOCI.resLim = 40000;
+LOCI.nodlim = 35000000;
+LOCI.resLim = 50000;
 
 *This should matter. But does it really do?
-Option OptCA = 100;
+*Option OptCA = 10;
 
 Option MIQCP = Cplex;
 
 
 Solve LOCI maximizing WF using MIQCP;
 
+
 price(t) = p_ref * (1-(1/elasticity) + (sum((tec,n), GEN.L(t,tec,n)) / sum(n, elasticity * load(t,n))));
 load_deviation(t) = sum((tec,n), GEN.L(t,tec,n)) / sum(n,load(t,n));
-i_instrument(tec,n) = INSTRUMENT.L(n);
+i_instrument(tec,n) = INSTRUMENT.L(n) / sc / 1000;
 
-network_cost = (sum((n,m),(GRID_CAP.L(n,m) * grid_cost(n,m)) / 2) + sum((t,tec,n), UP.L(t,tec,n) * c_var(tec,n) - DOWN.L(t,tec,n) * c_var(tec,n))) / sc * 1000;
-consumer_surplus = sum(t, p_ref * sum((n), LOAD_real.L(t,n)) * (1-1/elasticity + sum((n), LOAD_real.L(t,n)) / (2*elasticity* sum(n,load(t,n))))) / sc * 1000;
+network_cost = (sum((n,m),(GRID_CAP.L(n,m) * grid_cost(n,m)) / 2) + sum((t,tec,n), UP.L(t,tec,n) * c_var(tec,n) - DOWN.L(t,tec,n) * c_var(tec,n))) / sc;
+consumer_surplus = sum(t, p_ref * sum((n), LOAD_real.L(t,n)) * (1-1/elasticity + sum((n), LOAD_real.L(t,n)) / (2*elasticity* sum(n,load(t,n))))) / sc;
 
-generation_costs = (sum((tec,n), CAP.L(tec,n) * c_fix(tec,n) + 0.5 * CAP.L(tec,n) * CAP.L(tec,n) * capacity_slope) + sum((t,tec,n), GEN.L(t,tec,n) * c_var(tec,n))) / sc * 1000;
+generation_costs = (sum((tec,n), CAP.L(tec,n) * c_fix(tec,n) + 0.5 * CAP.L(tec,n) * CAP.L(tec,n) * capacity_slope) + sum((t,tec,n), GEN.L(t,tec,n) * c_var(tec,n))) / sc;
                                                                     
-sum_instrument = sum((tec,n), INSTRUMENT.L(n) + CAP.L(tec,n));
+sum_instrument = sum((tec,n), INSTRUMENT.L(n) * CAP.L(tec,n)) / sc;
 
 load_deviation(t) = sum(n,LOAD_real.L(t,n)) / sum(n,load(t,n));
 res_share = 1 - sum((t,con,n), GEN.L(t,con,n)) / sum((t,tec,n), GEN.L(t,tec,n));
@@ -315,7 +315,7 @@ o_cap(tec,n) = CAP.L(tec,n);
 o_gen(t,tec,n) = GEN.L(t,tec,n);
 
 
-Display GEN.L, CAP.L, price, load_deviation, INSTRUMENT.L, sum_instrument, network_cost;
+Display GEN.L, CAP.L, price, load_deviation, i_instrument, sum_instrument, network_cost, GRID_CAP.L;
 *,WF.L,  GRID.L, LAMBDA.L, LOAD_real.L, CAP_INSTR.L, UP.L, DOWN.L, RESERVE_CAP.L, FLOW.L;
 
 *execute_UNLOAD 'instrument.gdx' i_instrument;

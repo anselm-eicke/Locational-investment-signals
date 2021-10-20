@@ -1,6 +1,6 @@
 Sets
 all_t       all hours               /1*48/
-t(all_t)    hours                   /1*48/
+t(all_t)    hours                   /1*24/
 tec         generators              /base, peak, wind, solar/
 con(tec)    conventional generation /base, peak/
 all_n       all buses               /north, south, total/
@@ -286,11 +286,11 @@ DOWN.lo(t,tec,n) = 0;
 UP.up(t,tec,n) = 100;
 UP.lo(t,tec,n) = 0;
 
-LOCI.nodlim = 25000000;
-LOCI.resLim = 40000;
+LOCI.nodlim = 35000000;
+LOCI.resLim = 50000;
 
 *This should matter. But does it really do?
-*Option OptCA = 1;
+Option OptCA = 1000;
 
 Option MIQCP = Cplex;
 
@@ -317,7 +317,7 @@ res_share = 1 - sum((t,con,n), GEN.L(t,con,n)) / sum((t,tec,n), GEN.L(t,tec,n));
 o_cap(tec,n) = CAP.L(tec,n);
 o_gen(t,tec,n) = GEN.L(t,tec,n);
 
-Display GEN.L, CAP.L, price, load_deviation, INSTRUMENT.L, sum_instrument, network_cost;
+Display GEN.L, CAP.L, price, load_deviation, INSTRUMENT.L, sum_instrument, network_cost, GRID_CAP.L;
 *,WF.L,  GRID.L, LAMBDA.L, LOAD_real.L, CAP_INSTR.L, UP.L, DOWN.L, RESERVE_CAP.L, FLOW.L;
 
 *execute_UNLOAD 'instrument.gdx' i_instrument;
