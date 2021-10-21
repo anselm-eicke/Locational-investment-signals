@@ -291,7 +291,7 @@ LOCI.nodlim = 35000000;
 LOCI.resLim = 50000;
 
 *This should matter. But does it really do?
-Option OptCA = 1000;
+Option OptCA = 100;
 Option MIQCP = Cplex;
 
 
