@@ -19,8 +19,8 @@ Parameter specific_network_costs /300/;
 
 Table B(all_n,all_m)        Susceptance of transmission lines
          north  south   total
-north        1     900    250
-south      900       1    500
+north        1     700    250
+south      700       1    500
 total      250     500      1
 ;
 

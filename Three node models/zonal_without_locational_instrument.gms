@@ -10,19 +10,20 @@ n(all_n)    selected buses          /north, south/
 alias (n,m);
 alias (all_n,all_m);
 
+
 * parameters for supply and demand functions
 Parameter elasticity / -0.25 /; 
 Parameter p_ref / 65 /;
-Parameter specific_network_costs /255/;
-*in EUR/MW/km/a
+Parameter specific_network_costs /300/;
 *Source for network costs: EMMA (3400 EUR/MW/km discontiert mit i = 0.07 ueber 40 Jahre)
 
 Table B(all_n,all_m)        Susceptance of transmission lines
          north  south   total
-north        1     600    250
-south      600       1    500
+north        1     700    250
+south      700       1    500
 total      250     500      1
 ;
+
 Parameters
 * Input Parameters
 i_cost(*,*)                 cost data to be loaded from sheet "cost"
@@ -305,10 +306,10 @@ price(t) = p_ref * (1-(1/elasticity) + (sum((tec,n), GEN.L(t,tec,n)) / sum(n, el
 load_deviation(t) = sum((tec,n), GEN.L(t,tec,n)) / sum(n,load(t,n));
 i_instrument(tec,n) = INSTRUMENT.L;
 
-network_cost = (sum((n,m),(GRID_CAP.L(n,m) * grid_cost(n,m)) / 2) + sum((t,tec,n), UP.L(t,tec,n) * c_var(tec,n) - DOWN.L(t,tec,n) * c_var(tec,n))) / sc * 1000;
-consumer_surplus = sum(t, p_ref * sum((n), LOAD_real.L(t,n)) * (1-1/elasticity + sum((n), LOAD_real.L(t,n)) / (2*elasticity* sum(n,load(t,n))))) / sc * 1000;
+network_cost = (sum((n,m),(GRID_CAP.L(n,m) * grid_cost(n,m)) / 2) + sum((t,tec,n), UP.L(t,tec,n) * c_var(tec,n) - DOWN.L(t,tec,n) * c_var(tec,n))) / sc;
+consumer_surplus = sum(t, p_ref * sum((n), LOAD_real.L(t,n)) * (1-1/elasticity + sum((n), LOAD_real.L(t,n)) / (2*elasticity* sum(n,load(t,n))))) / sc;
 
-generation_costs = (sum((tec,n), CAP.L(tec,n) * c_fix(tec,n) + 0.5 * CAP.L(tec,n) * CAP.L(tec,n) * capacity_slope) + sum((t,tec,n), GEN.L(t,tec,n) * c_var(tec,n))) / sc * 1000;
+generation_costs = (sum((tec,n), CAP.L(tec,n) * c_fix(tec,n) + 0.5 * CAP.L(tec,n) * CAP.L(tec,n) * capacity_slope) + sum((t,tec,n), GEN.L(t,tec,n) * c_var(tec,n))) / sc;
                                                                     
 sum_instrument = sum((tec,n), INSTRUMENT.L + CAP.L(tec,n));
 
