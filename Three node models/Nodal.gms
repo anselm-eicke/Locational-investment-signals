@@ -161,10 +161,10 @@ Solve nodal using QCP max WF;
 
 price(t,n) = p_ref * (1-1/elasticity + (LOAD_real.L(t,n)) / (elasticity * load(t,n)));
 
-network_cost = sum((n,m),(GRID_CAP.L(n,m) * grid_cost(n,m)) / 2) / sc * 1000;
-consumer_surplus = sum(t, p_ref * sum((n), LOAD_real.L(t,n)) * (1-1/elasticity + sum((n), LOAD_real.L(t,n)) / (2*elasticity* sum(n,load(t,n))))) / sc * 1000;
+network_cost = sum((n,m),(GRID_CAP.L(n,m) * grid_cost(n,m)) / 2) / sc;
+consumer_surplus = sum(t, p_ref * sum((n), LOAD_real.L(t,n)) * (1-1/elasticity + sum((n), LOAD_real.L(t,n)) / (2*elasticity* sum(n,load(t,n))))) / sc;
 
-generation_costs = (sum((tec,n), CAP.L(tec,n) * c_fix(tec,n) + 0.5 * CAP.L(tec,n) * CAP.L(tec,n) * capacity_slope) + sum((t,tec,n), GEN.L(t,tec,n) * c_var(tec,n))) / sc * 1000;
+generation_costs = (sum((tec,n), CAP.L(tec,n) * c_fix(tec,n) + 0.5 * CAP.L(tec,n) * CAP.L(tec,n) * capacity_slope) + sum((t,tec,n), GEN.L(t,tec,n) * c_var(tec,n))) / sc;
 
 load_deviation(t,n) =  LOAD_real.L(t,n) / load(t,n);
 res_share = 1 - sum((t,con,n), GEN.L(t,con,n)) / sum((t,tec,n), GEN.L(t,tec,n));
@@ -174,4 +174,4 @@ o_gen(t,tec,n) = GEN.L(t,tec,n);
 
 Display GEN.L, CAP.L, price, load_deviation, network_cost, GRID_CAP.L;
 
-execute_UNLOAD 'Output/nodal.gdx' consumer_surplus, generation_costs, network_cost, res_share, o_cap, o_gen, price;
+execute_UNLOAD 'Output/nodal.gdx' consumer_surplus, generation_costs, network_cost, res_share, o_cap, o_gen, price, c_fix;

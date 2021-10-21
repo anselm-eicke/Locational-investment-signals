@@ -291,8 +291,7 @@ LOCI.nodlim = 35000000;
 LOCI.resLim = 50000;
 
 *This should matter. But does it really do?
-Option OptCA = 1000;
-
+Option OptCA = 100;
 Option MIQCP = Cplex;
 
 
@@ -323,4 +322,4 @@ Display GEN.L, CAP.L, price, load_deviation, INSTRUMENT.L, sum_instrument, netwo
 
 *execute_UNLOAD 'instrument.gdx' i_instrument;
 
-execute_UNLOAD 'Output/without_instrument.gdx' consumer_surplus, generation_costs, network_cost, res_share, i_instrument, o_cap, o_gen, price;
+execute_UNLOAD 'Output/without_instrument.gdx' consumer_surplus, generation_costs, network_cost, res_share, i_instrument, o_cap, o_gen, price, c_fix;

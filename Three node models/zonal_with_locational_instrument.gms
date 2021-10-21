@@ -317,4 +317,4 @@ o_gen(t,tec,n) = GEN.L(t,tec,n);
 
 Display GEN.L, CAP.L, price, load_deviation, i_instrument, sum_instrument, network_cost, GRID_CAP.L;
 
-execute_UNLOAD 'Output/with_instrument.gdx' consumer_surplus, generation_costs, network_cost, res_share, i_instrument, o_cap, o_gen, price;
+execute_UNLOAD 'Output/with_instrument.gdx' consumer_surplus, generation_costs, network_cost, res_share, i_instrument, o_cap, o_gen, price, c_fix;

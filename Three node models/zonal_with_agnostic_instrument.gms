@@ -289,9 +289,7 @@ UP.lo(t,tec,n) = 0;
 LOCI.nodlim = 25000000;
 LOCI.resLim = 40000;
 
-*This should matter. But does it really do?
-*Option OptCA = 10;
-
+Option OptCA = 1000;
 Option MIQCP = Cplex;
 
 
@@ -317,4 +315,4 @@ o_gen(t,tec,n) = GEN.L(t,tec,n);
 
 Display GEN.L, CAP.L, price, load_deviation, i_instrument, sum_instrument, network_cost, GRID_CAP.L;
 
-execute_UNLOAD 'Output/agnostic_instrument.gdx' consumer_surplus, generation_costs, network_cost, res_share, i_instrument, o_cap, o_gen, price;
+execute_UNLOAD 'Output/agnostic_instrument.gdx' consumer_surplus, generation_costs, network_cost, res_share, i_instrument, o_cap, o_gen, price, c_fix;
