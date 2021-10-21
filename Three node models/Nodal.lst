@@ -1,4 +1,4 @@
-GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 10/21/21 15:41:38 Page 1
+GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 10/21/21 23:46:19 Page 1
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
 C o m p i l a t i o n
 
@@ -168,10 +168,10 @@ GDXIN   C:\Users\a.eicke\Documents\Locational-investment-signals\Three node mode
  161   
  162  price(t,n) = p_ref * (1-1/elasticity + (LOAD_real.L(t,n)) / (elasticity * load(t,n)));
  163   
- 164  network_cost = sum((n,m),(GRID_CAP.L(n,m) * grid_cost(n,m)) / 2) / sc * 1000;
- 165  consumer_surplus = sum(t, p_ref * sum((n), LOAD_real.L(t,n)) * (1-1/elasticity + sum((n), LOAD_real.L(t,n)) / (2*elasticity* sum(n,load(t,n))))) / sc * 1000;
+ 164  network_cost = sum((n,m),(GRID_CAP.L(n,m) * grid_cost(n,m)) / 2) / sc;
+ 165  consumer_surplus = sum(t, p_ref * sum((n), LOAD_real.L(t,n)) * (1-1/elasticity + sum((n), LOAD_real.L(t,n)) / (2*elasticity* sum(n,load(t,n))))) / sc;
  166   
- 167  generation_costs = (sum((tec,n), CAP.L(tec,n) * c_fix(tec,n) + 0.5 * CAP.L(tec,n) * CAP.L(tec,n) * capacity_slope) + sum((t,tec,n), GEN.L(t,tec,n) * c_var(tec,n))) / sc * 1000;
+ 167  generation_costs = (sum((tec,n), CAP.L(tec,n) * c_fix(tec,n) + 0.5 * CAP.L(tec,n) * CAP.L(tec,n) * capacity_slope) + sum((t,tec,n), GEN.L(t,tec,n) * c_var(tec,n))) / sc;
  168   
  169  load_deviation(t,n) =  LOAD_real.L(t,n) / load(t,n);
  170  res_share = 1 - sum((t,con,n), GEN.L(t,con,n)) / sum((t,tec,n), GEN.L(t,tec,n));
@@ -181,8 +181,8 @@ GDXIN   C:\Users\a.eicke\Documents\Locational-investment-signals\Three node mode
  174   
  175  Display GEN.L, CAP.L, price, load_deviation, network_cost, GRID_CAP.L;
  176   
- 177  execute_UNLOAD 'Output/nodal.gdx' consumer_surplus, generation_costs, network_cost, res_share, o_cap, o_gen, price;
-GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 10/21/21 15:41:38 Page 2
+ 177  execute_UNLOAD 'Output/nodal.gdx' consumer_surplus, generation_costs, network_cost, res_share, o_cap, o_gen, price, c_fix;
+GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 10/21/21 23:46:19 Page 2
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
 Include File Summary
 
@@ -193,8 +193,8 @@ Include File Summary
      2       85 GDXIN          1      85  C:\Users\a.eicke\Documents\Locational-investment-signals\Three node models\in.gdx
 
 
-COMPILATION TIME     =        0.079 SECONDS      3 MB  30.3.0 rc5da09e WEX-WEI
-GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 10/21/21 15:41:38 Page 3
+COMPILATION TIME     =        0.016 SECONDS      3 MB  30.3.0 rc5da09e WEX-WEI
+GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 10/21/21 23:46:19 Page 3
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
 E x e c u t i o n
 
@@ -339,7 +339,7 @@ peak       88.000      88.000
 wind      260.000     260.000
 solar     137.000     137.000
 
-GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 10/21/21 15:41:38 Page 4
+GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 10/21/21 23:46:19 Page 4
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
 Equation Listing    SOLVE nodal Using QCP From line 160
 
@@ -453,7 +453,7 @@ grid_eq4(2,north)..  THETA(2,south) =E= 0 ; (LHS = 0)
      
 REMAINING 45 ENTRIES SKIPPED
 
-GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 10/21/21 15:41:38 Page 5
+GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 10/21/21 23:46:19 Page 5
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
 Column Listing      SOLVE nodal Using QCP From line 160
 
@@ -731,7 +731,7 @@ CAP(peak,north)
         1       cap_limit(peak,north)
 
 REMAINING 5 ENTRIES SKIPPED
-GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 10/21/21 15:41:38 Page 6
+GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 10/21/21 23:46:19 Page 6
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
 Model Statistics    SOLVE nodal Using QCP From line 160
 
@@ -745,11 +745,11 @@ DERIVATIVE POOL              20     CONSTANT POOL              69
 CODE LENGTH                 394
 
 
-GENERATION TIME      =        0.015 SECONDS      4 MB  30.3.0 rc5da09e WEX-WEI
+GENERATION TIME      =        0.000 SECONDS      4 MB  30.3.0 rc5da09e WEX-WEI
 
 
-EXECUTION TIME       =        0.015 SECONDS      4 MB  30.3.0 rc5da09e WEX-WEI
-GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 10/21/21 15:41:38 Page 7
+EXECUTION TIME       =        0.000 SECONDS      4 MB  30.3.0 rc5da09e WEX-WEI
+GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 10/21/21 23:46:19 Page 7
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
 Solution Report     SOLVE nodal Using QCP From line 160
 
@@ -764,7 +764,7 @@ Solution Report     SOLVE nodal Using QCP From line 160
 **** MODEL STATUS      2 Locally Optimal           
 **** OBJECTIVE VALUE           195008.9703
 
- RESOURCE USAGE, LIMIT          0.078      1000.000
+ RESOURCE USAGE, LIMIT          0.032      1000.000
  ITERATION COUNT, LIMIT        53    2000000000
  EVALUATION ERRORS              0             0
 CONOPT 3         30.3.0 rc5da09e Released Mar 06, 2020 WEI x86 64bit/MS Window
@@ -790,10 +790,10 @@ CONOPT 3         30.3.0 rc5da09e Released Mar 06, 2020 WEI x86 64bit/MS Window
  ** Optimal solution. Reduced gradient less than tolerance.
  
  
- CONOPT time Total                            0.063 seconds
+ CONOPT time Total                            0.022 seconds
    of which: Function evaluations             0.000 =  0.0%
-             1st Derivative evaluations       0.000 =  0.0%
-             2nd Derivative evaluations       0.032 = 50.8%
+             1st Derivative evaluations       0.001 =  4.5%
+             2nd Derivative evaluations       0.003 = 13.6%
              Directional 2nd Derivative       0.000 =  0.0%
  
 
@@ -1761,7 +1761,7 @@ solar.south          .           100.0000        +INF             .
                              0 INFEASIBLE
                              0  UNBOUNDED
                              0     ERRORS
-GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 10/21/21 15:41:38 Page 8
+GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 10/21/21 23:46:19 Page 8
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
 E x e c u t i o n
 
@@ -1915,7 +1915,7 @@ solar                 100.000
 24       1.037       1.019
 
 
-----    175 PARAMETER network_cost         =  6.438350E+8  
+----    175 PARAMETER network_cost         =   643835.002  
 
 ----    175 VARIABLE GRID_CAP.L  
 
