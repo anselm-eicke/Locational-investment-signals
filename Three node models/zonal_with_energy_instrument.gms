@@ -65,7 +65,7 @@ sum_instrument
 network_cost
 
 i_WF
-i_instrument(n)
+i_instrument(tec,n)
 i_cap(tec,n)
 i_lambda(t)
 i_load_real(t,n)
@@ -130,7 +130,7 @@ GEN(t,tec,n)
 CAP(tec,n)
 WF
 FLOW(t,n,m)
-INSTRUMENT(n)
+INSTRUMENT(tec,n)
 THETA(t,n)
 LAMBDA(t)
 ;
@@ -214,8 +214,8 @@ demand_min(t,n)..               0 =g= -LOAD_real(t,n);
 energy_balance(t)..             0 =e= sum((tec,n),GEN(t,tec,n)) - sum(n,LOAD_real(t,n));
                
 *KKT conditions
-KKT_GEN(t,tec,n)..              c_var(tec,n) + mu_G_max(t,tec,n) - mu_G_min(t,tec,n) - LAMBDA(t) =e= 0;
-KKT_CAP(tec,n)..                c_fix(tec,n) + capacity_slope * CAP(tec,n) + INSTRUMENT(n) - sum(t,avail(t,tec,n) * mu_G_max(t,tec,n)) + mu_C_max(tec,n) - mu_C_min(tec,n) =e= 0;
+KKT_GEN(t,tec,n)..              c_var(tec,n) + INSTRUMENT(tec,n) + mu_G_max(t,tec,n) - mu_G_min(t,tec,n) - LAMBDA(t) =e= 0;
+KKT_CAP(tec,n)..                c_fix(tec,n) + capacity_slope * CAP(tec,n) - sum(t,avail(t,tec,n) * mu_G_max(t,tec,n)) + mu_C_max(tec,n) - mu_C_min(tec,n) =e= 0;
 KKT_load(t,n)..                 -p_ref * ((1-1/elasticity) + LOAD_real(t,n) / (elasticity * load(t,n))) - mu_D_min(t,n) + LAMBDA(t) =e= 0;                
 
 complementarity1a(t,tec,n)..    GEN(t,tec,n)        =L= y1(t,tec,n) * M1;
@@ -274,8 +274,8 @@ complementarity6b
 /;
 
 
-INSTRUMENT.lo(n) = -250;
-INSTRUMENT.up(n) = 750;
+INSTRUMENT.lo(tec,n) = -250;
+INSTRUMENT.up(tec,n) = 750;
 
 GEN.up(t,tec,n) = 100;
 GEN.lo(t,tec,n) = 0;
@@ -300,14 +300,14 @@ Solve LOCI maximizing WF using MIQCP;
 
 price(t) = p_ref * (1-(1/elasticity) + (sum((tec,n), GEN.L(t,tec,n)) / sum(n, elasticity * load(t,n))));
 load_deviation(t) = sum((tec,n), GEN.L(t,tec,n)) / sum(n,load(t,n));
-i_instrument(n) = INSTRUMENT.L(n) / sc / 1000;
+i_instrument(tec,n) = INSTRUMENT.L(tec,n) / sc / 1000;
 
 network_cost = (sum((n,m),(GRID_CAP.L(n,m) * grid_cost(n,m)) / 2) + sum((t,tec,n), UP.L(t,tec,n) * c_var(tec,n) - DOWN.L(t,tec,n) * c_var(tec,n))) / sc;
 consumer_surplus = sum(t, p_ref * sum((n), LOAD_real.L(t,n)) * (1-1/elasticity + sum((n), LOAD_real.L(t,n)) / (2*elasticity* sum(n,load(t,n))))) / sc;
 
 generation_costs = (sum((tec,n), CAP.L(tec,n) * c_fix(tec,n) + 0.5 * CAP.L(tec,n) * CAP.L(tec,n) * capacity_slope) + sum((t,tec,n), GEN.L(t,tec,n) * c_var(tec,n))) / sc;
                                                                     
-sum_instrument = sum((tec,n), INSTRUMENT.L(n) * CAP.L(tec,n)) / sc;
+sum_instrument = sum((tec,n), INSTRUMENT.L(tec,n) * CAP.L(tec,n)) / sc;
 
 load_deviation(t) = sum(n,LOAD_real.L(t,n)) / sum(n,load(t,n));
 res_share = 1 - sum((t,con,n), GEN.L(t,con,n)) / sum((t,tec,n), GEN.L(t,tec,n));
@@ -317,4 +317,4 @@ o_gen(t,tec,n) = GEN.L(t,tec,n);
 
 Display GEN.L, CAP.L, price, load_deviation, i_instrument, sum_instrument, network_cost, GRID_CAP.L;
 
-execute_UNLOAD 'Output/agnostic_instrument.gdx' consumer_surplus, generation_costs, network_cost, res_share, i_instrument, o_cap, o_gen, price;
+execute_UNLOAD 'Output/energy_instrument.gdx' consumer_surplus, generation_costs, network_cost, res_share, i_instrument, o_cap, o_gen, price;
