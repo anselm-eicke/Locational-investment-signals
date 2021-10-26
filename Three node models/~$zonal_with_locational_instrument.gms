@@ -289,7 +289,6 @@ UP.lo(t,tec,n) = 0;
 LOCI.nodlim = 25000000;
 LOCI.resLim = 40000;
 
-*This should matter. But does it really do?
 Option optcr = 0.02;
 
 Option MIQCP = Cplex;
