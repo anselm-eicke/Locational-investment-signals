@@ -117,7 +117,13 @@ load_deviation(t)
 INSTRUMENT(tec,n) 
 ;
 
-INSTRUMENT(tec,n)    = 36.12
+Table INSTRUMENT(tec,n)
+            north       south
+base        2.027       0.777
+peak      -32.379     -32.663
+wind       36.353       3.108
+solar       5.694      16.769
+;
 
 
 Variables
