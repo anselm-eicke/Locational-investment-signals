@@ -1,26 +1,27 @@
 Sets
-all_t       all hours               /1*10/
-t(all_t)    hours                   /1*3/
+all_t       all hours               /1*48/
+t(all_t)    hours                   /1*24/
 tec         generators              /base, peak, wind, solar/
 con(tec)    conventional generation /base, peak/
-all_n       all buses               /west, east, south/
-n(all_n)    selected buses          /west, east/
+all_n       all buses               /north, south, total/
+n(all_n)    selected buses          /north, south/
 ;
 
 alias (n,m);
 alias (all_n,all_m);
 
+
 * parameters for supply and demand functions
 Parameter elasticity / -0.25 /; 
 Parameter p_ref / 65 /;
-Parameter specific_network_costs /255/;
+Parameter specific_network_costs /300/;
 *Source for network costs: EMMA (3400 EUR/MW/km discontiert mit i = 0.07 ueber 40 Jahre)
 
 Table B(all_n,all_m)        Susceptance of transmission lines
-         west   east    south
-west        1    300      800
-east      300      1      500
-south     800    500        1
+         north  south   total
+north        1     700    250
+south      700       1    500
+total      250     500      1
 ;
 
 Parameters
@@ -35,10 +36,10 @@ avail(t,tec,n)              availability of wind and solar generation (1)
 c_var(tec,n)                variable costs (EUR per MWh)
 c_fix(tec,n)                annualized fixed costs (EUR per MW p.a.)
 capacity_slope
+generation_slope
 cap_lim(tec,n)              capacity limit of generation in each node
 grid_cost(n,m)
 sc                          scaling factor
-INSTRUMENT(tec,n)
     
 * Output Parameters
 consumer_surplus
@@ -57,9 +58,12 @@ o_NC
 o_RES_share
 o_load(t,n)
 o_cap(tec,n)
+o_gen(t,tec,n)
 price(t)
 o_cap_instr(tec,n)
 o_instrument(tec,n)
+sum_instrument
+network_cost
 
 i_WF
 i_instrument(tec,n)
@@ -90,10 +94,32 @@ avail(t,con,n)              = 1;
 c_var(tec, n)               = i_cost(tec,"cost_var");
 c_fix(tec, n)               = round(i_cost(tec,"cost_fix") * 1000 * sc);
 capacity_slope              = 0.15;
-*c_fix('wind','south')  * 0.25 / 50;
 cap_lim(tec,n)              = 100;
 grid_cost(n,m)              = round(B(n,m) * specific_network_costs * sc);
-INSTRUMENT(tec,n)     = 0;
+
+display c_var, load, avail, c_fix;
+
+Parameters
+consumer_surplus
+generation_costs
+total_network_cost
+res_share
+
+o_WF
+o_CS
+o_GC
+o_NC
+o_RES_share
+
+o_cap(tec,n)
+price(t)
+load_deviation(t)
+;
+
+Parameters
+INSTRUMENT(tec,n)    = 36.12
+
+;
 
 Variables
 GEN(t,tec,n)
