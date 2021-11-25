@@ -1,4 +1,4 @@
-GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 11/25/21 23:10:58 Page 1
+GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 11/26/21 00:06:50 Page 1
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
 C o m p i l a t i o n
 
@@ -8,7 +8,7 @@ C o m p i l a t i o n
    3  t(all_t)    hours                   /1*24/
    4  tec         generators              /base, peak, wind, solar/
    5  con(tec)    conventional generation /base, peak/
-   6  all_n       all buses               /north, south, total/
+   6  all_n       all buses               /north, south/
    7  n(all_n)    selected buses          /north, south/
    8  ;
    9   
@@ -23,166 +23,165 @@ C o m p i l a t i o n
   18  *Source for network costs: EMMA (3400 EUR/MW/km discontiert mit i = 0.07 ueber 40 Jahre)
   19   
   20  Table B(all_n,all_m)        Susceptance of transmission lines
-  21           north  south   total
-  22  north        1     700    250
-  23  south      700       1    500
-  24  total      250     500      1
-  25  ;
-  26   
-  27  Parameters
-  28  * Input Parameters
-  29  i_cost(*,*)                 cost data to be loaded from sheet "cost"
-  30  i_load(all_t,all_n)         load data to be loaded from sheet "time series" in MWh
-  31  i_avail(all_t,tec,all_n)    availability data
-  32   
-  33  * Model Parameters
-  34  load(t,n)                   hourly load in GWh
-  35  avail(t,tec,n)              availability of wind and solar generation (1)
-  36  c_var(tec,n)                variable costs (EUR per MWh)
-  37  c_fix(tec,n)                annualized fixed costs (EUR per MW p.a.)
-  38  capacity_slope
-  39  generation_slope
-  40  cap_lim(tec,n)              capacity limit of generation in each node
-  41  grid_cost(n,m)
-  42  sc                          scaling factor
-  43   
-  44  * Output Parameters
-  45  consumer_surplus
-  46  generation_costs
-  47  network_cost
-  48  load_deviation(t,n)
-  49  res_share
-  50  marginal_fixed_costs(tec,n)
-  51  fixed_linear_costs(tec,n)
-  52  max_marginal_price_adder(tec,n)
-  53  variable_costs(tec,n)
-  54  o_WF
-  55  o_CS
-  56  o_GC
-  57  o_NC
-  58  o_RES_share
-  59  o_load(t,n)
-  60  o_cap(tec,n)
-  61  o_gen(t,tec,n)
-  62  price(t,n)
-  63  price_lambda(t,n)
-  64  o_cap_instr(tec,n)
-  65  o_instrument(tec,n)
-  66   
-  67  i_WF
-  68  i_instrument(tec,n)
-  69  i_cap(tec,n)
-  70  i_lambda(t)
-  71  i_load_real(t,n)
-  72  i_gen(t,tec,n)
-  73  i_grid_cap(n,m)
-  74  i_flow(t,n,m)
-  75  i_up(t,tec,n)
-  76  i_down(t,tec,n)
-  77  i_mu_G_min(t,tec,n)
-  78  i_mu_G_max(t,tec,n)
-  79  i_mu_C_min(tec,n)
-  80  i_mu_C_max(tec,n)
-  81  i_mu_D_min(t,n)
-  82  ;
-  83   
-  84  * Load data
+  21           north  south
+  22  north        1     700
+  23  south      700       1
+  24  ;
+  25   
+  26  Parameters
+  27  * Input Parameters
+  28  i_cost(*,*)                 cost data to be loaded from sheet "cost"
+  29  i_load(all_t,all_n)         load data to be loaded from sheet "time series" in MWh
+  30  i_avail(all_t,tec,all_n)    availability data
+  31   
+  32  * Model Parameters
+  33  load(t,n)                   hourly load in GWh
+  34  avail(t,tec,n)              availability of wind and solar generation (1)
+  35  c_var(tec,n)                variable costs (EUR per MWh)
+  36  c_fix(tec,n)                annualized fixed costs (EUR per MW p.a.)
+  37  capacity_slope
+  38  generation_slope
+  39  cap_lim(tec,n)              capacity limit of generation in each node
+  40  grid_cost(n,m)
+  41  sc                          scaling factor
+  42   
+  43  * Output Parameters
+  44  consumer_surplus
+  45  generation_costs
+  46  network_cost
+  47  load_deviation(t,n)
+  48  res_share
+  49  marginal_fixed_costs(tec,n)
+  50  fixed_linear_costs(tec,n)
+  51  max_marginal_price_adder(tec,n)
+  52  variable_costs(tec,n)
+  53  o_WF
+  54  o_CS
+  55  o_GC
+  56  o_NC
+  57  o_RES_share
+  58  o_load(t,n)
+  59  o_cap(tec,n)
+  60  o_gen(t,tec,n)
+  61  price(t,n)
+  62  price_lambda(t,n)
+  63  o_cap_instr(tec,n)
+  64  o_instrument(tec,n)
+  65   
+  66  i_WF
+  67  i_instrument(tec,n)
+  68  i_cap(tec,n)
+  69  i_lambda(t)
+  70  i_load_real(t,n)
+  71  i_gen(t,tec,n)
+  72  i_grid_cap(n,m)
+  73  i_flow(t,n,m)
+  74  i_up(t,tec,n)
+  75  i_down(t,tec,n)
+  76  i_mu_G_min(t,tec,n)
+  77  i_mu_G_max(t,tec,n)
+  78  i_mu_C_min(tec,n)
+  79  i_mu_C_max(tec,n)
+  80  i_mu_D_min(t,n)
+  81  ;
+  82   
+  83  * Load data
 GDXIN   C:\Users\a.eicke\Documents\Locational-investment-signals\Three node models\in.gdx
 --- LOAD  i_cost = 1:i_cost
 --- LOAD  i_load = 2:i_load
 --- LOAD  i_avail = 3:i_avail
-  87   
-  88  * Data assignment
-  89  sc = card(t) / 8760;
-  90  load(t,n)                   = i_load(t,n) / 1000;
-  91  avail(t,tec,n)              = i_avail(t,tec,n);
-  92  avail(t,con,n)              = 1;
-  93  c_var(tec, n)               = i_cost(tec,"cost_var");
-  94  c_fix(tec, n)               = round(i_cost(tec,"cost_fix") * 1000 * sc);
-  95  capacity_slope              = 0.15;
-  96  cap_lim(tec,n)              = 100;
-  97  grid_cost(n,m)              = round(B(n,m) * specific_network_costs * sc);
-  98   
-  99  display c_var, load, avail, c_fix;
+  86   
+  87  * Data assignment
+  88  sc = card(t) / 8760;
+  89  load(t,n)                   = i_load(t,n) / 1000;
+  90  avail(t,tec,n)              = i_avail(t,tec,n);
+  91  avail(t,con,n)              = 1;
+  92  c_var(tec, n)               = i_cost(tec,"cost_var");
+  93  c_fix(tec, n)               = round(i_cost(tec,"cost_fix") * 1000 * sc);
+  94  capacity_slope              = 0.15;
+  95  cap_lim(tec,n)              = 100;
+  96  grid_cost(n,m)              = round(B(n,m) * specific_network_costs * sc);
+  97   
+  98  display c_var, load, avail, c_fix;
+  99   
  100   
  101   
- 102   
- 103  Free variables
- 104  LAMBDA(t)
- 105  WF
- 106  FLOW(t,n,m)
- 107  THETA(t,n)
- 108   
- 109  ;
- 110   
- 111  Positive variables
- 112  LOAD_real(t,n)
- 113  GRID_CAP(n,m)
- 114  GEN(t,tec,n)
- 115  CAP(tec,n)
- 116  ;
- 117   
- 118  Equations
- 119  objective, cap_constraint, cap_limit,
- 120   
- 121  nodal_energy_balance,
- 122  grid_eq1, grid_eq2, grid_eq3, grid_eq4;
+ 102  Free variables
+ 103  LAMBDA(t)
+ 104  WF
+ 105  FLOW(t,n,m)
+ 106  THETA(t,n)
+ 107   
+ 108  ;
+ 109   
+ 110  Positive variables
+ 111  LOAD_real(t,n)
+ 112  GRID_CAP(n,m)
+ 113  GEN(t,tec,n)
+ 114  CAP(tec,n)
+ 115  ;
+ 116   
+ 117  Equations
+ 118  objective, cap_constraint, cap_limit,
+ 119   
+ 120  nodal_energy_balance,
+ 121  grid_eq1, grid_eq2, grid_eq3, grid_eq4;
+ 122   
  123   
- 124   
- 125  objective..                  WF =e= sum((t,n), p_ref * LOAD_real(t,n) * (1-1/elasticity + LOAD_real(t,n) / (2*elasticity* load(t,n))))
- 126                                      - sum((tec,n), CAP(tec,n) * c_fix(tec,n) + 0.5 * CAP(tec,n) * CAP(tec,n) * capacity_slope)
- 127                                      - sum((t,tec,n), GEN(t,tec,n) * c_var(tec,n))
- 128                                      - sum((n,m),(GRID_CAP(n,m) * grid_cost(n,m)) / 2);
- 129   
- 130  cap_constraint(t,tec,n)..   GEN(t,tec,n)    =L= CAP(tec,n) * avail(t,tec,n);
- 131  cap_limit(tec,n)..          CAP(tec,n)      =L= cap_lim(tec,n);
- 132   
- 133  *nodal energy balance
- 134  nodal_energy_balance(t,n).. sum(tec,GEN(t,tec,n)) - LOAD_real(t,n) =E= sum(m,FLOW(t,n,m));
- 135   
- 136  *network constraints
- 137  grid_eq1(t,n,m)..           FLOW(t,n,m)     =l= GRID_CAP(n,m);
- 138  grid_eq2(n,m)..             GRID_CAP(n,m)   =e= GRID_CAP(m,n);
- 139  grid_eq3(t,n,m)..           FLOW(t,n,m)     =e= B(n,m) * (THETA(t,n) - THETA(t,m));
- 140  grid_eq4(t,n)..             THETA(t,'south') =e= 0;
+ 124  objective..                  WF =e= sum((t,n), p_ref * LOAD_real(t,n) * (1-1/elasticity + LOAD_real(t,n) / (2*elasticity* load(t,n))))
+ 125                                      - sum((tec,n), CAP(tec,n) * c_fix(tec,n) + 0.5 * CAP(tec,n) * CAP(tec,n) * capacity_slope)
+ 126                                      - sum((t,tec,n), GEN(t,tec,n) * c_var(tec,n))
+ 127                                      - sum((n,m),(GRID_CAP(n,m) * grid_cost(n,m)) / 2);
+ 128   
+ 129  cap_constraint(t,tec,n)..   GEN(t,tec,n)    =L= CAP(tec,n) * avail(t,tec,n);
+ 130  cap_limit(tec,n)..          CAP(tec,n)      =L= cap_lim(tec,n);
+ 131   
+ 132  *nodal energy balance
+ 133  nodal_energy_balance(t,n).. sum(tec,GEN(t,tec,n)) - LOAD_real(t,n) =E= sum(m,FLOW(t,n,m));
+ 134   
+ 135  *network constraints
+ 136  grid_eq1(t,n,m)..           FLOW(t,n,m)     =l= GRID_CAP(n,m);
+ 137  grid_eq2(n,m)..             GRID_CAP(n,m)   =e= GRID_CAP(m,n);
+ 138  grid_eq3(t,n,m)..           FLOW(t,n,m)     =e= B(n,m) * (THETA(t,n) - THETA(t,m));
+ 139  grid_eq4(t,n)..             THETA(t,'south') =e= 0;
+ 140   
  141   
- 142   
- 143  Model nodal /
- 144  objective
- 145   
- 146  cap_constraint
- 147  cap_limit
- 148   
- 149  nodal_energy_balance
- 150   
- 151  grid_eq1
- 152  grid_eq2
- 153  grid_eq3
- 154  grid_eq4
- 155  /;
- 156   
- 157  * Set starting point
- 158  LOAD_real.L(t,n) =load(t,n);
- 159   
- 160  Solve nodal using QCP max WF;
- 161   
- 162  price(t,n) = p_ref * (1-1/elasticity + (LOAD_real.L(t,n)) / (elasticity * load(t,n)));
- 163   
- 164  network_cost = sum((n,m),(GRID_CAP.L(n,m) * grid_cost(n,m)) / 2) / sc;
- 165  consumer_surplus = sum(t, p_ref * sum((n), LOAD_real.L(t,n)) * (1-1/elasticity + sum((n), LOAD_real.L(t,n)) / (2*elasticity* sum(n,load(t,n))))) / sc;
- 166   
- 167  generation_costs = (sum((tec,n), CAP.L(tec,n) * c_fix(tec,n) + 0.5 * CAP.L(tec,n) * CAP.L(tec,n) * capacity_slope) + sum((t,tec,n), GEN.L(t,tec,n) * c_var(tec,n))) / sc;
- 168   
- 169  load_deviation(t,n) =  LOAD_real.L(t,n) / load(t,n);
- 170  res_share = 1 - sum((t,con,n), GEN.L(t,con,n)) / sum((t,tec,n), GEN.L(t,tec,n));
- 171  o_cap(tec,n) = CAP.L(tec,n);
- 172  o_gen(t,tec,n) = GEN.L(t,tec,n);
+ 142  Model nodal /
+ 143  objective
+ 144   
+ 145  cap_constraint
+ 146  cap_limit
+ 147   
+ 148  nodal_energy_balance
+ 149   
+ 150  grid_eq1
+ 151  grid_eq2
+ 152  grid_eq3
+ 153  grid_eq4
+ 154  /;
+ 155   
+ 156  * Set starting point
+ 157  LOAD_real.L(t,n) =load(t,n);
+ 158   
+ 159  Solve nodal using QCP max WF;
+ 160   
+ 161  price(t,n) = p_ref * (1-1/elasticity + (LOAD_real.L(t,n)) / (elasticity * load(t,n)));
+ 162   
+ 163  network_cost = sum((n,m),(GRID_CAP.L(n,m) * grid_cost(n,m)) / 2) / sc;
+ 164  consumer_surplus = sum(t, p_ref * sum((n), LOAD_real.L(t,n)) * (1-1/elasticity + sum((n), LOAD_real.L(t,n)) / (2*elasticity* sum(n,load(t,n))))) / sc;
+ 165   
+ 166  generation_costs = (sum((tec,n), CAP.L(tec,n) * c_fix(tec,n) + 0.5 * CAP.L(tec,n) * CAP.L(tec,n) * capacity_slope) + sum((t,tec,n), GEN.L(t,tec,n) * c_var(tec,n))) / sc;
+ 167   
+ 168  load_deviation(t,n) =  LOAD_real.L(t,n) / load(t,n);
+ 169  res_share = 1 - sum((t,con,n), GEN.L(t,con,n)) / sum((t,tec,n), GEN.L(t,tec,n));
+ 170  o_cap(tec,n) = CAP.L(tec,n);
+ 171  o_gen(t,tec,n) = GEN.L(t,tec,n);
+ 172   
  173   
- 174   
- 175  Display GEN.L, CAP.L, price, load_deviation, network_cost, GRID_CAP.L;
- 176   
- 177  execute_UNLOAD 'Output/nodal.gdx' consumer_surplus, generation_costs, network_cost, res_share, o_cap, o_gen, price, c_fix;
-GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 11/25/21 23:10:58 Page 2
+ 174  Display GEN.L, CAP.L, price, load_deviation, network_cost, GRID_CAP.L;
+ 175   
+ 176  execute_UNLOAD 'Output/nodal.gdx' consumer_surplus, generation_costs, network_cost, res_share, o_cap, o_gen, price, c_fix;
+GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 11/26/21 00:06:50 Page 2
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
 Include File Summary
 
@@ -190,16 +189,16 @@ Include File Summary
    SEQ   GLOBAL TYPE      PARENT   LOCAL  FILENAME
 
      1        1 INPUT          0       0  C:\Users\a.eicke\Documents\Locational-investment-signals\Three node models\Nodal.gms
-     2       85 GDXIN          1      85  C:\Users\a.eicke\Documents\Locational-investment-signals\Three node models\in.gdx
+     2       84 GDXIN          1      84  C:\Users\a.eicke\Documents\Locational-investment-signals\Three node models\in.gdx
 
 
-COMPILATION TIME     =        0.109 SECONDS      3 MB  30.3.0 rc5da09e WEX-WEI
-GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 11/25/21 23:10:58 Page 3
+COMPILATION TIME     =        0.000 SECONDS      3 MB  30.3.0 rc5da09e WEX-WEI
+GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 11/26/21 00:06:50 Page 3
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
 E x e c u t i o n
 
 
-----     99 PARAMETER c_var  variable costs (EUR per MWh)
+----     98 PARAMETER c_var  variable costs (EUR per MWh)
 
            north       south
 
@@ -207,7 +206,7 @@ base      60.000      60.000
 peak      80.000      80.000
 
 
-----     99 PARAMETER load  hourly load in GWh
+----     98 PARAMETER load  hourly load in GWh
 
          north       south
 
@@ -237,7 +236,7 @@ peak      80.000      80.000
 24      14.759      34.437
 
 
-----     99 PARAMETER avail  availability of wind and solar generation (1)
+----     98 PARAMETER avail  availability of wind and solar generation (1)
 
                north       south
 
@@ -330,7 +329,7 @@ peak      80.000      80.000
 24.wind        0.210       0.250
 
 
-----     99 PARAMETER c_fix  annualized fixed costs (EUR per MW p.a.)
+----     98 PARAMETER c_fix  annualized fixed costs (EUR per MW p.a.)
 
             north       south
 
@@ -339,9 +338,9 @@ peak       88.000      88.000
 wind      260.000     260.000
 solar     137.000     137.000
 
-GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 11/25/21 23:10:58 Page 4
+GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 11/26/21 00:06:50 Page 4
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
-Equation Listing    SOLVE nodal Using QCP From line 160
+Equation Listing    SOLVE nodal Using QCP From line 159
 
 
 ---- objective  =E=  
@@ -453,9 +452,9 @@ grid_eq4(2,north)..  THETA(2,south) =E= 0 ; (LHS = 0)
      
 REMAINING 45 ENTRIES SKIPPED
 
-GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 11/25/21 23:10:58 Page 5
+GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 11/26/21 00:06:50 Page 5
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
-Column Listing      SOLVE nodal Using QCP From line 160
+Column Listing      SOLVE nodal Using QCP From line 159
 
 
 ---- WF  
@@ -731,9 +730,9 @@ CAP(peak,north)
         1       cap_limit(peak,north)
 
 REMAINING 5 ENTRIES SKIPPED
-GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 11/25/21 23:10:58 Page 6
+GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 11/26/21 00:06:50 Page 6
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
-Model Statistics    SOLVE nodal Using QCP From line 160
+Model Statistics    SOLVE nodal Using QCP From line 159
 
 
 MODEL STATISTICS
@@ -745,26 +744,26 @@ DERIVATIVE POOL              20     CONSTANT POOL              69
 CODE LENGTH                 394
 
 
-GENERATION TIME      =        0.015 SECONDS      4 MB  30.3.0 rc5da09e WEX-WEI
+GENERATION TIME      =        0.032 SECONDS      4 MB  30.3.0 rc5da09e WEX-WEI
 
 
-EXECUTION TIME       =        0.031 SECONDS      4 MB  30.3.0 rc5da09e WEX-WEI
-GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 11/25/21 23:10:58 Page 7
+EXECUTION TIME       =        0.032 SECONDS      4 MB  30.3.0 rc5da09e WEX-WEI
+GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 11/26/21 00:06:50 Page 7
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
-Solution Report     SOLVE nodal Using QCP From line 160
+Solution Report     SOLVE nodal Using QCP From line 159
 
 
                S O L V E      S U M M A R Y
 
      MODEL   nodal               OBJECTIVE  WF
      TYPE    QCP                 DIRECTION  MAXIMIZE
-     SOLVER  CONOPT              FROM LINE  160
+     SOLVER  CONOPT              FROM LINE  159
 
 **** SOLVER STATUS     1 Normal Completion         
 **** MODEL STATUS      2 Locally Optimal           
 **** OBJECTIVE VALUE           195008.9703
 
- RESOURCE USAGE, LIMIT          0.062      1000.000
+ RESOURCE USAGE, LIMIT          0.031      1000.000
  ITERATION COUNT, LIMIT        53    2000000000
  EVALUATION ERRORS              0             0
 CONOPT 3         30.3.0 rc5da09e Released Mar 06, 2020 WEI x86 64bit/MS Window
@@ -790,11 +789,11 @@ CONOPT 3         30.3.0 rc5da09e Released Mar 06, 2020 WEI x86 64bit/MS Window
  ** Optimal solution. Reduced gradient less than tolerance.
  
  
- CONOPT time Total                            0.058 seconds
-   of which: Function evaluations             0.000 =  0.0%
-             1st Derivative evaluations       0.000 =  0.0%
-             2nd Derivative evaluations       0.000 =  0.0%
-             Directional 2nd Derivative       0.000 =  0.0%
+ CONOPT time Total                            0.028 seconds
+   of which: Function evaluations             0.001 =  3.6%
+             1st Derivative evaluations       0.002 =  7.1%
+             2nd Derivative evaluations       0.001 =  3.6%
+             Directional 2nd Derivative       0.002 =  7.1%
  
 
                            LOWER          LEVEL          UPPER         MARGINAL
@@ -1761,12 +1760,12 @@ solar.south          .           100.0000        +INF             .
                              0 INFEASIBLE
                              0  UNBOUNDED
                              0     ERRORS
-GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 11/25/21 23:10:58 Page 8
+GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 11/26/21 00:06:50 Page 8
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
 E x e c u t i o n
 
 
-----    175 VARIABLE GEN.L  
+----    174 VARIABLE GEN.L  
 
                north       south
 
@@ -1845,7 +1844,7 @@ E x e c u t i o n
 24.wind       18.369       7.779
 
 
-----    175 VARIABLE CAP.L  
+----    174 VARIABLE CAP.L  
 
             north       south
 
@@ -1855,7 +1854,7 @@ wind       87.473      31.115
 solar                 100.000
 
 
-----    175 PARAMETER price  
+----    174 PARAMETER price  
 
          north       south
 
@@ -1885,7 +1884,7 @@ solar                 100.000
 24      55.433      60.000
 
 
-----    175 PARAMETER load_deviation  
+----    174 PARAMETER load_deviation  
 
          north       south
 
@@ -1915,9 +1914,9 @@ solar                 100.000
 24       1.037       1.019
 
 
-----    175 PARAMETER network_cost         =   643835.002  
+----    174 PARAMETER network_cost         =   643835.002  
 
-----    175 VARIABLE GRID_CAP.L  
+----    174 VARIABLE GRID_CAP.L  
 
             north       south
 
@@ -1926,7 +1925,7 @@ south       3.068
 
 
 
-EXECUTION TIME       =        0.016 SECONDS      3 MB  30.3.0 rc5da09e WEX-WEI
+EXECUTION TIME       =        0.015 SECONDS      3 MB  30.3.0 rc5da09e WEX-WEI
 
 
 USER: Small MUD - 5 User License                     S190305:0326AO-WIN
