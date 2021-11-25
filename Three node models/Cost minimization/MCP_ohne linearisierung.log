@@ -1,0 +1,122 @@
+--- Job MCP_ohne linearisierung.gms Start 10/27/21 23:58:19 30.3.0 rc5da09e WEX-WEI x86 64bit/MS Windows
+--- GAMS Parameters defined
+    Input C:\Users\a.eicke\Documents\Locational-investment-signals\Three node models\Cost minimization\MCP_ohne linearisierung.gms
+    PageSize 0
+    ScrDir C:\Users\a.eicke\Documents\Locational-investment-signals\Three node models\Cost minimization\225a\
+    SysDir C:\GAMS\win64\30.3\
+    LogOption 3
+    ErrMsg 1
+    ErrorLog 99
+    IDE 1
+    LstTitleLeftAligned 1
+GAMS 30.3.0   Copyright (C) 1987-2020 GAMS Development. All rights reserved
+Licensee: Small MUD - 5 User License                     S190305:0326AO-WIN
+          Hertie School of Governance GmbH, Governance of DigitalizaDC14808
+--- Starting compilation
+--- MCP_ohne linearisierung.gms(69) 3 Mb
+--- GDXin=C:\Users\a.eicke\Documents\Locational-investment-signals\Three node models\Cost minimization\in.gdx
+--- MCP_ohne linearisierung.gms(166) 3 Mb
+--- Starting execution: elapsed 0:00:00.013
+--- MCP_ohne linearisierung.gms(161) 4 Mb
+--- Generating MCP model LOCI
+--- MCP_ohne linearisierung.gms(163) 6 Mb
+---   625 rows  625 columns  1,533 non-zeroes
+---   0 nl-code  0 nl-non-zeroes
+--- MCP_ohne linearisierung.gms(163) 4 Mb
+--- Executing PATH: elapsed 0:00:00.030
+Reading dictionary...
+Reading row data...
+Evaluating functions...
+Checking model...
+Calculating Jacobian...
+
+PATH             30.3.0 rc5da09e Released Mar 06, 2020 WEI x86 64bit/MS Window
+
+*** This solver runs with a community license.
+625 row/cols, 1533 non-zeros, 0.39% dense.
+
+Path 5.0.02 (Fri Mar  6 16:28:13 2020)
+Written by Todd Munson, Steven Dirkse, Youngdae Kim, and Michael Ferris
+
+MCPR: Imp:    0 IBd:    0 Dup:   22 DBd:   22
+Preprocessed size   : 603
+
+INITIAL POINT STATISTICS
+Maximum of X. . . . . . . . . .  0.0000e+00 var: (GEN(1,base,north))
+Maximum of F. . . . . . . . . .  2.6000e+02 eqn: (KKT_CAP(base,north))
+Maximum of Grad F . . . . . . .  1.0000e+00 eqn: (gen_min(1,base,north))
+                                            var: (GEN(1,base,north))
+
+INITIAL JACOBIAN NORM STATISTICS
+Maximum Row Norm. . . . . . . .  2.6150e+01 eqn: (KKT_CAP(base,north))
+Minimum Row Norm. . . . . . . .  1.0000e+00 eqn: (objective)
+Maximum Column Norm . . . . . .  2.6150e+01 var: (CAP(base,north))
+Minimum Column Norm . . . . . .  1.0000e+00 var: (mu_G_min(1,base,north))
+
+Crash Log
+major  func  diff  size  residual    step       prox   (label)
+    0     0             9.4871e+02             0.0e+00 (KKT_CAP(base,north))
+pn_search terminated: no progress.
+
+Major Iteration Log
+major minor  func  grad  residual    step  type prox    inorm  (label)
+    0     0    13     1 9.4871e+02           I 9.5e+00 2.6e+02 (KKT_CAP(base,no)
+    1   143    14     2 2.2134e+03  1.0e+00 SO 3.8e+00 3.0e+02 (energy_balance()
+    2   222    23     3 3.0687e+03  2.3e-02 SB 1.5e+00 1.2e+03 (KKT_CAP(peak,so)
+    3   309    24     4 1.2833e+03  1.0e+00 SO 6.1e-01 5.9e+02 (KKT_CAP(peak,so)
+    4   106    25     5 3.5436e+02  1.0e+00 CO 2.4e-01 1.8e+02 (KKT_CAP(peak,so)
+    5   149    26     6 2.8718e+01  1.0e+00 SO 9.7e-02 1.1e+01 (KKT_CAP(peak,so)
+    6    87    27     7 7.3782e+00  1.0e+00 CO 3.9e-02 1.7e+00 (KKT_CAP(peak,no)
+    7   112    28     8 4.8442e+00  1.0e+00 CO 1.6e-02 1.1e+00 (gen_max(10,wind)
+    8    41    29     9 1.2098e+00  1.0e+00 CO 6.2e-03 3.4e-01 (gen_max(10,wind)
+    9    19    30    10 1.1940e+00  1.0e+00 CO 2.5e-03 3.4e-01 (gen_max(10,wind)
+   10    91    31    11 1.1940e+00  1.0e+00 CO 9.9e-04 3.4e-01 (gen_max(10,wind)
+
+Minor Iteration Log
+minor      t          z     w     v   art ckpts  enter    leave
+  500  1.7463e-09   400   202     0     0     9 z[  342] z[  167]
+
+Major Iteration Log
+major minor  func  grad  residual    step  type prox    inorm  (label)
+   11   658    32    12 1.8785e-02  1.0e+00 SO 4.0e-04 6.7e-03 (KKT_GEN(21,base)
+   12    21    33    13 2.1127e-04  1.0e+00 CO 1.6e-04 7.5e-05 (KKT_GEN(21,base)
+   13    88    34    14 2.1091e-04  1.0e+00 CO 2.1e-05 7.5e-05 (KKT_GEN(21,base)
+   14   109    35    15 2.1091e-04  1.0e+00 CO 8.5e-06 7.5e-05 (KKT_GEN(21,base)
+   15   109    36    16 2.1094e-04  1.0e+00 CO 3.4e-06 7.5e-05 (KKT_GEN(21,base)
+   16     1    37    17 7.0962e-09  1.0e+00 SO 1.4e-06 7.0e-09 (gen_min(17,base)
+
+FINAL STATISTICS
+Inf-Norm of Complementarity . .  5.9281e-09 eqn: (gen_max(20,solar,south))
+Inf-Norm of Normal Map. . . . .  3.4934e-09 eqn: (gen_min(17,base,south))
+Inf-Norm of Minimum Map . . . .  3.4934e-09 eqn: (gen_min(17,base,south))
+Inf-Norm of Fischer Function. .  6.9869e-09 eqn: (gen_min(17,base,south))
+Inf-Norm of Grad Fischer Fcn. .  1.3974e-08 eqn: (KKT_GEN(17,base,north))
+Two-Norm of Grad Fischer Fcn. .  1.5768e-08
+
+FINAL POINT STATISTICS
+Maximum of X. . . . . . . . . .  1.6905e+02 var: (mu_G_max(10,wind,north))
+Maximum of F. . . . . . . . . .  1.0000e+02 eqn: (cap_max(solar,north))
+Maximum of Grad F . . . . . . .  1.0000e+00 eqn: (gen_min(1,base,north))
+                                            var: (GEN(1,base,north))
+
+ ** EXIT - solution found.
+
+Major Iterations. . . . 16
+Minor Iterations. . . . 2265
+Restarts. . . . . . . . 0
+Crash Iterations. . . . 0
+Gradient Steps. . . . . 0
+Function Evaluations. . 37
+Gradient Evaluations. . 17
+Basis Time. . . . . . . 0.125000
+Total Time. . . . . . . 0.156000
+Residual. . . . . . . . 7.096159e-09
+Postsolved residual: 7.0998e-09
+
+--- Restarting execution
+--- MCP_ohne linearisierung.gms(163) 2 Mb
+--- Reading solution for model LOCI
+--- Executing after solve: elapsed 0:00:00.339
+--- MCP_ohne linearisierung.gms(165) 3 Mb
+*** Status: Normal completion
+--- Job MCP_ohne linearisierung.gms Stop 10/27/21 23:58:19 elapsed 0:00:00.344

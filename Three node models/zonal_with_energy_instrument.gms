@@ -299,7 +299,7 @@ Solve LOCI maximizing WF using MIQCP;
 
 price(t) = p_ref * (1-(1/elasticity) + (sum((tec,n), GEN.L(t,tec,n)) / sum(n, elasticity * load(t,n))));
 load_deviation(t) = sum((tec,n), GEN.L(t,tec,n)) / sum(n,load(t,n));
-*i_instrument(tec,n) = INSTRUMENT.L(tec,n) / sc / 1000;
+i_instrument(tec,n) = INSTRUMENT.L(tec,n) / sc / 1000;
 
 network_cost = (sum((n,m),(GRID_CAP.L(n,m) * grid_cost(n,m)) / 2) + sum((t,tec,n), UP.L(t,tec,n) * c_var(tec,n) - DOWN.L(t,tec,n) * c_var(tec,n))) / sc;
 consumer_surplus = sum(t, p_ref * sum((n), LOAD_real.L(t,n)) * (1-1/elasticity + sum((n), LOAD_real.L(t,n)) / (2*elasticity* sum(n,load(t,n))))) / sc;
@@ -314,6 +314,6 @@ o_cap(tec,n) = CAP.L(tec,n);
 o_gen(t,tec,n) = GEN.L(t,tec,n);
 
 
-Display GEN.L, CAP.L, price, load_deviation, network_cost, GRID_CAP.L;
+Display GEN.L, CAP.L, price, i_instrument, load_deviation, network_cost, GRID_CAP.L;
 
 execute_UNLOAD 'Output/energy_instrument.gdx' consumer_surplus, generation_costs, network_cost, res_share, i_instrument, o_cap, o_gen, price, c_fix;
