@@ -14,7 +14,8 @@ alias (all_n,all_m);
 * parameters for supply and demand functions
 Parameter elasticity / -0.25 /; 
 Parameter p_ref / 65 /;
-Parameter specific_network_costs /300/;
+Parameter specific_network_costs /200/;
+Parameter capacity_slope / 0.25 /;
 *Source for network costs: EMMA (3400 EUR/MW/km discontiert mit i = 0.07 ueber 40 Jahre)
 
 Table B(all_n,all_m)        Susceptance of transmission lines
@@ -34,8 +35,6 @@ load(t,n)                   hourly load in GWh
 avail(t,tec,n)              availability of wind and solar generation (1)
 c_var(tec,n)                variable costs (EUR per MWh)
 c_fix(tec,n)                annualized fixed costs (EUR per MW p.a.)
-capacity_slope
-generation_slope
 cap_lim(tec,n)              capacity limit of generation in each node
 grid_cost(n,m)
 sc                          scaling factor
@@ -91,11 +90,10 @@ avail(t,tec,n)              = i_avail(t,tec,n);
 avail(t,con,n)              = 1;
 c_var(tec, n)               = i_cost(tec,"cost_var");
 c_fix(tec, n)               = round(i_cost(tec,"cost_fix") * 1000 * sc);
-capacity_slope              = 0.15;
 cap_lim(tec,n)              = 100;
 grid_cost(n,m)              = round(B(n,m) * specific_network_costs * sc);
 
-display c_var, load, avail, c_fix;
+display sc, c_var, load, avail, c_fix;
 
 
 
