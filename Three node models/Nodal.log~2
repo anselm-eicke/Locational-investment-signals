@@ -1,4 +1,4 @@
---- Job Nodal.gms Start 11/26/21 00:04:46 30.3.0 rc5da09e WEX-WEI x86 64bit/MS Windows
+--- Job Nodal.gms Start 11/26/21 16:58:21 30.3.0 rc5da09e WEX-WEI x86 64bit/MS Windows
 --- GAMS Parameters defined
     Input C:\Users\a.eicke\Documents\Locational-investment-signals\Three node models\Nodal.gms
     PageSize 0
@@ -15,39 +15,61 @@ Licensee: Small MUD - 5 User License                     S190305:0326AO-WIN
 --- Starting compilation
 --- Nodal.gms(84) 3 Mb
 --- GDXin=C:\Users\a.eicke\Documents\Locational-investment-signals\Three node models\in.gdx
---- Nodal.gms(85) 3 Mb 1 Error
-*** Error 495 in C:\Users\a.eicke\Documents\Locational-investment-signals\Three node models\Nodal.gms
-    Load dimensions are different
---- Nodal.gms(89) 3 Mb 2 Errors
-*** Error 141 in C:\Users\a.eicke\Documents\Locational-investment-signals\Three node models\Nodal.gms
-    Symbol declared but no values have been assigned. Check for missing
-       data definition, assignment, data loading or implicit assignment
-       via a solve statement.
-       A wild shot: You may have spurious commas in the explanatory
-       text of a declaration. Check symbol reference list.
---- Nodal.gms(159) 3 Mb 3 Errors
-*** Error 257 in C:\Users\a.eicke\Documents\Locational-investment-signals\Three node models\Nodal.gms
-    Solve statement not checked because of previous errors
---- Nodal.gms(163) 3 Mb 4 Errors
-*** Error 141 in C:\Users\a.eicke\Documents\Locational-investment-signals\Three node models\Nodal.gms
-    Symbol declared but no values have been assigned. Check for missing
-       data definition, assignment, data loading or implicit assignment
-       via a solve statement.
-       A wild shot: You may have spurious commas in the explanatory
-       text of a declaration. Check symbol reference list.
---- Nodal.gms(166) 3 Mb 6 Errors
-*** Error 141 in C:\Users\a.eicke\Documents\Locational-investment-signals\Three node models\Nodal.gms
-    Symbol declared but no values have been assigned. Check for missing
-       data definition, assignment, data loading or implicit assignment
-       via a solve statement.
-       A wild shot: You may have spurious commas in the explanatory
-       text of a declaration. Check symbol reference list.
-*** Error 141 in C:\Users\a.eicke\Documents\Locational-investment-signals\Three node models\Nodal.gms
-    Symbol declared but no values have been assigned. Check for missing
-       data definition, assignment, data loading or implicit assignment
-       via a solve statement.
-       A wild shot: You may have spurious commas in the explanatory
-       text of a declaration. Check symbol reference list.
---- Nodal.gms(176) 3 Mb 6 Errors
-*** Status: Compilation error(s)
---- Job Nodal.gms Stop 11/26/21 00:04:46 elapsed 0:00:00.021
+--- Nodal.gms(176) 3 Mb
+--- Starting execution: elapsed 0:00:00.015
+--- Nodal.gms(157) 4 Mb
+--- Generating QCP model nodal
+--- Nodal.gms(159) 6 Mb
+---   491 rows  397 columns  1,299 non-zeroes
+---   394 nl-code  56 nl-non-zeroes
+--- Nodal.gms(159) 4 Mb
+--- Executing CONOPT: elapsed 0:00:00.023
+CONOPT 3         30.3.0 rc5da09e Released Mar 06, 2020 WEI x86 64bit/MS Window
+*** This solver runs with a community license.
+ 
+ 
+    C O N O P T 3   version 3.17K
+    Copyright (C)   ARKI Consulting and Development A/S
+                    Bagsvaerdvej 246 A
+                    DK-2880 Bagsvaerd, Denmark
+ 
+ 
+   Iter Phase Ninf   Infeasibility   RGmax    NSB   Step InItr MX OK
+      0   0        5.0037876280E+06 (Input point)
+ 
+                   Pre-triangular equations:   96
+                   Post-triangular equations:  49
+                   Definitional equations:     48
+ 
+      1   0        1.5089830000E+03 (After pre-processing)
+      2   0        6.7169699375E+01 (After scaling)
+     10   0     0  4.7018789563E+01               0.0E+00      T  T
+     20   0     0  3.6225292136E+01               5.7E-05      T  T
+ 
+ ** Feasible solution. Value of objective =    3251631.58468
+ 
+   Iter Phase Ninf     Objective     RGmax    NSB   Step InItr MX OK
+     31   3        3.5011111827E+06 8.3E+05     7 0.0E+00      T  T
+     41   3        3.5011111827E+06 9.5E+05     7 0.0E+00      T  T
+     51   4        4.3372481664E+06 7.2E+04    27 1.0E+00   17 F  T
+     56   4        4.8862340516E+06 4.3E+03    44 1.0E+00    7 F  T
+     61   4        4.8895256271E+06 5.6E+03    46 1.0E+00    6 T  T
+     66   4        4.8961564111E+06 3.5E+02    50 1.0E+00   14 T  T
+     71   4        4.8994406069E+06 6.7E+02    50 1.0E+00   12 T  T
+     76   4        4.9000602966E+06 6.9E+02    48 1.0E+00    8 T  T
+     81   4        4.9008923033E+06 8.9E+01    53 1.0E+00   17 T  T
+     86   4        4.9012327681E+06 1.2E+00    52 1.0E+00    4 F  T
+ 
+   Iter Phase Ninf     Objective     RGmax    NSB   Step InItr MX OK
+     89   4        4.9012327681E+06 9.3E-09    53
+ 
+ ** Optimal solution. Reduced gradient less than tolerance.
+ 
+--- Restarting execution
+--- Nodal.gms(159) 2 Mb
+--- Reading solution for model nodal
+--- Executing after solve: elapsed 0:00:00.248
+--- Nodal.gms(176) 3 Mb
+--- GDX File C:\Users\a.eicke\Documents\Locational-investment-signals\Three node models\Output/nodal_no_price_elasticity.gdx
+*** Status: Normal completion
+--- Job Nodal.gms Stop 11/26/21 16:58:21 elapsed 0:00:00.248
