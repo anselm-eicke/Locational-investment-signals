@@ -3,24 +3,24 @@ all_t       all hours               /1*48/
 t(all_t)    hours                   /1*24/
 tec         generators              /base, peak, wind, solar/
 con(tec)    conventional generation /base, peak/
-all_n       all buses               /north, south, total/
+all_n       all buses               /north, south/
 n(all_n)    selected buses          /north, south/
 ;
+
 
 alias (n,m);
 alias (all_n,all_m);
 
 * parameters for supply and demand functions
-Parameter elasticity / -0.25 /; 
+Parameter elasticity / -0.5 /; 
 Parameter p_ref / 65 /;
 Parameter specific_network_costs /300/;
 *Source for network costs: EMMA (3400 EUR/MW/km discontiert mit i = 0.07 ueber 40 Jahre)
 
 Table B(all_n,all_m)        Susceptance of transmission lines
-         north  south   total
-north        1     700    250
-south      700       1    500
-total      250     500      1
+         north  south
+north        1     700  
+south      700       1
 ;
 
 Parameters
@@ -316,4 +316,4 @@ o_gen(t,tec,n) = GEN.L(t,tec,n);
 
 Display GEN.L, CAP.L, price, load_deviation, i_instrument, sum_instrument, network_cost, GRID_CAP.L;
 
-execute_UNLOAD 'Output/with_instrument.gdx' consumer_surplus, generation_costs, network_cost, res_share, i_instrument, o_cap, o_gen, price, c_fix;
+execute_UNLOAD 'Output/with_instrument_high_price_elasticity.gdx' consumer_surplus, generation_costs, network_cost, res_share, i_instrument, o_cap, o_gen, price, c_fix;

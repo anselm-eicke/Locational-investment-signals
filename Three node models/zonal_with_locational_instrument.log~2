@@ -1,8 +1,8 @@
---- Job zonal_with_locational_instrument.gms Start 10/26/21 21:45:27 30.3.0 rc5da09e WEX-WEI x86 64bit/MS Windows
+--- Job zonal_with_locational_instrument.gms Start 10/26/21 22:06:47 30.3.0 rc5da09e WEX-WEI x86 64bit/MS Windows
 --- GAMS Parameters defined
     Input C:\Users\a.eicke\Documents\Locational-investment-signals\Three node models\zonal_with_locational_instrument.gms
     PageSize 0
-    ScrDir C:\Users\a.eicke\Documents\Locational-investment-signals\Three node models\225b\
+    ScrDir C:\Users\a.eicke\Documents\Locational-investment-signals\Three node models\225c\
     SysDir C:\GAMS\win64\30.3\
     LogOption 3
     ErrMsg 1
@@ -15,16 +15,16 @@ Licensee: Small MUD - 5 User License                     S190305:0326AO-WIN
 --- Starting compilation
 --- zonal_with_locational_instrument.gms(85) 3 Mb
 --- GDXin=C:\Users\a.eicke\Documents\Locational-investment-signals\Three node models\in.gdx
---- zonal_with_locational_instrument.gms(320) 3 Mb
---- Starting execution: elapsed 0:00:00.023
---- zonal_with_locational_instrument.gms(295) 4 Mb
+--- zonal_with_locational_instrument.gms(319) 3 Mb
+--- Starting execution: elapsed 0:00:00.000
+--- zonal_with_locational_instrument.gms(294) 4 Mb
 --- Generating MIQCP model LOCI
---- zonal_with_locational_instrument.gms(298) 7 Mb
+--- zonal_with_locational_instrument.gms(297) 7 Mb
 ---   2,339 rows  1,733 columns  6,497 non-zeroes
 ---   322 nl-code  56 nl-non-zeroes
 ---   472 discrete-columns
---- zonal_with_locational_instrument.gms(298) 5 Mb
---- Executing CPLEX: elapsed 0:00:00.044
+--- zonal_with_locational_instrument.gms(297) 5 Mb
+--- Executing CPLEX: elapsed 0:00:00.031
 
 IBM ILOG CPLEX   30.3.0 rc5da09e Released Mar 06, 2020 WEI x86 64bit/MS Window
 --- GAMS/Cplex licensed for continuous and discrete problems.
@@ -45,8 +45,8 @@ CPXPARAM_MIP_Limits_Nodes                        25000000
 CPXPARAM_TimeLimit                               40000
 CPXPARAM_Tune_TimeLimit                          8000
 CPXPARAM_MIP_Tolerances_AbsMIPGap                0
-CPXPARAM_MIP_Tolerances_MIPGap                   0.040000000000000001
-CPXPARAM_WorkDir                                 "C:\Users\a.eicke\Documents\Locational-investment-signals\Three node models\225b\"
+CPXPARAM_MIP_Tolerances_MIPGap                   0.10000000000000001
+CPXPARAM_WorkDir                                 "C:\Users\a.eicke\Documents\Locational-investment-signals\Three node models\225c\"
 Tried aggregator 2 times.
 MIQP Presolve eliminated 796 rows and 244 columns.
 MIQP Presolve modified 646 coefficients.
@@ -54,9 +54,9 @@ Aggregator did 49 substitutions.
 Reduced MIQP has 1494 rows, 1431 columns, and 4412 nonzeros.
 Reduced MIQP has 404 binaries, 0 generals, 0 SOSs, and 0 indicators.
 Reduced MIQP objective Q matrix has 104 nonzeros.
-Presolve time = 0.01 sec. (4.79 ticks)
+Presolve time = 0.02 sec. (4.79 ticks)
 Probing fixed 0 vars, tightened 156 bounds.
-Probing time = 0.02 sec. (1.51 ticks)
+Probing time = 0.00 sec. (1.51 ticks)
 Tried aggregator 1 time.
 MIQP Presolve modified 156 coefficients.
 Reduced MIQP has 1494 rows, 1431 columns, and 4412 nonzeros.
@@ -96,7 +96,7 @@ QP Presolve eliminated 24 rows and 24 columns.
 QP Presolve added 0 rows and 56 columns.
 Reduced QP has 1122 rows, 1059 columns, and 3692 nonzeros.
 Reduced QP objective Q matrix has 32 nonzeros.
-Presolve time = 0.00 sec. (0.57 ticks)
+Presolve time = 0.02 sec. (0.57 ticks)
 Parallel mode: none, using 1 thread for barrier
 
 ***NOTE: Found 9 dense columns.
@@ -133,10 +133,10 @@ Summary statistics for Cholesky factor:
   20   2.0038593e+05   2.0038595e+05  8.46e-08  1.64e-09  4.87e-10
   21   2.0038593e+05   2.0038593e+05  4.83e-07  1.47e-09  9.11e-12
   22   2.0038593e+05   2.0038593e+05  5.54e-06  1.30e-09  6.07e-12
-Barrier time = 0.03 sec. (19.65 ticks)
+Barrier time = 0.05 sec. (19.65 ticks)
 
-Total time on 1 threads = 0.03 sec. (20.80 ticks)
-Barrier time = 0.03 sec. (19.67 ticks)
+Total time on 1 threads = 0.05 sec. (20.80 ticks)
+Barrier time = 0.05 sec. (19.67 ticks)
 
 QP crossover.
   Primal and Dual:  Fixing 480 variables.
@@ -144,8 +144,8 @@ QP crossover.
   Dual  :  Pushed 44, exchanged 186.
 Total crossover time = 0.03 sec. (12.66 ticks)
 
-Total time on 1 threads = 0.06 sec. (33.60 ticks)
-Root relaxation solution time = 0.06 sec. (33.61 ticks)
+Total time on 1 threads = 0.08 sec. (33.60 ticks)
+Root relaxation solution time = 0.08 sec. (33.61 ticks)
 
         Nodes                                         Cuts/
    Node  Left     Objective  IInf  Best Integer    Best Bound    ItCnt     Gap
@@ -162,46 +162,22 @@ Root relaxation solution time = 0.06 sec. (33.61 ticks)
       0     0   199958.8546   199                    Cuts: 40     2597         
       0     0   199958.0536   199                    Cuts: 82     2669         
 *     0+    0                       189009.5858   199958.0536             5.79%
-Found incumbent of value 189009.585759 after 2.94 sec. (1670.59 ticks)
-      0     2   199958.0536   204   189009.5858   199953.1845     2669    5.79%
-Elapsed time = 2.95 sec. (1673.60 ticks, tree = 0.01 MB, solutions = 1)
-     20    12   195776.1196   145   189009.5858   199018.6070     7100    5.30%
-     53    31    infeasible         189009.5858   199018.6070     9955    5.30%
-     58    36   189209.2652   121   189009.5858   198572.0418    15504    5.06%
-                                                     Cuts: 16                  
-     70    44   197655.3276   168   189009.5858   198572.0418    18928    5.06%
-     86    56        cutoff         189009.5858   198572.0418    21059    5.06%
-     99    63   193675.1904   136   189009.5858   198572.0418    26442    5.06%
-    139    95        cutoff         189009.5858   198572.0418    31198    5.06%
-                                                     Cuts: 13                  
-    160   108   195432.2347   181   189009.5858   198553.7317    34646    5.05%
-                                                      Cuts: 8                  
-    206   134   192959.1813   134   189009.5858   197691.2976    39494    4.59%
-    293   179        cutoff         189009.5858   197645.8380    56003    4.57%
-                                                     Cuts: 20                  
-Elapsed time = 8.31 sec. (5020.85 ticks, tree = 0.14 MB, solutions = 1)
-    437   259   189017.5452   100   189009.5858   197389.7009    72804    4.43%
-                                                      Cuts: 6                  
-    578   332   189072.4493    90   189009.5858   196901.2965    89688    4.18%
-                                                     Cuts: 20                  
-*   753   327      integral     0   190700.0409   196901.2429   101394    3.25%
-                                                      Cuts: 4                  
-Found incumbent of value 190700.040943 after 12.33 sec. (7787.89 ticks)
+Found incumbent of value 189009.585759 after 2.91 sec. (1670.59 ticks)
 
-Clique cuts applied:  3
-Implied bound cuts applied:  55
-Flow cuts applied:  264
-Mixed integer rounding cuts applied:  113
+Clique cuts applied:  2
+Implied bound cuts applied:  13
+Flow cuts applied:  242
+Mixed integer rounding cuts applied:  91
 Gomory fractional cuts applied:  6
 
 Root node processing (before b&c):
-  Real time             =    2.95 sec. (1673.57 ticks)
+  Real time             =    2.91 sec. (1670.78 ticks)
 Sequential b&c:
-  Real time             =    9.38 sec. (6115.21 ticks)
+  Real time             =    0.00 sec. (0.00 ticks)
                           ------------
-Total (root+branch&cut) =   12.33 sec. (7788.78 ticks)
+Total (root+branch&cut) =    2.91 sec. (1670.78 ticks)
 MIQP status(102): integer optimal, tolerance
-Cplex Time: 12.33sec (det. 7788.78 ticks)
+Cplex Time: 2.91sec (det. 1670.78 ticks)
 Fixing integer variables, and solving final QP..
 Version identifier: 12.10.0.0 | 2019-11-26 | 843d4de2ae
 CPXPARAM_Advance                                 2
@@ -213,8 +189,8 @@ CPXPARAM_MIP_Limits_Nodes                        25000000
 CPXPARAM_TimeLimit                               40000
 CPXPARAM_Tune_TimeLimit                          8000
 CPXPARAM_MIP_Tolerances_AbsMIPGap                0
-CPXPARAM_MIP_Tolerances_MIPGap                   0.040000000000000001
-CPXPARAM_WorkDir                                 "C:\Users\a.eicke\Documents\Locational-investment-signals\Three node models\225b\"
+CPXPARAM_MIP_Tolerances_MIPGap                   0.10000000000000001
+CPXPARAM_WorkDir                                 "C:\Users\a.eicke\Documents\Locational-investment-signals\Three node models\225c\"
 Number of nonzeros in lower triangle of Q = 24
 Using Approximate Minimum Degree ordering
 Total time for automatic ordering = 0.00 sec. (0.00 ticks)
@@ -224,72 +200,60 @@ Summary statistics for factor of Q:
   Total non-zeros in factor = 80
   Total FP ops to factor    = 128
 Tried aggregator 1 time.
-QP Presolve eliminated 1817 rows and 1295 columns.
+QP Presolve eliminated 1830 rows and 1311 columns.
 QP Presolve added 0 rows and 56 columns.
-Aggregator did 221 substitutions.
-Reduced QP has 357 rows, 273 columns, and 1213 nonzeros.
-Reduced QP objective Q matrix has 14 nonzeros.
-Presolve time = 0.00 sec. (1.88 ticks)
+Aggregator did 171 substitutions.
+Reduced QP has 394 rows, 307 columns, and 1298 nonzeros.
+Reduced QP objective Q matrix has 8 nonzeros.
+Presolve time = 0.02 sec. (1.59 ticks)
 Parallel mode: none, using 1 thread for barrier
 
 ***NOTE: Found 9 dense columns.
 
-Number of nonzeros in lower triangle of A*A' = 711
+Number of nonzeros in lower triangle of A*A' = 746
 Using Approximate Minimum Degree ordering
 Total time for automatic ordering = 0.00 sec. (0.05 ticks)
 Summary statistics for Cholesky factor:
-  Rows in Factor            = 366
-  Integer space required    = 749
-  Total non-zeros in factor = 3643
-  Total FP ops to factor    = 46001
+  Rows in Factor            = 403
+  Integer space required    = 806
+  Total non-zeros in factor = 3428
+  Total FP ops to factor    = 38010
  Itn      Primal Obj        Dual Obj  Prim Inf Upper Inf  Dual Inf          
-   0   1.5225460e+05   1.5731805e+08  1.65e+03  5.56e+01  2.77e+05
-   1   1.4614131e+05   1.3802683e+08  1.59e+03  2.14e+02  2.40e+05
-   2   1.4312723e+05   1.2932356e+08  1.45e+03  1.95e+02  2.19e+05
-   3   1.3510440e+05   1.0817300e+08  1.12e+03  1.51e+02  1.70e+05
-   4   1.2310271e+05   7.2603037e+07  6.34e+02  8.52e+01  9.59e+04
-   5   1.1555447e+05   3.7208875e+07  2.70e+02  3.66e+01  4.09e+04
-   6   9.3714475e+04   1.7297321e+07  8.83e+01  1.20e+01  1.33e+04
-   7   1.1908443e+05   3.1706583e+06  1.23e+01  1.67e+00  1.85e+03
-   8   1.7280019e+05   4.7585323e+05  9.40e-01  1.28e-01  1.43e+02
-   9   1.8443151e+05   2.7111733e+05  2.52e-01  3.43e-02  3.83e+01
-  10   1.8405545e+05   2.6324012e+05  1.72e-01  2.34e-02  2.62e+01
-  11   1.8725120e+05   2.2421144e+05  6.80e-02  9.25e-03  1.03e+01
-  12   1.8730615e+05   2.1498509e+05  1.55e-02  2.11e-03  2.36e+00
-  13   1.8891933e+05   1.9807566e+05  4.34e-03  5.90e-04  6.58e-01
-  14   1.9018869e+05   1.9238161e+05  3.46e-04  4.68e-05  5.29e-02
-  15   1.9031746e+05   1.9205215e+05  2.63e-04  3.07e-05  3.47e-02
-  16   1.9056977e+05   1.9118230e+05  9.05e-05  9.98e-06  1.11e-02
-  17   1.9068705e+05   1.9073849e+05  7.21e-06  8.21e-07  9.21e-04
-  18   1.9069996e+05   1.9070028e+05  8.60e-08  3.95e-09  4.54e-06
-  19   1.9069996e+05   1.9070013e+05  6.71e-06  3.90e-09  2.13e-03
-  20   1.9070002e+05   1.9070012e+05  1.34e-04  2.94e-09  1.60e-03
-  21   1.9070006e+05   1.9070004e+05  3.27e-04  2.94e-11  1.12e-05
- Barrier cannot determine infeasibility.
-  *    1.9069996e+05   1.9070028e+05  8.60e-08  3.95e-09  4.54e-06
-Barrier time = 0.03 sec. (7.50 ticks)
+   0   1.9282839e+05   2.8160300e+07  4.58e+03  0.00e+00  3.14e+05
+   1   1.6601361e+05   1.3362612e+07  1.68e+03  1.14e-13  1.15e+05
+   2   1.5189985e+05   1.3797303e+06  1.16e+02  1.04e-12  8.05e+03
+   3   1.6045374e+05   3.5865819e+05  1.63e+01  7.89e-13  1.13e+03
+   4   1.7592311e+05   2.4654717e+05  4.23e+00  7.89e-13  2.98e+02
+   5   1.8152705e+05   2.2062211e+05  1.95e+00  6.25e-13  1.42e+02
+   6   1.8513458e+05   2.0411715e+05  6.61e-01  6.54e-13  5.25e+01
+   7   1.8769595e+05   1.9375504e+05  6.50e-02  8.24e-13  5.62e+00
+   8   1.8855985e+05   1.9053145e+05  1.84e-02  6.61e-13  1.69e+00
+   9   1.8870799e+05   1.8999591e+05  9.62e-03  8.67e-13  9.62e-01
+  10   1.8890489e+05   1.8935548e+05  1.71e-03  8.24e-13  1.94e-01
+  11   1.8899817e+05   1.8904438e+05  1.73e-04  8.46e-13  3.67e-02
+  12   1.8900909e+05   1.8901106e+05  7.16e-06  9.24e-13  1.52e-03
+  13   1.8900958e+05   1.8900959e+05  3.47e-08  9.09e-13  7.38e-06
+  14   1.8900959e+05   1.8900959e+05  3.15e-06  7.46e-13  1.21e-05
+Barrier time = 0.02 sec. (5.56 ticks)
 
-Total time on 1 threads = 0.03 sec. (7.50 ticks)
-QP status(6): non-optimal
-Cplex Time: 0.03sec (det. 7.50 ticks)
-Final solve did not return an optimal solution.
-Returning a primal only solution to GAMS (marginals all set to NA).
+Total time on 1 threads = 0.02 sec. (5.56 ticks)
+QP status(1): optimal
+Cplex Time: 0.02sec (det. 5.56 ticks)
 
 Solution satisfies tolerances.
 
-MIP Solution:       190700.040943    (101394 iterations, 754 nodes)
-Best possible:      196901.242864
-Absolute gap:         6201.201921
-Relative gap:            0.031494
+MIP Solution:       189009.585759    (2669 iterations, 0 nodes)
+Final Solve:        189009.585310    (0 iterations)
+
+Best possible:      199958.053644
+Absolute gap:        10948.467885
+Relative gap:            0.054754
 
 --- Restarting execution
---- zonal_with_locational_instrument.gms(298) 2 Mb
+--- zonal_with_locational_instrument.gms(297) 2 Mb
 --- Reading solution for model LOCI
-***
-*** Solver did not provide marginals for model LOCI
-***
---- Executing after solve: elapsed 0:00:12.607
---- zonal_with_locational_instrument.gms(320) 3 Mb
+--- Executing after solve: elapsed 0:00:03.156
+--- zonal_with_locational_instrument.gms(319) 3 Mb
 --- GDX File C:\Users\a.eicke\Documents\Locational-investment-signals\Three node models\Output/with_instrument.gdx
 *** Status: Normal completion
---- Job zonal_with_locational_instrument.gms Stop 10/26/21 21:45:40 elapsed 0:00:12.623
+--- Job zonal_with_locational_instrument.gms Stop 10/26/21 22:06:50 elapsed 0:00:03.156
