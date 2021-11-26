@@ -1,4 +1,4 @@
-GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 11/26/21 17:27:43 Page 1
+GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 11/26/21 17:34:13 Page 1
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
 C o m p i l a t i o n
 
@@ -310,26 +310,29 @@ GDXIN   C:\Users\a.eicke\Documents\Locational-investment-signals\Three node mode
  303  load_deviation(t) = sum((tec,n), GEN.L(t,tec,n)) / sum(n,load(t,n));
  304  i_instrument(tec,n) = INSTRUMENT.L(tec,n) / sc / 1000;
  305   
- 306  network_cost = (sum((n,m),(GRID_CAP.L(n,m) * grid_cost(n,m)) / 2) + sum((t,tec,n), UP.L(t,tec,n) * c_var(tec,n) - DOWN.L(t,tec,n) * c_var(tec,n))) / sc;
- 307  consumer_surplus = sum(t, p_ref * sum((n), LOAD_real.L(t,n)) * (1-1/elasticity + sum((n), LOAD_real.L(t,n)) / (2*elasticity* sum(n,load(t,n))))) / sc;
- 308   
- 309  generation_costs = (sum((tec,n), CAP.L(tec,n) * c_fix(tec,n) + 0.5 * CAP.L(tec,n) * CAP.L(tec,n) * capacity_slope) + sum((t,tec,n), GEN.L(t,tec,n) * c_var(tec,n))) / sc;
- 310   
- 311  sum_instrument = sum((tec,n), INSTRUMENT.L(tec,n) * CAP.L(tec,n)) / sc;
- 312   
- 313  load_deviation(t) = sum(n,LOAD_real.L(t,n)) / sum(n,load(t,n));
- 314  res_share = 1 - sum((t,con,n), GEN.L(t,con,n)) / sum((t,tec,n), GEN.L(t,tec,n));
- 315  o_cap(tec,n) = CAP.L(tec,n);
- 316  o_gen(t,tec,n) = GEN.L(t,tec,n);
- 317   
- 318   
- 319  Display GEN.L, CAP.L, TOTAL_CAP.L, price, load_deviation, i_instrument, sum_instrument, network_cost, GRID_CAP.L;
+ 306  network_cost = (sum((n,m),(GRID_CAP.L(n,m) * grid_cost(n,m)) / 2) + sum((t,tec,n), UP.L(t,tec,n) * c_var(tec,n) - DOWN.L(t,tec,n) * c_var(tec,n))
+ 307                  + sum((tec,n), TOTAL_CAP.L(tec,n) * c_fix(tec,n) + 0.5 * TOTAL_CAP.L(tec,n) * TOTAL_CAP.L(tec,n) * capacity_slope)
+ 308                  - sum((tec,n), CAP.L(tec,n) * c_fix(tec,n) + 0.5 * CAP.L(tec,n) * CAP.L(tec,n) * capacity_slope)
+ 309                  ) / sc;
+ 310  consumer_surplus = sum(t, p_ref * sum((n), LOAD_real.L(t,n)) * (1-1/elasticity + sum((n), LOAD_real.L(t,n)) / (2*elasticity* sum(n,load(t,n))))) / sc;
+ 311   
+ 312  generation_costs = (sum((tec,n), CAP.L(tec,n) * c_fix(tec,n) + 0.5 * CAP.L(tec,n) * CAP.L(tec,n) * capacity_slope) + sum((t,tec,n), GEN.L(t,tec,n) * c_var(tec,n))) / sc;
+ 313   
+ 314  sum_instrument = sum((tec,n), INSTRUMENT.L(tec,n) * CAP.L(tec,n)) / sc;
+ 315   
+ 316  load_deviation(t) = sum(n,LOAD_real.L(t,n)) / sum(n,load(t,n));
+ 317  res_share = 1 - sum((t,con,n), GEN.L(t,con,n)) / sum((t,tec,n), GEN.L(t,tec,n));
+ 318  o_cap(tec,n) = CAP.L(tec,n);
+ 319  o_gen(t,tec,n) = GEN.L(t,tec,n);
  320   
- 321  execute_UNLOAD 'Output/with_instrument.gdx' consumer_surplus, generation_costs, network_cost, res_share, i_instrument, o_cap, o_gen, price, c_fix;
+ 321   
+ 322  Display GEN.L, CAP.L, TOTAL_CAP.L, price, load_deviation, i_instrument, sum_instrument, network_cost, GRID_CAP.L;
+ 323   
+ 324  execute_UNLOAD 'Output/with_instrument.gdx' consumer_surplus, generation_costs, network_cost, res_share, i_instrument, o_cap, o_gen, price, c_fix;
 
 **** LIST OF STRAY NAMES - CHECK DECLARATIONS FOR SPURIOUS COMMAS
 **** STRAY NAME instr_const OF TYPE EQU  
-GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 11/26/21 17:27:43 Page 2
+GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 11/26/21 17:34:13 Page 2
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
 Include File Summary
 
@@ -340,8 +343,8 @@ Include File Summary
      2       85 GDXIN          1      85  C:\Users\a.eicke\Documents\Locational-investment-signals\Three node models\in.gdx
 
 
-COMPILATION TIME     =        0.016 SECONDS      3 MB  30.3.0 rc5da09e WEX-WEI
-GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 11/26/21 17:27:43 Page 3
+COMPILATION TIME     =        0.015 SECONDS      3 MB  30.3.0 rc5da09e WEX-WEI
+GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 11/26/21 17:34:13 Page 3
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
 E x e c u t i o n
 
@@ -486,7 +489,7 @@ peak       88.000      88.000
 wind      260.000     260.000
 solar     137.000     137.000
 
-GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 11/26/21 17:27:43 Page 4
+GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 11/26/21 17:34:13 Page 4
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
 Equation Listing    SOLVE LOCI Using MIQCP From line 299
 
@@ -910,7 +913,7 @@ complementarity6b(3)..  100000*y6(3) + LAMBDA(3) =L= 100000 ; (LHS = 0)
      
 REMAINING 21 ENTRIES SKIPPED
 
-GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 11/26/21 17:27:43 Page 5
+GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 11/26/21 17:34:13 Page 5
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
 Column Listing      SOLVE LOCI Using MIQCP From line 299
 
@@ -1717,7 +1720,7 @@ TOTAL_CAP(peak,north)
         1       redispatch3(peak,north)
 
 REMAINING 5 ENTRIES SKIPPED
-GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 11/26/21 17:27:43 Page 6
+GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 11/26/21 17:34:13 Page 6
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
 Model Statistics    SOLVE LOCI Using MIQCP From line 299
 
@@ -1735,7 +1738,7 @@ GENERATION TIME      =        0.016 SECONDS      5 MB  30.3.0 rc5da09e WEX-WEI
 
 
 EXECUTION TIME       =        0.016 SECONDS      5 MB  30.3.0 rc5da09e WEX-WEI
-GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 11/26/21 17:27:43 Page 7
+GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 11/26/21 17:34:13 Page 7
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
 Solution Report     SOLVE LOCI Using MIQCP From line 299
 
@@ -1750,7 +1753,7 @@ Solution Report     SOLVE LOCI Using MIQCP From line 299
 **** MODEL STATUS      8 Integer Solution          
 **** OBJECTIVE VALUE           193034.7343
 
- RESOURCE USAGE, LIMIT          9.906     40000.000
+ RESOURCE USAGE, LIMIT          9.281     40000.000
  ITERATION COUNT, LIMIT     54093    2000000000
  EVALUATION ERRORS              0             0
 
@@ -1762,7 +1765,7 @@ The search will stop after 25000000 nodes.
 Space for names approximately 0.12 Mb
 Use option 'names no' to turn use of names off
 MIQP status(102): integer optimal, tolerance
-Cplex Time: 9.83sec (det. 5486.46 ticks)
+Cplex Time: 9.23sec (det. 5486.46 ticks)
 Fixing integer variables, and solving final QP..
 QP status(6): non-optimal
 Cplex Time: 0.05sec (det. 18.47 ticks)
@@ -6131,12 +6134,12 @@ solar.south          .           100.0000        +INF
                              0  UNBOUNDED
                              0     ERRORS
                            187  PROJECTED
-GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 11/26/21 17:27:43 Page 8
+GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 11/26/21 17:34:13 Page 8
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
 E x e c u t i o n
 
 
-----    319 VARIABLE GEN.L  
+----    322 VARIABLE GEN.L  
 
                north       south
 
@@ -6204,7 +6207,7 @@ E x e c u t i o n
 24.wind       13.826       6.200
 
 
-----    319 VARIABLE CAP.L  
+----    322 VARIABLE CAP.L  
 
             north       south
 
@@ -6213,7 +6216,7 @@ wind       65.840      24.801
 solar                 100.000
 
 
-----    319 VARIABLE TOTAL_CAP.L  
+----    322 VARIABLE TOTAL_CAP.L  
 
             north       south
 
@@ -6223,19 +6226,19 @@ wind       65.840      24.801
 solar                 100.000
 
 
-----    319 PARAMETER price  
+----    322 PARAMETER price  
 
 1   60.000,    2   60.000,    3   60.000,    4   72.995,    5   60.000,    6   60.000,    7   60.000,    8   60.000,    9   80.000,    10 108.130,    11  92.963,    12  80.000,    13  60.000,    14  60.000,    15  68.212,    16  60.000,    17  60.000
 18  60.000,    19  60.000,    20  60.000,    21  60.000,    22  62.443,    23  60.000,    24  60.000
 
 
-----    319 PARAMETER load_deviation  
+----    322 PARAMETER load_deviation  
 
 1  1.019,    2  1.019,    3  1.019,    4  0.969,    5  1.019,    6  1.019,    7  1.019,    8  1.019,    9  0.942,    10 0.834,    11 0.892,    12 0.942,    13 1.019,    14 1.019,    15 0.988,    16 1.019,    17 1.019,    18 1.019,    19 1.019,    20 1.019
 21 1.019,    22 1.010,    23 1.019,    24 1.019
 
 
-----    319 PARAMETER i_instrument  
+----    322 PARAMETER i_instrument  
 
             north       south
 
@@ -6245,10 +6248,10 @@ wind       25.799      -4.361
 solar      -3.008       7.670
 
 
-----    319 PARAMETER sum_instrument       =   496831.402  
-            PARAMETER network_cost         =  1169652.840  
+----    322 PARAMETER sum_instrument       =   496831.402  
+            PARAMETER network_cost         =  1488474.535  
 
-----    319 VARIABLE GRID_CAP.L  
+----    322 VARIABLE GRID_CAP.L  
 
             north       south
 
@@ -6257,7 +6260,7 @@ south       4.106
 
 
 
-EXECUTION TIME       =        0.031 SECONDS      3 MB  30.3.0 rc5da09e WEX-WEI
+EXECUTION TIME       =        0.032 SECONDS      3 MB  30.3.0 rc5da09e WEX-WEI
 
 
 USER: Small MUD - 5 User License                     S190305:0326AO-WIN
