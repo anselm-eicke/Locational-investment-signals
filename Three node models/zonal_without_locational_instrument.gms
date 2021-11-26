@@ -3,13 +3,13 @@ all_t       all hours               /1*48/
 t(all_t)    hours                   /1*24/
 tec         generators              /base, peak, wind, solar/
 con(tec)    conventional generation /base, peak/
-all_n       all buses               /north, south, total/
+all_n       all buses               /north, south/
 n(all_n)    selected buses          /north, south/
 ;
 
+
 alias (n,m);
 alias (all_n,all_m);
-
 
 * parameters for supply and demand functions
 Parameter elasticity / -0.25 /; 
@@ -18,11 +18,11 @@ Parameter specific_network_costs /300/;
 *Source for network costs: EMMA (3400 EUR/MW/km discontiert mit i = 0.07 ueber 40 Jahre)
 
 Table B(all_n,all_m)        Susceptance of transmission lines
-         north  south   total
-north        1     700    250
-south      700       1    500
-total      250     500      1
+         north  south
+north        1     700  
+south      700       1
 ;
+
 
 Parameters
 * Input Parameters
@@ -147,10 +147,8 @@ GRID_CAP(n,m)
 LOAD_real(t,n)
 UP(t,tec,n)
 DOWN(t,tec,n)
+TOTAL_CAP(tec,n)
 ;
-
-alias(tec, ttec);
-alias(n, nn);
 
 
 Equations
@@ -158,7 +156,8 @@ Equations
 objective, instr_const, 
 nodal_energy_balance,
 grid_eq1, grid_eq2, grid_eq3, grid_eq4,
-redispatch1, redispatch2,
+redispatch1, redispatch2, redispatch3
+
 
 gen_min, gen_max,
 cap_min, cap_max,
@@ -183,11 +182,11 @@ complementarity6b
 ;
 
 objective..                     WF =e= sum(t, p_ref * sum((n), LOAD_real(t,n)) * (1-1/elasticity + sum((n), LOAD_real(t,n)) / (2*elasticity* sum(n,load(t,n)))))
-                                    - sum((tec,n), CAP(tec,n) * c_fix(tec,n) + 0.5 * CAP(tec,n) * CAP(tec,n) * capacity_slope)
+                                    - sum((tec,n), TOTAL_CAP(tec,n) * c_fix(tec,n) + 0.5 * TOTAL_CAP(tec,n) * TOTAL_CAP(tec,n) * capacity_slope)
                                     - sum((t,tec,n), GEN(t,tec,n) * c_var(tec,n))
                                     - sum((n,m),(GRID_CAP(n,m) * grid_cost(n,m)) / 2)
                                     - sum((t,tec,n), UP(t,tec,n) * c_var(tec,n) - DOWN(t,tec,n) * c_var(tec,n));
-                                
+                                  
 
 nodal_energy_balance(t,n)..     sum(tec,GEN(t,tec,n) - DOWN(t,tec,n) + UP(t,tec,n)) - LOAD_real(t,n) =E= sum(m,FLOW(t,n,m));
 
@@ -199,6 +198,7 @@ grid_eq4(t,n)..                 THETA(t,'south') =e= 0;
 
 redispatch1(t,tec,n)..          DOWN(t,tec,n) =L= GEN(t,tec,n);
 redispatch2(t,tec,n)..          UP(t,tec,n) =L= CAP(tec,n) * avail(t,tec,n) - GEN(t,tec,n);
+redispatch3(tec,n)..            TOTAL_CAP(tec,n) =G= CAP(tec,n);
 
 *instr_const
 
@@ -246,7 +246,7 @@ grid_eq4
 
 redispatch1
 redispatch2
-
+redispatch3
 
 gen_min
 gen_max
@@ -290,11 +290,7 @@ UP.lo(t,tec,n) = 0;
 LOCI.nodlim = 35000000;
 LOCI.resLim = 50000;
 
-*This should matter. But does it really do?
-Option OptCA = 1000;
 Option MIQCP = Cplex;
-
-
 Solve LOCI maximizing WF using MIQCP;
 
 
@@ -305,10 +301,14 @@ price(t) = p_ref * (1-(1/elasticity) + (sum((tec,n), GEN.L(t,tec,n)) / sum(n, el
 load_deviation(t) = sum((tec,n), GEN.L(t,tec,n)) / sum(n,load(t,n));
 i_instrument(tec,n) = INSTRUMENT.L;
 
-network_cost = (sum((n,m),(GRID_CAP.L(n,m) * grid_cost(n,m)) / 2) + sum((t,tec,n), UP.L(t,tec,n) * c_var(tec,n) - DOWN.L(t,tec,n) * c_var(tec,n))) / sc;
-consumer_surplus = sum(t, p_ref * sum((n), LOAD_real.L(t,n)) * (1-1/elasticity + sum((n), LOAD_real.L(t,n)) / (2*elasticity* sum(n,load(t,n))))) / sc;
+network_cost = (sum((n,m),(GRID_CAP.L(n,m) * grid_cost(n,m)) / 2) + sum((t,tec,n), UP.L(t,tec,n) * c_var(tec,n) - DOWN.L(t,tec,n) * c_var(tec,n))
+                + sum((tec,n), TOTAL_CAP.L(tec,n) * c_fix(tec,n) + 0.5 * TOTAL_CAP.L(tec,n) * TOTAL_CAP.L(tec,n) * capacity_slope)
+                - sum((tec,n), CAP.L(tec,n) * c_fix(tec,n) + 0.5 * CAP.L(tec,n) * CAP.L(tec,n) * capacity_slope)
+                );
 
-generation_costs = (sum((tec,n), CAP.L(tec,n) * c_fix(tec,n) + 0.5 * CAP.L(tec,n) * CAP.L(tec,n) * capacity_slope) + sum((t,tec,n), GEN.L(t,tec,n) * c_var(tec,n))) / sc;
+consumer_surplus = sum(t, p_ref * sum((n), LOAD_real.L(t,n)) * (1-1/elasticity + sum((n), LOAD_real.L(t,n)) / (2*elasticity* sum(n,load(t,n)))));
+
+generation_costs = (sum((tec,n), CAP.L(tec,n) * c_fix(tec,n) + 0.5 * CAP.L(tec,n) * CAP.L(tec,n) * capacity_slope) + sum((t,tec,n), GEN.L(t,tec,n) * c_var(tec,n)));
                                                                     
 sum_instrument = sum((tec,n), INSTRUMENT.L + CAP.L(tec,n));
 
