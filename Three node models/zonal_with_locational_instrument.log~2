@@ -1,4 +1,4 @@
---- Job zonal_with_locational_instrument.gms Start 11/26/21 22:32:33 30.3.0 rc5da09e WEX-WEI x86 64bit/MS Windows
+--- Job zonal_with_locational_instrument.gms Start 12/01/21 16:08:22 30.3.0 rc5da09e WEX-WEI x86 64bit/MS Windows
 --- GAMS Parameters defined
     Input C:\Users\a.eicke\Documents\Locational-investment-signals\Three node models\zonal_with_locational_instrument.gms
     PageSize 0
@@ -13,18 +13,18 @@ GAMS 30.3.0   Copyright (C) 1987-2020 GAMS Development. All rights reserved
 Licensee: Small MUD - 5 User License                     S190305:0326AO-WIN
           Hertie School of Governance GmbH, Governance of DigitalizaDC14808
 --- Starting compilation
---- zonal_with_locational_instrument.gms(85) 3 Mb
+--- zonal_with_locational_instrument.gms(84) 3 Mb
 --- GDXin=C:\Users\a.eicke\Documents\Locational-investment-signals\Three node models\in.gdx
---- zonal_with_locational_instrument.gms(321) 3 Mb
---- Starting execution: elapsed 0:00:00.008
---- zonal_with_locational_instrument.gms(292) 4 Mb
+--- zonal_with_locational_instrument.gms(332) 3 Mb
+--- Starting execution: elapsed 0:00:00.012
+--- zonal_with_locational_instrument.gms(303) 4 Mb
 --- Generating MIQCP model LOCI
---- zonal_with_locational_instrument.gms(295) 7 Mb
----   2,347 rows  1,741 columns  6,521 non-zeroes
+--- zonal_with_locational_instrument.gms(306) 7 Mb
+---   2,347 rows  1,741 columns  6,713 non-zeroes
 ---   322 nl-code  56 nl-non-zeroes
 ---   472 discrete-columns
---- zonal_with_locational_instrument.gms(295) 5 Mb
---- Executing CPLEX: elapsed 0:00:00.043
+--- zonal_with_locational_instrument.gms(306) 5 Mb
+--- Executing CPLEX: elapsed 0:00:00.048
 
 IBM ILOG CPLEX   30.3.0 rc5da09e Released Mar 06, 2020 WEI x86 64bit/MS Window
 --- GAMS/Cplex licensed for continuous and discrete problems.
@@ -54,9 +54,9 @@ Aggregator did 49 substitutions.
 Reduced MIQP has 1688 rows, 1453 columns, and 4816 nonzeros.
 Reduced MIQP has 408 binaries, 0 generals, 0 SOSs, and 0 indicators.
 Reduced MIQP objective Q matrix has 104 nonzeros.
-Presolve time = 0.00 sec. (4.93 ticks)
+Presolve time = 0.02 sec. (4.93 ticks)
 Probing fixed 0 vars, tightened 161 bounds.
-Probing time = 0.02 sec. (1.36 ticks)
+Probing time = 0.00 sec. (1.36 ticks)
 Tried aggregator 1 time.
 MIQP Presolve modified 158 coefficients.
 Reduced MIQP has 1688 rows, 1453 columns, and 4816 nonzeros.
@@ -65,7 +65,7 @@ Reduced MIQP objective Q matrix has 104 nonzeros.
 Presolve time = 0.00 sec. (2.80 ticks)
 Classifier predicts products in MIQP should be linearized.
 Probing fixed 0 vars, tightened 6 bounds.
-Probing time = 0.02 sec. (1.09 ticks)
+Probing time = 0.01 sec. (1.09 ticks)
 Clique table members: 352.
 MIP emphasis: balance optimality and feasibility.
 MIP search method: dynamic search.
@@ -90,7 +90,7 @@ Summary statistics for factor of Q:
   Total FP ops to factor    = 128
 Reduced QP has 1280 rows, 1045 columns, and 4000 nonzeros.
 Reduced QP objective Q matrix has 104 nonzeros.
-Presolve time = 0.00 sec. (1.24 ticks)
+Presolve time = 0.02 sec. (1.24 ticks)
 Tried aggregator 1 time.
 QP Presolve eliminated 24 rows and 24 columns.
 QP Presolve added 0 rows and 56 columns.
@@ -110,79 +110,84 @@ Summary statistics for Cholesky factor:
   Total non-zeros in factor = 43425
   Total FP ops to factor    = 3702051
  Itn      Primal Obj        Dual Obj  Prim Inf Upper Inf  Dual Inf          
-   0   9.7964848e+05   3.8265572e+10  5.05e+05  2.57e+05  1.00e+06
-   1  -8.4529264e+04   2.6817703e+10  3.52e+05  1.79e+05  6.97e+05
-   2  -1.5268418e+06   1.9177572e+10  2.50e+05  1.27e+05  4.95e+05
-   3  -3.3045157e+06   9.9862819e+09  1.28e+05  6.55e+04  2.55e+05
-   4  -4.1793011e+06   7.9347967e+08  9.23e+03  4.70e+03  1.83e+04
-   5  -2.2105875e+06   1.3176474e+08  1.49e+03  7.56e+02  2.94e+03
-   6  -2.8752375e+06   1.1370706e+08  1.04e+03  5.29e+02  2.06e+03
-   7  -1.0264590e+06   2.3966253e+07  1.94e+02  9.86e+01  3.84e+02
-   8  -4.2592674e+05   9.3187171e+06  4.79e+01  2.44e+01  9.51e+01
-   9   3.7130768e+04   2.3125129e+06  9.74e+00  4.96e+00  1.93e+01
-  10   9.7889322e+03   1.8669514e+06  3.52e+00  1.79e+00  6.98e+00
-  11   1.1791540e+05   8.6686029e+05  1.24e+00  6.33e-01  2.47e+00
-  12   1.7051940e+05   4.2230102e+05  8.07e-02  4.11e-02  1.60e-01
-  13   1.7709296e+05   3.8353381e+05  4.73e-02  2.41e-02  9.37e-02
-  14   2.0072966e+05   2.6701906e+05  1.32e-02  6.71e-03  2.61e-02
-  15   2.0684416e+05   2.3926378e+05  5.22e-03  2.66e-03  1.03e-02
-  16   2.1018715e+05   2.2595704e+05  1.69e-03  8.61e-04  3.36e-03
-  17   2.1192177e+05   2.1860200e+05  5.63e-04  2.86e-04  1.12e-03
-  18   2.1282794e+05   2.1455228e+05  2.58e-05  1.31e-05  5.12e-05
-  19   2.1312937e+05   2.1343919e+05  4.57e-06  2.33e-06  9.06e-06
-  20   2.1316778e+05   2.1327260e+05  1.55e-06  7.89e-07  3.07e-06
-  21   2.1318206e+05   2.1321105e+05  4.25e-07  2.19e-07  8.48e-07
-  22   2.1318658e+05   2.1319134e+05  7.09e-08  3.66e-08  1.39e-07
-  23   2.1318741e+05   2.1318778e+05  1.06e-08  4.17e-09  1.06e-08
-  24   2.1318749e+05   2.1318749e+05  1.09e-08  1.38e-09  1.82e-10
-  25   2.1318749e+05   2.1318749e+05  1.83e-07  1.22e-09  1.07e-11
-  26   2.1318749e+05   2.1318749e+05  3.72e-07  1.39e-09  5.56e-12
-Barrier time = 0.11 sec. (57.39 ticks)
+   0   1.0315603e+06   3.8265171e+10  5.04e+05  2.57e+05  1.00e+06
+   1  -4.5227773e+04   2.6811449e+10  3.51e+05  1.79e+05  6.97e+05
+   2  -1.5966164e+06   1.9271110e+10  2.51e+05  1.28e+05  4.98e+05
+   3  -3.5053098e+06   1.0224174e+10  1.31e+05  6.70e+04  2.61e+05
+   4  -4.3191043e+06   8.8920758e+08  1.04e+04  5.30e+03  2.06e+04
+   5  -2.1921529e+06   1.6415315e+08  1.90e+03  9.67e+02  3.77e+03
+   6  -2.0586416e+06   1.3257384e+08  1.45e+03  7.39e+02  2.88e+03
+   7  -1.3257953e+06   6.0111401e+07  5.75e+02  2.93e+02  1.14e+03
+   8  -7.8963145e+05   2.3722844e+07  1.68e+02  8.56e+01  3.34e+02
+   9  -1.0297277e+05   3.0871964e+06  5.03e-10  1.41e-09  4.31e-11
+  10   6.5216356e+04   1.5038281e+06  3.41e-10  1.02e-09  2.41e-11
+  11   1.0016174e+05   9.7960162e+05  2.97e-10  1.31e-09  1.21e-11
+  12   1.5891498e+05   4.2983415e+05  6.60e-10  1.38e-09  8.70e-12
+  13   1.9172575e+05   2.9586256e+05  8.14e-10  1.10e-09  7.01e-12
+  14   2.0158896e+05   2.4926717e+05  1.04e-09  1.25e-09  5.43e-12
+  15   2.0592881e+05   2.3159059e+05  1.01e-09  1.17e-09  5.39e-12
+  16   2.0878862e+05   2.2026809e+05  1.65e-09  1.43e-09  4.52e-12
+  17   2.1038767e+05   2.1289982e+05  1.66e-09  1.32e-09  5.11e-12
+  18   2.1084320e+05   2.1122719e+05  3.03e-09  1.22e-09  5.03e-12
+  19   2.1092027e+05   2.1101185e+05  2.48e-09  1.20e-09  5.14e-12
+  20   2.1093529e+05   2.1096838e+05  4.35e-09  1.12e-09  4.93e-12
+  21   2.1094074e+05   2.1095131e+05  8.00e-09  1.12e-09  4.89e-12
+  22   2.1094292e+05   2.1094487e+05  9.09e-09  1.14e-09  5.42e-12
+  23   2.1094338e+05   2.1094360e+05  5.38e-09  1.28e-09  5.11e-12
+  24   2.1094344e+05   2.1094344e+05  6.99e-09  1.37e-09  5.62e-12
+  25   2.1094344e+05   2.1094344e+05  9.69e-09  1.40e-09  5.65e-12
+Barrier time = 0.09 sec. (55.39 ticks)
 
-Total time on 1 threads = 0.11 sec. (58.63 ticks)
-Barrier time = 0.11 sec. (57.41 ticks)
+Total time on 1 threads = 0.11 sec. (56.63 ticks)
+Barrier time = 0.09 sec. (55.41 ticks)
 
 QP crossover.
-  Primal and Dual:  Fixing 496 variables.
-  Primal:  Pushed 201, exchanged 202.
-  Dual  :  Pushed 46, exchanged 184.
+  Primal and Dual:  Fixing 427 variables.
+  Primal:  Pushed 139, exchanged 160.
+  Dual  :  Pushed 115, exchanged 140.
 
 Iteration log . . .
-Iteration:     1    Objective     =        213187.487305
-Removing shift (2563).
-Total crossover time = 0.03 sec. (19.81 ticks)
+Iteration:     1    Objective     =        210943.435986
+Removing shift (1).
+Total crossover time = 0.03 sec. (24.26 ticks)
 
-Total time on 1 threads = 0.14 sec. (78.60 ticks)
-Root relaxation solution time = 0.14 sec. (78.61 ticks)
+Total time on 1 threads = 0.14 sec. (81.05 ticks)
+Root relaxation solution time = 0.14 sec. (81.06 ticks)
 
         Nodes                                         Cuts/
    Node  Left     Objective  IInf  Best Integer    Best Bound    ItCnt     Gap
 
-      0     0   213187.4873   204                 213187.4873       64         
-      0     0   213116.7003   204                   Cuts: 141      412         
-      0     0   213072.6562   204                   Cuts: 191      645         
-      0     0   212919.5790   204                   Cuts: 169      873         
-      0     0   210718.9158   204                    Cuts: 95     1433         
-      0     0   209077.8974   204                   Cuts: 175     1884         
-      0     0   209031.6018   204                   Cuts: 121     2192         
-      0     0   209031.6018   204                    Cuts: 85     2288         
-      0     0   209031.6018   204                    Cuts: 17     2380         
-*     0+    0                       202273.0580   209031.6018             3.34%
-Found incumbent of value 202273.058040 after 2.39 sec. (1429.78 ticks)
+      0     0   210943.4360   204                 210943.4360      137         
+      0     0   210933.7206   204                   Cuts: 146      468         
+      0     0   210905.3053   204                   Cuts: 193      767         
+      0     0   210785.7450   204                   Cuts: 153     1035         
+      0     0   210777.3709   204                   Cuts: 101     1253         
+      0     0   206354.7699   204                   Cuts: 121     2151         
+      0     0   206353.8979   204                   Cuts: 303     2532         
+      0     2   206353.8979   186                 206351.8074     2532         
+Elapsed time = 2.66 sec. (1380.35 ticks, tree = 0.01 MB, solutions = 0)
+     20    20   205666.1256   152                 205801.5874     6448         
+     40    36   205648.1059   139                 205801.5874     7079         
+     75    67   204611.5601    93                 205801.5874     8795         
+    120   110   203777.7063    48                 205801.5874    12060         
+    141   127    infeasible                       205801.5874    16662         
+    172   140   204190.9030    15                 205801.5874    20957         
+*   200+  146                       202927.1710   205801.5874             1.42%
+Found incumbent of value 202927.171043 after 5.80 sec. (3140.10 ticks)
 
-Clique cuts applied:  13
-Implied bound cuts applied:  38
-Flow cuts applied:  143
-Mixed integer rounding cuts applied:  130
+Clique cuts applied:  15
+Implied bound cuts applied:  19
+Flow cuts applied:  140
+Mixed integer rounding cuts applied:  64
 
 Root node processing (before b&c):
-  Real time             =    2.39 sec. (1429.97 ticks)
+  Real time             =    2.64 sec. (1379.48 ticks)
 Sequential b&c:
-  Real time             =    0.00 sec. (0.00 ticks)
+  Real time             =    3.16 sec. (1761.41 ticks)
                           ------------
-Total (root+branch&cut) =    2.39 sec. (1429.97 ticks)
+Total (root+branch&cut) =    5.80 sec. (3140.89 ticks)
 MIQP status(102): integer optimal, tolerance
-Cplex Time: 2.39sec (det. 1429.98 ticks)
+Cplex Time: 5.80sec (det. 3140.90 ticks)
 Fixing integer variables, and solving final QP..
 Version identifier: 12.10.0.0 | 2019-11-26 | 843d4de2ae
 CPXPARAM_Advance                                 2
@@ -205,63 +210,68 @@ Summary statistics for factor of Q:
   Total non-zeros in factor = 80
   Total FP ops to factor    = 128
 Tried aggregator 1 time.
-QP Presolve eliminated 1702 rows and 1183 columns.
+QP Presolve eliminated 1664 rows and 1137 columns.
 QP Presolve added 0 rows and 56 columns.
-Aggregator did 173 substitutions.
-Reduced QP has 528 rows, 441 columns, and 1820 nonzeros.
-Reduced QP objective Q matrix has 8 nonzeros.
-Presolve time = 0.00 sec. (1.48 ticks)
+Aggregator did 276 substitutions.
+Reduced QP has 463 rows, 384 columns, and 1625 nonzeros.
+Reduced QP objective Q matrix has 20 nonzeros.
+Presolve time = 0.00 sec. (1.89 ticks)
 Parallel mode: none, using 1 thread for barrier
 
-***NOTE: Found 6 dense columns.
+***NOTE: Found 8 dense columns.
 
-Number of nonzeros in lower triangle of A*A' = 4766
-Using Nested Dissection ordering
-Total time for automatic ordering = 0.00 sec. (1.74 ticks)
+Number of nonzeros in lower triangle of A*A' = 2989
+Using Approximate Minimum Degree ordering
+Total time for automatic ordering = 0.02 sec. (0.17 ticks)
 Summary statistics for Cholesky factor:
-  Rows in Factor            = 534
-  Integer space required    = 1676
-  Total non-zeros in factor = 16877
-  Total FP ops to factor    = 847247
+  Rows in Factor            = 471
+  Integer space required    = 1935
+  Total non-zeros in factor = 15191
+  Total FP ops to factor    = 1029055
  Itn      Primal Obj        Dual Obj  Prim Inf Upper Inf  Dual Inf          
-   0   1.7591780e+05   4.0919963e+07  6.52e+03  0.00e+00  4.55e+05
-   1   1.5748656e+05   3.1545251e+07  4.66e+03  2.98e-13  3.26e+05
-   2   1.3179034e+05   1.4485312e+07  1.77e+03  1.42e-12  1.24e+05
-   3   1.2497124e+05   8.9729130e+05  4.65e+01  1.41e-12  3.31e+03
-   4   1.4952080e+05   5.8568004e+05  2.31e+01  1.12e-12  1.64e+03
-   5   1.6677550e+05   3.6390446e+05  6.61e+00  1.17e-12  4.64e+02
-   6   1.8818044e+05   2.4242735e+05  1.34e+00  1.24e-12  1.02e+02
-   7   1.9666764e+05   2.1731479e+05  3.96e-01  1.09e-12  3.03e+01
-   8   1.9920097e+05   2.0989143e+05  1.30e-01  1.18e-12  9.92e+00
-   9   2.0052679e+05   2.0651970e+05  6.26e-02  9.09e-13  4.78e+00
-  10   2.0174543e+05   2.0346118e+05  1.28e-02  1.25e-12  9.83e-01
-  11   2.0209207e+05   2.0268477e+05  3.80e-04  1.41e-12  2.97e-02
-  12   2.0222798e+05   2.0237412e+05  9.35e-05  1.12e-12  7.33e-03
-  13   2.0226648e+05   2.0228810e+05  1.37e-05  1.44e-12  1.08e-03
-  14   2.0227152e+05   2.0227660e+05  3.22e-06  1.25e-12  2.53e-04
-  15   2.0227300e+05   2.0227319e+05  1.16e-07  1.46e-12  9.13e-06
-  16   2.0227306e+05   2.0227306e+05  9.18e-10  1.32e-12  4.45e-08
-  17   2.0227306e+05   2.0227306e+05  2.72e-06  1.58e-12  2.19e-10
-Barrier time = 0.03 sec. (16.83 ticks)
+   0  -2.9198166e+05   3.5377973e+07  4.61e+04  1.08e+04  3.85e+05
+   1  -2.4780234e+05   2.4867844e+07  2.90e+04  6.82e+03  2.43e+05
+   2  -1.8893996e+05   1.4099476e+07  1.49e+04  3.51e+03  1.25e+05
+   3  -1.5737658e+05   7.5515281e+06  5.25e+03  1.24e+03  4.40e+04
+   4  -9.5394637e+04   3.4812570e+06  1.75e+03  4.12e+02  1.47e+04
+   5   1.7957956e+04   1.0805963e+06  3.24e+02  7.61e+01  2.71e+03
+   6   5.1081761e+04   8.3116720e+05  1.52e+02  3.59e+01  1.28e+03
+   7   1.5058030e+05   3.3180571e+05  3.03e+01  7.11e+00  2.53e+02
+   8   1.7641125e+05   2.6567937e+05  9.19e+00  2.16e+00  7.69e+01
+   9   1.8844444e+05   2.3707728e+05  4.01e+00  9.43e-01  3.36e+01
+  10   1.9261026e+05   2.2633241e+05  1.72e+00  4.03e-01  1.44e+01
+  11   1.9754931e+05   2.1551365e+05  4.12e-01  9.68e-02  3.46e+00
+  12   2.0019020e+05   2.0868224e+05  5.49e-02  1.29e-02  4.64e-01
+  13   2.0179639e+05   2.0523483e+05  1.16e-02  2.72e-03  9.79e-02
+  14   2.0229936e+05   2.0428827e+05  3.71e-03  8.71e-04  3.17e-02
+  15   2.0267148e+05   2.0348958e+05  1.44e-03  3.39e-04  1.24e-02
+  16   2.0274514e+05   2.0331333e+05  1.00e-03  2.35e-04  8.62e-03
+  17   2.0288275e+05   2.0301504e+05  2.32e-04  5.46e-05  2.02e-03
+  18   2.0291500e+05   2.0295158e+05  6.41e-05  1.51e-05  5.52e-04
+  19   2.0292229e+05   2.0293678e+05  2.54e-05  5.95e-06  2.18e-04
+  20   2.0292633e+05   2.0292883e+05  4.36e-06  1.02e-06  3.74e-05
+  21   2.0292707e+05   2.0292736e+05  5.27e-07  1.17e-07  4.30e-06
+  22   2.0292717e+05   2.0292717e+05  6.47e-09  5.77e-10  2.12e-08
+Barrier time = 0.03 sec. (18.13 ticks)
 
-Total time on 1 threads = 0.03 sec. (16.83 ticks)
+Total time on 1 threads = 0.03 sec. (18.13 ticks)
 QP status(1): optimal
-Cplex Time: 0.03sec (det. 16.83 ticks)
+Cplex Time: 0.03sec (det. 18.13 ticks)
 
 Solution satisfies tolerances.
 
-MIP Solution:       202273.058040    (2380 iterations, 0 nodes)
-Final Solve:        202273.057933    (0 iterations)
+MIP Solution:       202927.171043    (23706 iterations, 200 nodes)
+Final Solve:        202927.170476    (0 iterations)
 
-Best possible:      209031.601792
-Absolute gap:         6758.543752
-Relative gap:            0.032333
+Best possible:      205801.587428
+Absolute gap:         2874.416385
+Relative gap:            0.013967
 
 --- Restarting execution
---- zonal_with_locational_instrument.gms(295) 2 Mb
+--- zonal_with_locational_instrument.gms(306) 2 Mb
 --- Reading solution for model LOCI
---- Executing after solve: elapsed 0:00:02.670
---- zonal_with_locational_instrument.gms(321) 3 Mb
+--- Executing after solve: elapsed 0:00:06.067
+--- zonal_with_locational_instrument.gms(332) 3 Mb
 --- GDX File C:\Users\a.eicke\Documents\Locational-investment-signals\Three node models\Output/with_instrument.gdx
 *** Status: Normal completion
---- Job zonal_with_locational_instrument.gms Stop 11/26/21 22:32:36 elapsed 0:00:02.672
+--- Job zonal_with_locational_instrument.gms Stop 12/01/21 16:08:28 elapsed 0:00:06.075
