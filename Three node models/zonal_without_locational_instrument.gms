@@ -273,8 +273,8 @@ complementarity6b
 /;
 
 
-INSTRUMENT.lo = -250;
-INSTRUMENT.up = 750;
+INSTRUMENT.lo = 0;
+INSTRUMENT.up = 0;
 
 GEN.up(t,tec,n) = 100;
 GEN.lo(t,tec,n) = 0;

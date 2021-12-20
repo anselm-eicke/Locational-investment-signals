@@ -148,11 +148,14 @@ TOTAL_CAP(tec,n)
 ;
 
 Equations
-
 objective, instr_const, 
 nodal_energy_balance,
 grid_eq1, grid_eq2, grid_eq3, grid_eq4,
-redispatch1, redispatch2, redispatch3
+redispatch1, redispatch2, redispatch3,
+
+redispatch4
+redispatch5
+redispatch6
 
 gen_min, gen_max,
 cap_min, cap_max,
@@ -180,7 +183,7 @@ objective..                     WF =e= sum(t, p_ref * sum((n), LOAD_real(t,n)) *
                                     - sum((tec,n), TOTAL_CAP(tec,n) * c_fix(tec,n) + 0.5 * TOTAL_CAP(tec,n) * TOTAL_CAP(tec,n) * capacity_slope)
                                     - sum((t,tec,n), GEN(t,tec,n) * c_var(tec,n))
                                     - sum((n,m),(GRID_CAP(n,m) * grid_cost(n,m)) / 2)
-                                    - sum((t,tec,n), UP(t,tec,n) * c_var(tec,n) - DOWN(t,tec,n) * c_var(tec,n));
+                                    - sum((t,tec,n), UP(t,tec,n) * (1 + c_var(tec,n)) + DOWN(t,tec,n) * (1 - c_var(tec,n)));
                                 
 
 nodal_energy_balance(t,n)..     sum(tec,GEN(t,tec,n) - DOWN(t,tec,n) + UP(t,tec,n)) - LOAD_real(t,n) =E= sum(m,FLOW(t,n,m));
@@ -193,7 +196,13 @@ grid_eq4(t,n)..                 THETA(t,'south') =e= 0;
 
 redispatch1(t,tec,n)..          DOWN(t,tec,n) =L= GEN(t,tec,n);
 redispatch2(t,tec,n)..          UP(t,tec,n) =L= TOTAL_CAP(tec,n) * avail(t,tec,n) - GEN(t,tec,n);
+
 redispatch3(tec,n)..            TOTAL_CAP(tec,n) =G= CAP(tec,n);
+
+*redispatch3('peak',n)..         TOTAL_CAP('peak',n) =G= CAP('peak',n);
+redispatch4('base',n)..         TOTAL_CAP('base',n) =E= CAP('base',n);
+redispatch5('wind',n)..         TOTAL_CAP('wind',n) =E= CAP('wind',n);
+redispatch6('solar',n)..        TOTAL_CAP('solar',n) =E= CAP('solar',n);
 
 *instr_const
 
@@ -242,6 +251,10 @@ grid_eq4
 redispatch1
 redispatch2
 redispatch3
+
+*redispatch4
+*redispatch5
+*redispatch6
 
 gen_min
 gen_max
@@ -314,6 +327,6 @@ o_cap(tec,n) = CAP.L(tec,n);
 o_gen(t,tec,n) = GEN.L(t,tec,n);
 
 
-Display GEN.L, CAP.L, TOTAL_CAP.L, price, load_deviation, i_instrument, sum_instrument, network_cost, GRID_CAP.L;
+Display GEN.L, CAP.L, TOTAL_CAP.L, UP.L, DOWN.L, FLOW.L, price, load_deviation, i_instrument, sum_instrument, network_cost, GRID_CAP.L;
 
 execute_UNLOAD 'Output/with_instrument.gdx' consumer_surplus, generation_costs, network_cost, res_share, i_instrument, o_cap, o_gen, price, c_fix;
