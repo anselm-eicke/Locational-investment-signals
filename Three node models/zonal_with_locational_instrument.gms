@@ -14,8 +14,8 @@ alias (all_n,all_m);
 * parameters for supply and demand functions
 Parameter elasticity / -0.25 /; 
 Parameter p_ref / 65 /;
-Parameter specific_network_costs /200/;
-Parameter capacity_slope / 0.25 /;
+Parameter specific_network_costs /150/;
+Parameter capacity_slope / 0.5 /;
 *Source for network costs: EMMA (3400 EUR/MW/km discontiert mit i = 0.07 ueber 40 Jahre)
 
 Table B(all_n,all_m)        Susceptance of transmission lines
@@ -111,17 +111,18 @@ o_RES_share
 o_cap(tec,n)
 price(t)
 load_deviation(t)
+load_shedding(t,n)
 ;
 
 
 Binary variables y1(t,tec,n),y2(t,tec,n),y3(tec,n),y4(tec,n),y5(t,n),y6(t);
 
-Parameter M1 / 100000/;
-Parameter M2 / 100000/;
-Parameter M3 / 100000/;
-Parameter M4 / 100000/;
-Parameter M5 / 100000/;
-Parameter M6 / 100000/;
+Parameter M1 / 1000000/;
+Parameter M2 / 1000000/;
+Parameter M3 / 1000000/;
+Parameter M4 / 1000000/;
+Parameter M5 / 1000000/;
+Parameter M6 / 1000000/;
 
 Free Variables
 GEN(t,tec,n)
@@ -141,21 +142,17 @@ mu_C_max(tec,n)
 mu_D_min(t,n)
 
 GRID_CAP(n,m)
-LOAD_real(t,n)
+LOAD_redi(t,n)
+LOAD_spot(t,n)
 UP(t,tec,n)
 DOWN(t,tec,n)
-TOTAL_CAP(tec,n)
 ;
 
 Equations
 objective, instr_const, 
 nodal_energy_balance,
 grid_eq1, grid_eq2, grid_eq3, grid_eq4,
-redispatch1, redispatch2, redispatch3,
-
-redispatch4
-redispatch5
-redispatch6
+redispatch1, redispatch2,
 
 gen_min, gen_max,
 cap_min, cap_max,
@@ -179,14 +176,15 @@ complementarity6a,
 complementarity6b
 ;
 
-objective..                     WF =e= sum(t, p_ref * sum((n), LOAD_real(t,n)) * (1-1/elasticity + sum((n), LOAD_real(t,n)) / (2*elasticity* sum(n,load(t,n)))))
-                                    - sum((tec,n), TOTAL_CAP(tec,n) * c_fix(tec,n) + 0.5 * TOTAL_CAP(tec,n) * TOTAL_CAP(tec,n) * capacity_slope)
+objective..                     WF =e= sum(t, p_ref * sum((n), LOAD_redi(t,n)) * (1-1/elasticity + sum((n), LOAD_redi(t,n)) / (2*elasticity* sum(n,load(t,n)))))
+                                    - sum((tec,n), CAP(tec,n) * c_fix(tec,n) + 0.5 * CAP(tec,n) * CAP(tec,n) * capacity_slope)
                                     - sum((t,tec,n), GEN(t,tec,n) * c_var(tec,n))
+                                    - sum((t,tec,n), (UP(t,tec,n) - DOWN(t,tec,n)) * (c_var(tec,n) + 0.01))
                                     - sum((n,m),(GRID_CAP(n,m) * grid_cost(n,m)) / 2)
-                                    - sum((t,tec,n), UP(t,tec,n) * (1 + c_var(tec,n)) + DOWN(t,tec,n) * (1 - c_var(tec,n)));
+                                    ;
                                 
 
-nodal_energy_balance(t,n)..     sum(tec,GEN(t,tec,n) - DOWN(t,tec,n) + UP(t,tec,n)) - LOAD_real(t,n) =E= sum(m,FLOW(t,n,m));
+nodal_energy_balance(t,n)..     sum(tec,GEN(t,tec,n) - DOWN(t,tec,n) + UP(t,tec,n)) - LOAD_redi(t,n) =E= sum(m,FLOW(t,n,m));
 
 *network constraints
 grid_eq1(t,n,m)..               FLOW(t,n,m) =l= GRID_CAP(n,m);
@@ -195,16 +193,7 @@ grid_eq3(t,n,m)..               FLOW(t,n,m) =e= B(n,m) *(THETA(t,n) - THETA(t,m)
 grid_eq4(t,n)..                 THETA(t,'south') =e= 0;
 
 redispatch1(t,tec,n)..          DOWN(t,tec,n) =L= GEN(t,tec,n);
-redispatch2(t,tec,n)..          UP(t,tec,n) =L= TOTAL_CAP(tec,n) * avail(t,tec,n) - GEN(t,tec,n);
-
-redispatch3(tec,n)..            TOTAL_CAP(tec,n) =G= CAP(tec,n);
-
-*redispatch3('peak',n)..         TOTAL_CAP('peak',n) =G= CAP('peak',n);
-redispatch4('base',n)..         TOTAL_CAP('base',n) =E= CAP('base',n);
-redispatch5('wind',n)..         TOTAL_CAP('wind',n) =E= CAP('wind',n);
-redispatch6('solar',n)..        TOTAL_CAP('solar',n) =E= CAP('solar',n);
-
-*instr_const
+redispatch2(t,tec,n)..          UP(t,tec,n) =L= CAP(tec,n) * avail(t,tec,n) - GEN(t,tec,n);
 
 ** INNER PROBLEM
 
@@ -214,14 +203,14 @@ gen_max(t,tec,n)..              0 =g= GEN(t,tec,n) - CAP(tec,n) * avail(t,tec,n)
 cap_min(tec,n)..                0 =g= -CAP(tec,n);
 cap_max(tec,n)..                0 =g= CAP(tec,n) - cap_lim(tec,n);
 
-demand_min(t,n)..               0 =g= -LOAD_real(t,n);
+demand_min(t,n)..               0 =g= -LOAD_spot(t,n);
 
-energy_balance(t)..             0 =e= sum((tec,n),GEN(t,tec,n)) - sum(n,LOAD_real(t,n));
+energy_balance(t)..             0 =e= sum((tec,n),GEN(t,tec,n)) - sum(n,LOAD_spot(t,n));
                
 *KKT conditions
 KKT_GEN(t,tec,n)..              c_var(tec,n) + mu_G_max(t,tec,n) - mu_G_min(t,tec,n) - LAMBDA(t) =e= 0;
 KKT_CAP(tec,n)..                c_fix(tec,n) + capacity_slope * CAP(tec,n) + INSTRUMENT(tec,n) - sum(t,avail(t,tec,n) * mu_G_max(t,tec,n)) + mu_C_max(tec,n) - mu_C_min(tec,n) =e= 0;
-KKT_load(t,n)..                 -p_ref * ((1-1/elasticity) + LOAD_real(t,n) / (elasticity * load(t,n))) - mu_D_min(t,n) + LAMBDA(t) =e= 0;                
+KKT_load(t,n)..                 -p_ref * ((1-1/elasticity) + LOAD_spot(t,n) / (elasticity * load(t,n))) - mu_D_min(t,n) + LAMBDA(t) =e= 0;                
 
 complementarity1a(t,tec,n)..    GEN(t,tec,n)        =L= y1(t,tec,n) * M1;
 complementarity1b(t,tec,n)..    mu_G_min(t,tec,n)   =L= (1-y1(t,tec,n)) * M1;
@@ -232,9 +221,9 @@ complementarity3b(tec,n)..      mu_C_min(tec,n)     =L= (1-y3(tec,n)) * M3;
 complementarity4a(tec,n)..      cap_lim(tec,n) - CAP(tec,n) =L= y4(tec,n) * M4;
 complementarity4b(tec,n)..      mu_C_max(tec,n)     =L= (1-y4(tec,n)) * M4;
 
-complementarity5a(t,n)..        LOAD_real(t,n)      =L= y5(t,n) * M5;
+complementarity5a(t,n)..        LOAD_spot(t,n)      =L= y5(t,n) * M5;
 complementarity5b(t,n)..        mu_D_min(t,n)       =L= (1-y5(t,n)) * M5;
-complementarity6a(t)..          sum(n,LOAD_real(t,n)) - sum((tec,n),GEN(t,tec,n)) =L= y6(t) * M6;
+complementarity6a(t)..          sum(n,LOAD_spot(t,n)) - sum((tec,n),GEN(t,tec,n)) =L= y6(t) * M6;
 complementarity6b(t)..          LAMBDA(t)           =L= (1-y6(t)) * M6;
 
 Model LOCI /
@@ -250,11 +239,6 @@ grid_eq4
 
 redispatch1
 redispatch2
-redispatch3
-
-*redispatch4
-*redispatch5
-*redispatch6
 
 gen_min
 gen_max
@@ -298,7 +282,7 @@ UP.lo(t,tec,n) = 0;
 LOCI.nodlim = 25000000;
 LOCI.resLim = 40000;
 
-*Option optcr = 0.02;
+Option optcr = 0.005;
 
 Option MIQCP = Cplex;
 
@@ -310,23 +294,24 @@ price(t) = p_ref * (1-(1/elasticity) + (sum((tec,n), GEN.L(t,tec,n)) / sum(n, el
 load_deviation(t) = sum((tec,n), GEN.L(t,tec,n)) / sum(n,load(t,n));
 i_instrument(tec,n) = INSTRUMENT.L(tec,n) / sc / 1000;
 
-network_cost = (sum((n,m),(GRID_CAP.L(n,m) * grid_cost(n,m)) / 2) + sum((t,tec,n), UP.L(t,tec,n) * c_var(tec,n) - DOWN.L(t,tec,n) * c_var(tec,n))
-                + sum((tec,n), TOTAL_CAP.L(tec,n) * c_fix(tec,n) + 0.5 * TOTAL_CAP.L(tec,n) * TOTAL_CAP.L(tec,n) * capacity_slope)
-                - sum((tec,n), CAP.L(tec,n) * c_fix(tec,n) + 0.5 * CAP.L(tec,n) * CAP.L(tec,n) * capacity_slope)
+network_cost = (sum((n,m),(GRID_CAP.L(n,m) / 2 * grid_cost(n,m))) + sum((t,tec,n), (UP.L(t,tec,n) - DOWN.L(t,tec,n)) * c_var(tec,n))
+                + sum(t, p_ref * sum((n), LOAD_redi.L(t,n)) * (1-1/elasticity + sum((n), LOAD_redi.L(t,n)) / (2*elasticity* sum(n,load(t,n)))))
+                - sum(t, p_ref * sum((n), LOAD_spot.L(t,n)) * (1-1/elasticity + sum((n), LOAD_spot.L(t,n)) / (2*elasticity* sum(n,load(t,n)))))
                 ) / sc;
                 
-consumer_surplus = sum(t, p_ref * sum((n), LOAD_real.L(t,n)) * (1-1/elasticity + sum((n), LOAD_real.L(t,n)) / (2*elasticity* sum(n,load(t,n)))));
+consumer_surplus = sum(t, p_ref * sum((n), LOAD_spot.L(t,n)) * (1-1/elasticity + sum((n), LOAD_spot.L(t,n)) / (2*elasticity* sum(n,load(t,n))))) / sc;
 
-generation_costs = (sum((tec,n), CAP.L(tec,n) * c_fix(tec,n) + 0.5 * CAP.L(tec,n) * CAP.L(tec,n) * capacity_slope) + sum((t,tec,n), GEN.L(t,tec,n) * c_var(tec,n)));
+generation_costs = (sum((tec,n), CAP.L(tec,n) * c_fix(tec,n) + 0.5 * CAP.L(tec,n) * CAP.L(tec,n) * capacity_slope) + sum((t,tec,n), GEN.L(t,tec,n) * c_var(tec,n))) / sc;
                                                                     
 sum_instrument = sum((tec,n), INSTRUMENT.L(tec,n) * CAP.L(tec,n));
 
-load_deviation(t) = sum(n,LOAD_real.L(t,n)) / sum(n,load(t,n));
+load_deviation(t) = sum(n, LOAD_spot.L(t,n)) / sum(n,load(t,n));
+load_shedding(t,n) = LOAD_spot.L(t,n) - LOAD_redi.L(t,n);
 res_share = 1 - sum((t,con,n), GEN.L(t,con,n)) / sum((t,tec,n), GEN.L(t,tec,n));
 o_cap(tec,n) = CAP.L(tec,n);
 o_gen(t,tec,n) = GEN.L(t,tec,n);
 
 
-Display GEN.L, CAP.L, TOTAL_CAP.L, UP.L, DOWN.L, FLOW.L, price, load_deviation, i_instrument, sum_instrument, network_cost, GRID_CAP.L;
+Display GEN.L, CAP.L, UP.L, DOWN.L, FLOW.L, price, load_deviation, load_shedding, i_instrument, sum_instrument, network_cost, consumer_surplus, generation_costs, GRID_CAP.L;
 
 execute_UNLOAD 'Output/with_instrument.gdx' consumer_surplus, generation_costs, network_cost, res_share, i_instrument, o_cap, o_gen, price, c_fix;
