@@ -14,8 +14,8 @@ alias (all_n,all_m);
 * parameters for supply and demand functions
 Parameter elasticity / -0.25 /; 
 Parameter p_ref / 65 /;
-Parameter specific_network_costs /200/;
-Parameter capacity_slope / 0.25 /;
+Parameter specific_network_costs /150/;
+Parameter capacity_slope / 0.5 /;
 *Source for network costs: EMMA (3400 EUR/MW/km discontiert mit i = 0.07 ueber 40 Jahre)
 
 Table B(all_n,all_m)        Susceptance of transmission lines
@@ -117,7 +117,6 @@ objective, cap_constraint, cap_limit,
 
 nodal_energy_balance,
 grid_eq1, grid_eq2, grid_eq3, grid_eq4;
-
 
 objective..                  WF =e= sum((t,n), p_ref * LOAD_real(t,n) * (1-1/elasticity + LOAD_real(t,n) / (2*elasticity* load(t,n))))
                                     - sum((tec,n), CAP(tec,n) * c_fix(tec,n) + 0.5 * CAP(tec,n) * CAP(tec,n) * capacity_slope)

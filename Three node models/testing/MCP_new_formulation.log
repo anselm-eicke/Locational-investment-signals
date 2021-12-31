@@ -1,0 +1,113 @@
+--- Job MCP_new_formulation.gms Start 12/31/21 17:25:42 30.3.0 rc5da09e WEX-WEI x86 64bit/MS Windows
+--- GAMS Parameters defined
+    Input C:\Users\a.eicke\Documents\Locational-investment-signals\Three node models\testing\MCP_new_formulation.gms
+    PageSize 0
+    ScrDir C:\Users\a.eicke\Documents\Locational-investment-signals\Three node models\testing\225a\
+    SysDir C:\GAMS\win64\30.3\
+    LogOption 3
+    ErrMsg 1
+    ErrorLog 99
+    IDE 1
+    LstTitleLeftAligned 1
+GAMS 30.3.0   Copyright (C) 1987-2020 GAMS Development. All rights reserved
+Licensee: Small MUD - 5 User License                     S190305:0326AO-WIN
+          Hertie School of Governance GmbH, Governance of DigitalizaDC14808
+--- Starting compilation
+--- MCP_new_formulation.gms(93) 3 Mb
+--- GDXin=C:\Users\a.eicke\Documents\Locational-investment-signals\Three node models\testing\in.gdx
+--- MCP_new_formulation.gms(214) 3 Mb
+--- Starting execution: elapsed 0:00:00.013
+--- MCP_new_formulation.gms(199) 4 Mb
+--- Generating MCP model LOCI
+--- MCP_new_formulation.gms(201) 6 Mb
+---   672 rows  672 columns  1,656 non-zeroes
+---   0 nl-code  0 nl-non-zeroes
+--- MCP_new_formulation.gms(201) 4 Mb
+--- Executing PATH: elapsed 0:00:00.037
+Reading dictionary...
+Reading row data...
+Evaluating functions...
+Checking model...
+Calculating Jacobian...
+
+PATH             30.3.0 rc5da09e Released Mar 06, 2020 WEI x86 64bit/MS Window
+
+*** This solver runs with a community license.
+672 row/cols, 1656 non-zeros, 0.37% dense.
+
+Path 5.0.02 (Fri Mar  6 16:28:13 2020)
+Written by Todd Munson, Steven Dirkse, Youngdae Kim, and Michael Ferris
+
+Zero:     0 Single:   252 Double:     0
+Preprocessed size   : 400
+
+INITIAL POINT STATISTICS
+Maximum of X. . . . . . . . . .  0.0000e+00 var: (mu_G_max(1,base,north))
+Maximum of F. . . . . . . . . .  3.2500e+02 eqn: (KKT_load(1))
+Maximum of Grad F . . . . . . .  5.5488e+00 eqn: (KKT_load(13))
+                                            var: (LOAD_zonal(13))
+
+INITIAL JACOBIAN NORM STATISTICS
+Maximum Row Norm. . . . . . . .  2.4500e+01 eqn: (KKT_CAP(base,north))
+Minimum Row Norm. . . . . . . .  1.0100e+00 eqn: (gen_max(22,solar,south))
+Maximum Column Norm . . . . . .  2.4500e+01 var: (CAP(base,north))
+Minimum Column Norm . . . . . .  1.0100e+00 var: (mu_G_max(22,solar,south))
+
+Crash Log
+major  func  diff  size  residual    step       prox   (label)
+    0     0             3.1843e+03             0.0e+00 (KKT_load(1))
+    1     5   172    48 2.8103e+03  2.6e-01    0.0e+00 (KKT_load(1))
+    2     6   368   220 2.1854e+03  1.0e+00    1.0e+01 (KKT_load(6))
+    3     7   172   392 1.8605e+03  1.0e+00    9.0e+00 (KKT_load(10))
+    4    11     0   392 1.8580e+03  4.1e-01    8.1e+00 (KKT_load(10))
+pn_search terminated: no basis change.
+
+Major Iteration Log
+major minor  func  grad  residual    step  type prox    inorm  (label)
+    0     0    12     5 1.8580e+03           I 7.3e+00 1.8e+02 (KKT_load(10))
+    1    64    17     6 5.9827e+03  3.3e-01 SB 2.9e+00 7.5e+02 (energy_balance()
+    2   372    18     7 1.7246e+03  1.0e+00 RO 1.2e+00 1.8e+02 (energy_balance()
+    3   155    19     8 2.6591e+02  1.0e+00 SO 4.7e-01 5.4e+01 (energy_balance()
+    4    92    20     9 6.4772e+01  1.0e+00 SO 1.9e-01 1.2e+01 (energy_balance()
+    5    23    21    10 5.9800e+00  1.0e+00 SO 7.5e-02 8.8e-01 (gen_max(24,wind)
+    6     7    22    11 1.0375e+00  1.0e+00 SO 3.0e-02 2.5e-01 (gen_max(13,wind)
+    7     3    23    12 7.5983e-02  1.0e+00 SO 1.2e-02 1.5e-02 (energy_balance()
+    8     1    24    13 5.9472e-03  1.0e+00 SO 4.8e-03 1.3e-03 (gen_max(12,peak)
+    9     1    25    14 6.9500e-05  1.0e+00 SO 5.9e-04 1.7e-05 (energy_balance()
+   10     1    26    15 1.0102e-08  1.0e+00 SO 6.9e-06 2.6e-09 (energy_balance()
+
+FINAL STATISTICS
+Inf-Norm of Complementarity . .  1.2940e-07 eqn: (gen_max(9,wind,south))
+Inf-Norm of Normal Map. . . . .  2.6273e-09 eqn: (energy_balance(12))
+Inf-Norm of Minimum Map . . . .  2.6273e-09 eqn: (energy_balance(12))
+Inf-Norm of Fischer Function. .  2.6273e-09 eqn: (energy_balance(12))
+Inf-Norm of Grad Fischer Fcn. .  5.2500e-09 eqn: (KKT_GEN(12,base,north))
+Two-Norm of Grad Fischer Fcn. .  1.8843e-08
+
+FINAL POINT STATISTICS
+Maximum of X. . . . . . . . . .  1.1449e+02 var: (mu_G_max(12,wind,south))
+Maximum of F. . . . . . . . . .  7.3000e+01 eqn: (KKT_GEN(1,peak,north))
+Maximum of Grad F . . . . . . .  5.5488e+00 eqn: (KKT_load(13))
+                                            var: (LOAD_zonal(13))
+
+ ** EXIT - solution found.
+
+Major Iterations. . . . 10
+Minor Iterations. . . . 719
+Restarts. . . . . . . . 0
+Crash Iterations. . . . 4
+Gradient Steps. . . . . 0
+Function Evaluations. . 26
+Gradient Evaluations. . 15
+Basis Time. . . . . . . 0.015000
+Total Time. . . . . . . 0.031000
+Residual. . . . . . . . 1.010218e-08
+Postsolved residual: 1.0102e-08
+
+--- Restarting execution
+--- MCP_new_formulation.gms(201) 2 Mb
+--- Reading solution for model LOCI
+--- Executing after solve: elapsed 0:00:00.181
+--- MCP_new_formulation.gms(213) 3 Mb
+*** Status: Normal completion
+--- Job MCP_new_formulation.gms Stop 12/31/21 17:25:43 elapsed 0:00:00.182

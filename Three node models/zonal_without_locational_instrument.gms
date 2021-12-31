@@ -198,7 +198,6 @@ redispatch1(t,tec,n)..          DOWN(t,tec,n) =L= GEN(t,tec,n);
 redispatch2(t,tec,n)..          UP(t,tec,n) =L= CAP(tec,n) * avail(t,tec,n) - GEN(t,tec,n);
 redispatch3(tec,n)..            TOTAL_CAP(tec,n) =G= CAP(tec,n);
 
-*instr_const
 
 ** INNER PROBLEM
 
@@ -271,10 +270,6 @@ complementarity5b
 complementarity6a
 complementarity6b
 /;
-
-
-INSTRUMENT.lo = 0;
-INSTRUMENT.up = 0;
 
 GEN.up(t,tec,n) = 100;
 GEN.lo(t,tec,n) = 0;

@@ -179,7 +179,7 @@ complementarity6b
 objective..                     WF =e= sum(t, p_ref * sum((n), LOAD_redi(t,n)) * (1-1/elasticity + sum((n), LOAD_redi(t,n)) / (2*elasticity* sum(n,load(t,n)))))
                                     - sum((tec,n), CAP(tec,n) * c_fix(tec,n) + 0.5 * CAP(tec,n) * CAP(tec,n) * capacity_slope)
                                     - sum((t,tec,n), GEN(t,tec,n) * c_var(tec,n))
-                                    - sum((t,tec,n), (UP(t,tec,n) - DOWN(t,tec,n)) * (c_var(tec,n) + 0.01))
+                                    - sum((t,tec,n), (UP(t,tec,n) - DOWN(t,tec,n)) * c_var(tec,n))
                                     - sum((n,m),(GRID_CAP(n,m) * grid_cost(n,m)) / 2)
                                     ;
                                 
@@ -288,7 +288,6 @@ Option MIQCP = Cplex;
 
 
 Solve LOCI maximizing WF using MIQCP;
-
 
 price(t) = p_ref * (1-(1/elasticity) + (sum((tec,n), GEN.L(t,tec,n)) / sum(n, elasticity * load(t,n))));
 load_deviation(t) = sum((tec,n), GEN.L(t,tec,n)) / sum(n,load(t,n));
