@@ -14,7 +14,7 @@ alias (all_n,all_m);
 * parameters for supply and demand functions
 Parameter elasticity / -0.25 /; 
 Parameter p_ref / 65 /;
-Parameter specific_network_costs /0/;
+Parameter specific_network_costs /250/;
 Parameter capacity_slope / 0.5 /;
 *Source for network costs: EMMA (3400 EUR/MW/km discontiert mit i = 0.07 ueber 40 Jahre)
 
@@ -111,7 +111,8 @@ s_nodal(t,n)                = p_ref *(1/(elasticity*load_ref(t,n)));
 A_zonal(t)                  = sum(n, a_nodal(t,n) / s_nodal(t,n)) / sum(n, 1/ s_nodal(t,n));
 S_zonal(t)                  = 1 / sum(n, 1/ s_nodal(t,n));
 
-INSTRUMENT(tec,n)           = 0;
+INSTRUMENT(tec,'south')           = 0;
+INSTRUMENT(tec,'north')           = 5;
 
 display c_var, load_ref, avail, c_fix, a_nodal, s_nodal, A_zonal, S_zonal;
 
