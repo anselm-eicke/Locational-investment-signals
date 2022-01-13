@@ -63,7 +63,7 @@ o_load(t,n)
 o_cap(tec,n)
 o_gen(t,tec,n)
 price(t)
-o_instrument(tec,n)
+o_instrument(n)
 ;
 
 * Load data
@@ -104,7 +104,7 @@ GEN(t,tec,n)
 CAP(tec,n)
 WF
 FLOW(t,n,m)
-INSTRUMENT(tec,n)
+INSTRUMENT(n)
 THETA(t,n)
 SPOT_PRICE(t)
 ;
@@ -179,7 +179,7 @@ demand_min(t)..                 0 =g= -LOAD_spot(t);
 energy_balance(t)..             0 =e= sum((tec,n),GEN(t,tec,n)) - LOAD_spot(t);
            
 KKT_GEN(t,tec,n)..              c_var(tec,n) + mu_G_max(t,tec,n) - mu_G_min(t,tec,n) - SPOT_PRICE(t) =e= 0;
-KKT_CAP(tec,n)..                c_fix(tec,n) + capacity_slope * CAP(tec,n) + INSTRUMENT(tec,n) - sum(t,avail(t,tec,n) * mu_G_max(t,tec,n)) + mu_C_max(tec,n) - mu_C_min(tec,n) =e= 0;
+KKT_CAP(tec,n)..                c_fix(tec,n) + capacity_slope * CAP(tec,n) + INSTRUMENT(n) - sum(t,avail(t,tec,n) * mu_G_max(t,tec,n)) + mu_C_max(tec,n) - mu_C_min(tec,n) =e= 0;
 KKT_load(t)..                   -(A_zonal(t) + S_zonal(t) * LOAD_spot(t)) - mu_D_min(t) + SPOT_PRICE(t) =e= 0;              
 
 complementarity1a(t,tec,n)..    GEN(t,tec,n)        =L= y1(t,tec,n) * M1;
@@ -236,8 +236,8 @@ complementarity6b
 /;
 
 
-INSTRUMENT.lo(tec,n) = -10;
-INSTRUMENT.up(tec,n) = 10;
+INSTRUMENT.lo(n) = -10;
+INSTRUMENT.up(n) = 10;
 
 GEN.up(t,tec,n) = 100;
 GEN.lo(t,tec,n) = 0;
@@ -261,7 +261,7 @@ Solve LOCI maximizing WF using MIQCP;
 
 price(t) = SPOT_PRICE.L(t);
 
-o_instrument(tec,n) = INSTRUMENT.L(tec,n) / sc / 1000;
+o_instrument(n) = INSTRUMENT.L(n) / sc / 1000;
 
 network_cost_1 = sum((n,m),(GRID_CAP.L(n,m) / 2 * grid_cost(n,m)));
 network_cost_2 = sum((t,tec,n), (UP.L(t,tec,n) - DOWN.L(t,tec,n)) * c_var(tec,n));
@@ -287,4 +287,4 @@ welfare = WF.L;
 
 Display WF.L, consumer_surplus, generation_costs, network_cost, network_cost_1, network_cost_2, network_cost_3, CAP.L, GEN.L, UP.L, DOWN.L, FLOW.L, price, load_deviation, load_shedding, GRID_CAP.L, LOAD_redi.L, LOAD_spot.L, o_instrument;
 
-execute_UNLOAD 'Output/with_instrument.gdx' welfare, consumer_surplus, generation_costs, network_cost, res_share, o_instrument, o_cap, o_gen, price, c_fix;
+execute_UNLOAD 'Output/agnostic_instrument.gdx' welfare, consumer_surplus, generation_costs, network_cost, res_share, o_instrument, o_cap, o_gen, price, c_fix;

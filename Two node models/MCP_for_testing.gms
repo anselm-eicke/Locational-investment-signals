@@ -1,20 +1,20 @@
 Sets
 all_t       all hours               /1*48/
-t(all_t)    hours                   /1*24/
+t(all_t)    hours                   /1*15/
 tec         generators              /base, peak, wind, solar/
 con(tec)    conventional generation /base, peak/
 all_n       all buses               /north, south/
 n(all_n)    selected buses          /north, south/
 ;
 
-alias (n,nn);
+
 alias (n,m);
 alias (all_n,all_m);
 
 * parameters for supply and demand functions
 Parameter elasticity / -0.25 /; 
 Parameter p_ref / 65 /;
-Parameter specific_network_costs /250/;
+Parameter specific_network_costs /200/;
 Parameter capacity_slope / 0.5 /;
 *Source for network costs: EMMA (3400 EUR/MW/km discontiert mit i = 0.07 ueber 40 Jahre)
 
@@ -101,8 +101,9 @@ A_zonal(t)                  = sum(n, a_nodal(t,n) / s_nodal(t,n)) / sum(n, 1/ s_
 S_zonal(t)                  = 1 / sum(n, 1/ s_nodal(t,n));
 
 *load instrument
-INSTRUMENT(tec,n)           = o_instrument(tec,n);
+INSTRUMENT(tec,n)           = o_instrument(tec,n) * sc * 1000;
 
+display INSTRUMENT;
 
 display c_var, load_ref, avail, c_fix, a_nodal, s_nodal, A_zonal, S_zonal;
 
@@ -187,7 +188,7 @@ KKT_load
 * Set starting values
 *LOAD_real.L(t,n) =load(t,n);
 
-Option optcr = 0.00005;
+Option optcr = 0.0005;
 
 Solve LOCI using MCP;
 
