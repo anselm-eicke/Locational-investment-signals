@@ -1,6 +1,6 @@
 Sets
 all_t       all hours               /1*48/
-t(all_t)    hours                   /1*15/
+t(all_t)    hours                   /1*12/
 tec         generators              /base, peak, wind, solar/
 con(tec)    conventional generation /base, peak/
 all_n       all buses               /north, south/
