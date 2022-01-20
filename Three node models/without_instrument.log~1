@@ -1,4 +1,4 @@
---- Job without_instrument.gms Start 01/13/22 19:05:16 30.3.0 rc5da09e WEX-WEI x86 64bit/MS Windows
+--- Job without_instrument.gms Start 01/18/22 18:30:04 30.3.0 rc5da09e WEX-WEI x86 64bit/MS Windows
 --- GAMS Parameters defined
     Input C:\Users\a.eicke\Documents\Locational-investment-signals\Three node models\without_instrument.gms
     PageSize 0
@@ -15,260 +15,61 @@ Licensee: Small MUD - 5 User License                     S190305:0326AO-WIN
 --- Starting compilation
 --- without_instrument.gms(70) 3 Mb
 --- GDXin=C:\Users\a.eicke\Documents\Locational-investment-signals\Three node models\in.gdx
---- without_instrument.gms(290) 3 Mb
---- Starting execution: elapsed 0:00:00.000
---- without_instrument.gms(257) 4 Mb
---- Generating MIQCP model LOCI
---- without_instrument.gms(260) 6 Mb
----   1,151 rows  874 columns  3,191 non-zeroes
----   202 nl-code  32 nl-non-zeroes
----   232 discrete-columns
---- without_instrument.gms(260) 4 Mb
---- Executing CPLEX: elapsed 0:00:00.033
-
-IBM ILOG CPLEX   30.3.0 rc5da09e Released Mar 06, 2020 WEI x86 64bit/MS Window
---- GAMS/Cplex licensed for continuous and discrete problems.
-Cplex 12.10.0.0
-
-The search will stop after 80000000 nodes.
-Reading data...
-Starting Cplex...
-Space for names approximately 0.06 Mb
-Use option 'names no' to turn use of names off
-Version identifier: 12.10.0.0 | 2019-11-26 | 843d4de2ae
-CPXPARAM_Advance                                 0
-CPXPARAM_Threads                                 1
-CPXPARAM_Parallel                                1
-CPXPARAM_MIP_Display                             4
-CPXPARAM_Simplex_Limits_Iterations               2000000000
-CPXPARAM_MIP_Limits_Nodes                        80000000
-CPXPARAM_TimeLimit                               150000
-CPXPARAM_Tune_TimeLimit                          30000
-CPXPARAM_MIP_Tolerances_AbsMIPGap                0
-CPXPARAM_MIP_Tolerances_MIPGap                   0.00050000000000000001
-CPXPARAM_WorkDir                                 "C:\Users\a.eicke\Documents\Locational-investment-signals\Three node models\225a\"
-Tried aggregator 2 times.
-MIQP Presolve eliminated 395 rows and 123 columns.
-MIQP Presolve modified 307 coefficients.
-Aggregator did 37 substitutions.
-Reduced MIQP has 719 rows, 709 columns, and 2207 nonzeros.
-Reduced MIQP has 198 binaries, 0 generals, 0 SOSs, and 0 indicators.
-Reduced MIQP objective Q matrix has 32 nonzeros.
-Presolve time = 0.02 sec. (2.05 ticks)
-Probing fixed 12 vars, tightened 59 bounds.
-Probing time = 0.01 sec. (0.76 ticks)
-Tried aggregator 1 time.
-MIQP Presolve eliminated 24 rows and 12 columns.
-MIQP Presolve modified 18 coefficients.
-Reduced MIQP has 695 rows, 697 columns, and 2086 nonzeros.
-Reduced MIQP has 186 binaries, 0 generals, 0 SOSs, and 0 indicators.
-Reduced MIQP objective Q matrix has 32 nonzeros.
-Presolve time = 0.00 sec. (0.88 ticks)
-Classifier predicts products in MIQP should be linearized.
-Probing fixed 10 vars, tightened 409 bounds.
-Probing time = 0.02 sec. (1.20 ticks)
-Clique table members: 98.
-MIP emphasis: balance optimality and feasibility.
-MIP search method: dynamic search.
-Parallel mode: none, using 1 thread.
-Tried aggregator 1 time.
-QP Presolve eliminated 106 rows and 106 columns.
-Aggregator did 128 substitutions.
-Reduced QP has 461 rows, 463 columns, and 1548 nonzeros.
-Reduced QP objective Q matrix has 32 nonzeros.
-Presolve time = 0.00 sec. (0.56 ticks)
-Parallel mode: none, using 1 thread for barrier
-
-***NOTE: Found 6 dense columns.
-
-Number of nonzeros in lower triangle of A*A' = 2190
-Using Approximate Minimum Degree ordering
-Total time for automatic ordering = 0.00 sec. (0.21 ticks)
-Summary statistics for Cholesky factor:
-  Rows in Factor            = 467
-  Integer space required    = 1299
-  Total non-zeros in factor = 6437
-  Total FP ops to factor    = 132457
- Itn      Primal Obj        Dual Obj  Prim Inf Upper Inf  Dual Inf          
-   0  -5.5291416e+06   1.6635967e+08  1.52e+05  1.35e+05  6.19e+04
-   1  -1.0977309e+06   6.8947721e+07  6.25e+04  5.54e+04  2.54e+04
-   2  -1.7517017e+05   2.3523637e+07  2.06e+04  1.82e+04  8.37e+03
-   3   2.3466912e+04   5.4167587e+06  4.26e+03  3.77e+03  1.73e+03
-   4   6.0167028e+04   1.5456269e+06  1.02e+03  9.01e+02  4.15e+02
-   5   8.8170114e+04   2.9321395e+05  1.22e+02  1.08e+02  4.99e+01
-   6   9.4033641e+04   1.9803723e+05  4.55e+01  4.03e+01  1.86e+01
-   7   1.0198008e+05   1.2293533e+05  7.45e+00  6.58e+00  3.02e+00
-   8   1.0300286e+05   1.1411008e+05  3.01e+00  2.66e+00  1.22e+00
-   9   1.0335155e+05   1.0870640e+05  5.50e-01  4.86e-01  2.23e-01
-  10   1.0394381e+05   1.0573465e+05  1.77e-01  1.56e-01  7.17e-02
-  11   1.0418540e+05   1.0447787e+05  2.02e-02  1.78e-02  8.19e-03
-  12   1.0420951e+05   1.0435684e+05  1.02e-02  9.01e-03  4.14e-03
-  13   1.0423186e+05   1.0425167e+05  1.33e-03  1.17e-03  5.40e-04
-  14   1.0423520e+05   1.0423866e+05  2.31e-04  2.04e-04  9.36e-05
-  15   1.0423577e+05   1.0423623e+05  3.04e-05  2.69e-05  1.24e-05
-  16   1.0423583e+05   1.0423587e+05  2.87e-06  2.54e-06  1.16e-06
-  17   1.0423584e+05   1.0423584e+05  2.75e-08  2.10e-08  9.58e-09
-  18   1.0423584e+05   1.0423584e+05  4.06e-09  4.02e-10  6.55e-11
-Barrier time = 0.02 sec. (7.31 ticks)
-
-QP crossover.
-  Primal and Dual:  Fixing 247 variables.
-  Primal:  Pushed 118, exchanged 96.
-  Dual  :  Pushed 26, exchanged 77.
-
-Iteration log . . .
-Iteration:     1    Objective     =        104235.838081
-Total crossover time = 0.01 sec. (5.22 ticks)
-
-Total time on 1 threads = 0.03 sec. (13.15 ticks)
-Root relaxation solution time = 0.03 sec. (13.15 ticks)
-
-        Nodes                                         Cuts/
-   Node  Left     Objective  IInf  Best Integer    Best Bound    ItCnt     Gap
-
-      0     0   104235.8381   110                 104235.8381       20         
-      0     0   104235.8381   110                   Cuts: 273      503         
-      0     0   104235.8381   110                   Cuts: 273      741         
-      0     0   104235.8381   110                   Cuts: 135      897         
-      0     0   104235.8381   110                    Cuts: 35      939         
-      0     0   104235.8381   110                    Cuts: 20      953         
-      0     0   104235.8381   110                  MIRcuts: 1      955         
-      0     2   104235.8381    44                 104235.8381      955         
-Elapsed time = 0.91 sec. (424.81 ticks, tree = 0.01 MB, solutions = 0)
-     99    65   101719.6958    36                 104235.8381     5856         
-                                                      Cuts: 8                  
-    158    90   101401.8428    59                 104235.8381    12675         
-                                                  Impl Bds: 8                  
-    216   130   103441.4085    50                 104235.8381    17778         
-                                                 Impl Bds: 17                  
-    280   182   104219.9484    19                 104235.8381    20729         
-                                                     Cuts: 10                  
-    336   226    98798.1389    32                 104235.8381    26257         
-                                                  Impl Bds: 1                  
-    384   256   103854.1497    16                 104235.8381    32339         
-                                                  Flowcuts: 1                  
-    451   297   104224.7565    16                 104235.8381    38683         
-                                                  Impl Bds: 2                  
-    500   336   102724.9075    37                 104235.8381    43804         
-                                                  Impl Bds: 1                  
-    543   369   103974.8825    11                 104235.8381    48861         
-    800   548   100067.5346    38                 104235.8381    70802         
-                                                 Impl Bds: 32                  
-Elapsed time = 6.98 sec. (3685.09 ticks, tree = 0.29 MB, solutions = 0)
-    983   675    infeasible                       104235.8381    93564         
-                                                      Cuts: 8                  
-
-Performing restart 1
-
-Repeating presolve.
-Tried aggregator 2 times.
-MIQP Presolve eliminated 17 rows and 17 columns.
-MIQP Presolve modified 248 coefficients.
-Aggregator did 7 substitutions.
-Reduced MIQP has 671 rows, 673 columns, and 2002 nonzeros.
-Reduced MIQP has 176 binaries, 0 generals, 0 SOSs, and 0 indicators.
-Reduced MIQP objective Q matrix has 32 nonzeros.
-Presolve time = 0.00 sec. (1.50 ticks)
-Tried aggregator 1 time.
-MIQP Presolve eliminated 28 rows and 28 columns.
-MIQP Presolve modified 104 coefficients.
-Reduced MIQP has 643 rows, 645 columns, and 1922 nonzeros.
-Reduced MIQP has 152 binaries, 0 generals, 0 SOSs, and 0 indicators.
-Reduced MIQP objective Q matrix has 32 nonzeros.
-Presolve time = 0.00 sec. (0.82 ticks)
-Tried aggregator 1 time.
-MIQP Presolve modified 132 coefficients.
-Reduced MIQP has 643 rows, 645 columns, and 1922 nonzeros.
-Reduced MIQP has 152 binaries, 0 generals, 0 SOSs, and 0 indicators.
-Reduced MIQP objective Q matrix has 32 nonzeros.
-Presolve time = 0.02 sec. (0.80 ticks)
-Represolve time = 0.03 sec. (8.03 ticks)
-Tried aggregator 1 time.
-QP Presolve eliminated 43 rows and 0 columns.
-Aggregator did 111 substitutions.
-Reduced QP has 738 rows, 534 columns, and 2318 nonzeros.
-Reduced QP objective Q matrix has 32 nonzeros.
-Presolve time = 0.01 sec. (0.64 ticks)
-Parallel mode: none, using 1 thread for barrier
-
-***NOTE: Found 9 dense columns.
-
-Number of nonzeros in lower triangle of A*A' = 4410
-Using Approximate Minimum Degree ordering
-Total time for automatic ordering = 0.02 sec. (0.35 ticks)
-Summary statistics for Cholesky factor:
-  Rows in Factor            = 747
-  Integer space required    = 2456
-  Total non-zeros in factor = 13507
-  Total FP ops to factor    = 315575
- Itn      Primal Obj        Dual Obj  Prim Inf Upper Inf  Dual Inf          
-   0  -1.3558268e+09   1.3769458e+09  1.53e+05  8.42e+04  2.02e+07
-   1  -4.1475886e+08   4.2770785e+08  8.48e+04  4.67e+04  1.12e+07
-   2  -1.9798503e+08   2.0843134e+08  5.87e+04  3.23e+04  7.74e+06
-   3  -4.2316040e+06   7.2578661e+06  8.76e+03  4.82e+03  1.16e+06
-   4  -1.8609595e+05   1.2958468e+06  2.03e+03  1.12e+03  2.68e+05
-   5   2.0265911e+04   6.3344339e+05  8.57e+02  4.72e+02  1.13e+05
-   6   4.9339079e+04   5.0223314e+05  5.92e+02  3.26e+02  7.83e+04
-   7   6.9036549e+04   4.5452501e+05  4.47e+02  2.46e+02  5.91e+04
-   8   9.1693680e+04   2.3749344e+05  1.17e+02  6.43e+01  1.54e+04
-   9   9.9238930e+04   1.4635572e+05  2.42e+01  1.33e+01  3.19e+03
-  10   1.0281408e+05   1.1379432e+05  3.49e+00  1.92e+00  4.61e+02
-  11   1.0329860e+05   1.1045857e+05  1.81e+00  9.97e-01  2.39e+02
-  12   1.0381883e+05   1.0704902e+05  5.09e-01  2.80e-01  6.73e+01
-  13   1.0410979e+05   1.0508729e+05  5.79e-02  3.19e-02  7.66e+00
-  14   1.0421465e+05   1.0438108e+05  9.55e-03  5.26e-03  1.26e+00
-  15   1.0423460e+05   1.0424257e+05  4.14e-04  2.28e-04  5.47e-02
-  16   1.0423582e+05   1.0423590e+05  3.84e-06  2.11e-06  5.07e-04
-  17   1.0423584e+05   1.0423584e+05  4.02e-08  1.07e-08  2.57e-06
-  18   1.0423584e+05   1.0423584e+05  4.79e-08  5.51e-11  1.29e-08
-Barrier time = 0.05 sec. (12.46 ticks)
-
-QP crossover.
-  Primal and Dual:  Fixing 272 variables.
-  Primal:  Pushed 96, exchanged 142.
-  Dual  :  Pushed 31, exchanged 123.
-
-Iteration log . . .
-Iteration:     1    Objective     =        104235.838081
-Total crossover time = 0.02 sec. (8.63 ticks)
-
-Total time on 1 threads = 0.08 sec. (21.79 ticks)
-   1002     0   104235.8381    54                   Cuts: 212    94662         
-   1002     0   104235.8381    54                    Cuts: 74    94722         
-   1002     0   104235.8381    54                    Cuts: 61    94752         
-   1002     0   104235.8381    54                    Cuts: 36    94786         
-   1038    38   104001.0641    36                 104235.8381    96373         
-   1209   161   103877.8596    39                 104235.8381   104632         
-   1420   312    99266.2282    31                 104235.8381   118885         
-                                                      Cuts: 5                  
-   1678   481   100550.9786    29                 104235.7152   137095         
-                                                      Cuts: 5                  
-
-Clique cuts applied:  3
-Cover cuts applied:  2
-Implied bound cuts applied:  45
-Flow cuts applied:  39
-Mixed integer rounding cuts applied:  23
-
-Root node processing (before b&c):
-  Real time             =    0.91 sec. (424.83 ticks)
-Sequential b&c:
-  Real time             =   14.67 sec. (8172.62 ticks)
-                          ------------
-Total (root+branch&cut) =   15.58 sec. (8597.45 ticks)
-MIQP status(114): aborted, no integer solution
-Cplex Time: 15.58sec (det. 8597.45 ticks)
-CPLEX Error  1217: No solution exists.
-Problem aborted, no integer solution found.
-Batchvorgang abbrechen (J/N)? 
---- Restarting execution
---- without_instrument.gms(260) 2 Mb
---- Reading solution for model LOCI
---- Executing after solve: elapsed 0:00:15.767
---- without_instrument.gms(282) 3 Mb
-*** Error at line 282: division by zero (0)
---- without_instrument.gms(290) 3 Mb 1 Error
---- GDX File C:\Users\a.eicke\Documents\Locational-investment-signals\Three node models\Output/without_instrument.gdx
---- without_instrument.gms(290) 3 Mb 1 Error
-*** Status: Execution error(s)
---- Job without_instrument.gms Stop 01/13/22 19:05:32 elapsed 0:00:15.783
+--- without_instrument.gms(71) 3 Mb 1 Error
+*** Error 649 in C:\Users\a.eicke\Documents\Locational-investment-signals\Three node models\without_instrument.gms
+    Domain violation when loading from GDX file
+--- without_instrument.gms(260) 3 Mb 2 Errors
+*** Error 257 in C:\Users\a.eicke\Documents\Locational-investment-signals\Three node models\without_instrument.gms
+    Solve statement not checked because of previous errors
+--- without_instrument.gms(262) 3 Mb 3 Errors
+*** Error 141 in C:\Users\a.eicke\Documents\Locational-investment-signals\Three node models\without_instrument.gms
+    Symbol declared but no values have been assigned. Check for missing
+       data definition, assignment, data loading or implicit assignment
+       via a solve statement.
+       A wild shot: You may have spurious commas in the explanatory
+       text of a declaration. Check symbol reference list.
+--- without_instrument.gms(266) 3 Mb 4 Errors
+*** Error 141 in C:\Users\a.eicke\Documents\Locational-investment-signals\Three node models\without_instrument.gms
+    Symbol declared but no values have been assigned. Check for missing
+       data definition, assignment, data loading or implicit assignment
+       via a solve statement.
+       A wild shot: You may have spurious commas in the explanatory
+       text of a declaration. Check symbol reference list.
+--- without_instrument.gms(268) 3 Mb 5 Errors
+*** Error 141 in C:\Users\a.eicke\Documents\Locational-investment-signals\Three node models\without_instrument.gms
+    Symbol declared but no values have been assigned. Check for missing
+       data definition, assignment, data loading or implicit assignment
+       via a solve statement.
+       A wild shot: You may have spurious commas in the explanatory
+       text of a declaration. Check symbol reference list.
+--- without_instrument.gms(269) 3 Mb 6 Errors
+*** Error 141 in C:\Users\a.eicke\Documents\Locational-investment-signals\Three node models\without_instrument.gms
+    Symbol declared but no values have been assigned. Check for missing
+       data definition, assignment, data loading or implicit assignment
+       via a solve statement.
+       A wild shot: You may have spurious commas in the explanatory
+       text of a declaration. Check symbol reference list.
+--- without_instrument.gms(276) 3 Mb 7 Errors
+*** Error 141 in C:\Users\a.eicke\Documents\Locational-investment-signals\Three node models\without_instrument.gms
+    Symbol declared but no values have been assigned. Check for missing
+       data definition, assignment, data loading or implicit assignment
+       via a solve statement.
+       A wild shot: You may have spurious commas in the explanatory
+       text of a declaration. Check symbol reference list.
+--- without_instrument.gms(286) 3 Mb 8 Errors
+*** Error 141 in C:\Users\a.eicke\Documents\Locational-investment-signals\Three node models\without_instrument.gms
+    Symbol declared but no values have been assigned. Check for missing
+       data definition, assignment, data loading or implicit assignment
+       via a solve statement.
+       A wild shot: You may have spurious commas in the explanatory
+       text of a declaration. Check symbol reference list.
+--- without_instrument.gms(288) 3 Mb 9 Errors
+*** Error 141 in C:\Users\a.eicke\Documents\Locational-investment-signals\Three node models\without_instrument.gms
+    Symbol declared but no values have been assigned. Check for missing
+       data definition, assignment, data loading or implicit assignment
+       via a solve statement.
+       A wild shot: You may have spurious commas in the explanatory
+       text of a declaration. Check symbol reference list.
+--- without_instrument.gms(290) 3 Mb 9 Errors
+*** Status: Compilation error(s)
+--- Job without_instrument.gms Stop 01/18/22 18:30:04 elapsed 0:00:00.022

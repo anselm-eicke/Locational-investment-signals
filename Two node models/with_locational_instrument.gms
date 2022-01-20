@@ -1,6 +1,6 @@
 Sets
-all_t       all hours               /1*48/
-t(all_t)    hours                   /1*12/
+all_t       all hours               /1*16/
+t(all_t)    hours                   /1*14/
 tec         generators              /base, peak, wind, solar/
 con(tec)    conventional generation /base, peak/
 all_n       all buses               /north, south/
@@ -64,6 +64,7 @@ o_cap(tec,n)
 o_gen(t,tec,n)
 price(t)
 o_instrument(tec,n)
+sum_instrument
 ;
 
 * Load data
@@ -275,7 +276,7 @@ consumer_surplus = sum((t), A_zonal(t) * LOAD_spot.L(t) + 1/2 * S_zonal(t) * LOA
 
 generation_costs = (sum((tec,n), CAP.L(tec,n) * c_fix(tec,n) + 0.5 * CAP.L(tec,n) * CAP.L(tec,n) * capacity_slope) + sum((t,tec,n), GEN.L(t,tec,n) * c_var(tec,n)));
                                                                     
-*sum_instrument = sum((tec,n), INSTRUMENT.L(tec,n) * CAP.L(tec,n));
+sum_instrument = sum((tec,n), INSTRUMENT.L(tec,n) * CAP.L(tec,n));
 
 load_deviation(t,n) = ((SPOT_PRICE.L(t) - a_nodal(t,n)) / s_nodal(t,n)) - load_ref(t,n);
 load_shedding(t,n) = LOAD_spot.L(t) - LOAD_redi.L(t,n);
@@ -285,6 +286,6 @@ o_gen(t,tec,n) = GEN.L(t,tec,n);
 real_generation(t,tec,n) = GEN.L(t,tec,n) + UP.L(t,tec,n) - DOWN.L(t,tec,n);
 welfare = WF.L;
 
-Display WF.L, consumer_surplus, generation_costs, network_cost, network_cost_1, network_cost_2, network_cost_3, CAP.L, GEN.L, UP.L, DOWN.L, FLOW.L, price, load_deviation, load_shedding, GRID_CAP.L, LOAD_redi.L, LOAD_spot.L, o_instrument;
+Display WF.L, consumer_surplus, generation_costs, network_cost, network_cost_1, network_cost_2, network_cost_3, CAP.L, GEN.L, UP.L, DOWN.L, FLOW.L, price, load_deviation, load_shedding, GRID_CAP.L, LOAD_redi.L, LOAD_spot.L, o_instrument, sum_instrument;
 
 execute_UNLOAD 'Output/with_instrument.gdx' welfare, consumer_surplus, generation_costs, network_cost, res_share, o_instrument, o_cap, o_gen, price, c_fix;

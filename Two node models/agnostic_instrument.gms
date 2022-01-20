@@ -1,6 +1,6 @@
 Sets
-all_t       all hours               /1*48/
-t(all_t)    hours                   /1*12/
+all_t       all hours               /1*16/
+t(all_t)    hours                   /1*14/
 tec         generators              /base, peak, wind, solar/
 con(tec)    conventional generation /base, peak/
 all_n       all buses               /north, south/
@@ -64,6 +64,7 @@ o_cap(tec,n)
 o_gen(t,tec,n)
 price(t)
 o_instrument(n)
+sum_instrument
 ;
 
 * Load data
@@ -252,7 +253,7 @@ LOCI.nodlim = 65000000;
 LOCI.resLim = 150000;
 
 * default value is too large (tested by comparing results to a nodal model with network costs = 0)
-Option optcr = 0.0005;
+Option optcr = 0.001;
 
 Option MIQCP = Cplex;
 
@@ -285,6 +286,6 @@ o_gen(t,tec,n) = GEN.L(t,tec,n);
 real_generation(t,tec,n) = GEN.L(t,tec,n) + UP.L(t,tec,n) - DOWN.L(t,tec,n);
 welfare = WF.L;
 
-Display WF.L, consumer_surplus, generation_costs, network_cost, network_cost_1, network_cost_2, network_cost_3, CAP.L, GEN.L, UP.L, DOWN.L, FLOW.L, price, load_deviation, load_shedding, GRID_CAP.L, LOAD_redi.L, LOAD_spot.L, o_instrument;
+Display WF.L, consumer_surplus, generation_costs, network_cost, network_cost_1, network_cost_2, network_cost_3, CAP.L, GEN.L, UP.L, DOWN.L, FLOW.L, price, load_deviation, load_shedding, GRID_CAP.L, LOAD_redi.L, LOAD_spot.L, o_instrument, sum_instrument;
 
-execute_UNLOAD 'Output/agnostic_instrument.gdx' welfare, consumer_surplus, generation_costs, network_cost, res_share, o_instrument, o_cap, o_gen, price, c_fix;
+execute_UNLOAD 'Output/agnostic_instrument.gdx' welfare, consumer_surplus, generation_costs, network_cost, res_share, o_instrument, sum_instrument, o_cap, o_gen, price, c_fix;
