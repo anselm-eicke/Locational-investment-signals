@@ -1,6 +1,6 @@
 Sets
 all_t       all hours               /1*16/
-t(all_t)    hours                   /1*14/
+t(all_t)    hours                   /1*12/
 tec         generators              /base, peak, wind, solar/
 con(tec)    conventional generation /base, peak/
 all_n       all buses               /north, south/
@@ -12,8 +12,8 @@ alias (n,m);
 alias (all_n,all_m);
 
 * parameters for supply and demand functions
-Parameter elasticity / -0.25 /; 
-Parameter p_ref / 65 /;
+Parameter elasticity / -0.15 /; 
+Parameter p_ref / 70 /;
 Parameter specific_network_costs /200/;
 Parameter capacity_slope / 0.5 /;
 *Source for network costs: EMMA (3400 EUR/MW/km discontiert mit i = 0.07 ueber 40 Jahre)
@@ -288,4 +288,4 @@ welfare = WF.L;
 
 Display WF.L, consumer_surplus, generation_costs, network_cost, network_cost_1, network_cost_2, network_cost_3, CAP.L, GEN.L, UP.L, DOWN.L, FLOW.L, price, load_deviation, load_shedding, GRID_CAP.L, LOAD_redi.L, LOAD_spot.L, o_instrument, sum_instrument;
 
-execute_UNLOAD 'Output/with_instrument.gdx' welfare, consumer_surplus, generation_costs, network_cost, res_share, o_instrument, o_cap, o_gen, price, c_fix;
+execute_UNLOAD 'Output/with_instrument.gdx' welfare, consumer_surplus, generation_costs, network_cost, res_share, o_instrument, sum_instrument, o_cap, o_gen, price, c_fix;

@@ -1,9 +1,9 @@
---- Job MCP_for_testing.gms Start 01/12/22 15:53:06 30.3.0 rc5da09e WEX-WEI x86 64bit/MS Windows
+--- Job MCP_for_testing.gms Start 01/21/22 16:20:31 30.3.0 rc5da09e WEX-WEI x86 64bit/MS Windows
 --- GAMS Parameters defined
-    Input C:\GitHub\Locational-investment-signals\Two node models\MCP_for_testing.gms
+    Input C:\Users\a.eicke\Documents\Locational-investment-signals\Two node models\MCP_for_testing.gms
     PageSize 0
-    ScrDir C:\GitHub\Locational-investment-signals\Two node models\225c\
-    SysDir C:\Program Files\GAMS\
+    ScrDir C:\Users\a.eicke\Documents\Locational-investment-signals\Two node models\225a\
+    SysDir C:\GAMS\win64\30.3\
     LogOption 3
     ErrMsg 1
     ErrorLog 99
@@ -13,19 +13,19 @@ GAMS 30.3.0   Copyright (C) 1987-2020 GAMS Development. All rights reserved
 Licensee: Small MUD - 5 User License                     S190305:0326AO-WIN
           Hertie School of Governance GmbH, Governance of DigitalizaDC14808
 --- Starting compilation
---- MCP_for_testing.gms(79) 3 Mb
---- GDXin=C:\GitHub\Locational-investment-signals\Two node models\in.gdx
---- MCP_for_testing.gms(82) 3 Mb
---- GDXin=C:\GitHub\Locational-investment-signals\Two node models\Output/with_instrument.gdx
---- MCP_for_testing.gms(206) 3 Mb
---- Starting execution: elapsed 0:00:00.009
---- MCP_for_testing.gms(191) 4 Mb
+--- MCP_for_testing.gms(78) 3 Mb
+--- GDXin=C:\Users\a.eicke\Documents\Locational-investment-signals\Two node models\in.gdx
+--- MCP_for_testing.gms(81) 3 Mb
+--- GDXin=C:\Users\a.eicke\Documents\Locational-investment-signals\Two node models\Output/without_instrument.gdx
+--- MCP_for_testing.gms(205) 3 Mb
+--- Starting execution: elapsed 0:00:00.000
+--- MCP_for_testing.gms(190) 4 Mb
 --- Generating MCP model LOCI
---- MCP_for_testing.gms(193) 6 Mb
----   429 rows  429 columns  1,045 non-zeroes
+--- MCP_for_testing.gms(192) 6 Mb
+---   348 rows  348 columns  848 non-zeroes
 ---   0 nl-code  0 nl-non-zeroes
---- MCP_for_testing.gms(193) 4 Mb
---- Executing PATH: elapsed 0:00:00.020
+--- MCP_for_testing.gms(192) 4 Mb
+--- Executing PATH: elapsed 0:00:00.031
 Reading dictionary...
 Reading row data...
 Evaluating functions...
@@ -35,82 +35,81 @@ Calculating Jacobian...
 PATH             30.3.0 rc5da09e Released Mar 06, 2020 WEI x86 64bit/MS Window
 
 *** This solver runs with a community license.
-429 row/cols, 1045 non-zeros, 0.57% dense.
+348 row/cols, 848 non-zeros, 0.70% dense.
 
 Path 5.0.02 (Fri Mar  6 16:28:13 2020)
 Written by Todd Munson, Steven Dirkse, Youngdae Kim, and Michael Ferris
 
-Zero:     0 Single:   166 Double:     0
-Preprocessed size   : 248
+Zero:     0 Single:   134 Double:     0
+Preprocessed size   : 204
 
 INITIAL POINT STATISTICS
 Maximum of X. . . . . . . . . .  0.0000e+00 var: (mu_G_max(1,base,north))
-Maximum of F. . . . . . . . . .  3.2500e+02 eqn: (KKT_load(1))
-Maximum of Grad F . . . . . . .  5.5488e+00 eqn: (KKT_load(13))
-                                            var: (LOAD_zonal(13))
+Maximum of F. . . . . . . . . .  3.2500e+02 eqn: (KKT_load(2))
+Maximum of Grad F . . . . . . .  5.1500e+00 eqn: (KKT_load(12))
+                                            var: (LOAD_zonal(12))
 
 INITIAL JACOBIAN NORM STATISTICS
-Maximum Row Norm. . . . . . . .  1.5500e+01 eqn: (KKT_CAP(base,north))
-Minimum Row Norm. . . . . . . .  1.0200e+00 eqn: (gen_max(4,solar,south))
-Maximum Column Norm . . . . . .  1.5500e+01 var: (CAP(base,north))
-Minimum Column Norm . . . . . .  1.0200e+00 var: (mu_G_max(4,solar,south))
+Maximum Row Norm. . . . . . . .  1.2500e+01 eqn: (KKT_CAP(base,north))
+Minimum Row Norm. . . . . . . .  1.0150e+00 eqn: (gen_max(7,solar,north))
+Maximum Column Norm . . . . . .  1.2500e+01 var: (CAP(base,north))
+Minimum Column Norm . . . . . .  1.0150e+00 var: (mu_G_max(7,solar,north))
 
 Crash Log
 major  func  diff  size  residual    step       prox   (label)
-    0     0             2.5174e+03             0.0e+00 (KKT_load(1))
-    1     5   105    30 2.2053e+03  2.6e-01    0.0e+00 (KKT_load(1))
-    2     6   225   135 1.7046e+03  1.0e+00    1.0e+01 (KKT_load(6))
-    3     7   105   240 1.4379e+03  1.0e+00    9.0e+00 (KKT_load(10))
-    4    10     0   240 1.4354e+03  6.4e-01    8.1e+00 (KKT_GEN(15,wind,north))
+    0     0             2.2517e+03             0.0e+00 (KKT_load(2))
+    1     5    86    24 1.9872e+03  2.6e-01    0.0e+00 (KKT_load(2))
+    2     6   184   110 1.5456e+03  1.0e+00    1.0e+01 (KKT_load(3))
+    3     7    86   196 1.3169e+03  1.0e+00    9.0e+00 (KKT_load(3))
+    4    11     0   196 1.3162e+03  4.1e-01    8.1e+00 (KKT_GEN(7,wind,north))
 pn_search terminated: no basis change.
 
 Major Iteration Log
 major minor  func  grad  residual    step  type prox    inorm  (label)
-    0     0    11     5 1.4354e+03           I 7.3e+00 1.8e+02 (KKT_GEN(15,wind)
-    1    45    16     6 4.6489e+03  3.3e-01 SB 2.9e+00 7.9e+02 (energy_balance()
-    2   239    17     7 1.2751e+03  1.0e+00 RO 1.2e+00 1.8e+02 (energy_balance()
-    3    96    18     8 2.0960e+02  1.0e+00 SO 4.7e-01 5.3e+01 (energy_balance()
-    4    69    19     9 5.1348e+01  1.0e+00 SO 1.9e-01 1.0e+01 (energy_balance()
-    5    27    20    10 5.6010e+00  1.0e+00 SO 7.5e-02 1.2e+00 (gen_max(14,wind)
-    6     3    21    11 1.1085e+00  1.0e+00 SO 3.0e-02 2.2e-01 (gen_max(13,wind)
-    7    11    22    12 1.9961e-01  1.0e+00 SO 1.2e-02 3.8e-02 (KKT_GEN(7,base,)
-    8     1    23    13 2.2878e-02  1.0e+00 SO 4.8e-03 4.3e-03 (KKT_GEN(9,base,)
-    9     1    24    14 1.1500e-03  1.0e+00 SO 1.9e-03 2.1e-04 (KKT_GEN(9,base,)
-   10     2    25    15 3.6627e-06  1.0e+00 SO 1.1e-04 6.9e-07 (KKT_GEN(9,base,)
-   11     6    26    16 6.3477e-10  1.0e+00 SO 3.7e-07 1.5e-10 (KKT_GEN(9,base,)
+    0     0    12     5 1.3162e+03           I 7.3e+00 1.8e+02 (KKT_GEN(7,wind,)
+    1    36    17     6 4.2189e+03  3.3e-01 SB 2.9e+00 7.3e+02 (energy_balance()
+    2   190    18     7 1.1639e+03  1.0e+00 RO 1.2e+00 1.6e+02 (energy_balance()
+    3    95    19     8 1.9507e+02  1.0e+00 SO 4.7e-01 5.0e+01 (energy_balance()
+    4    49    20     9 4.4618e+01  1.0e+00 SO 1.9e-01 1.1e+01 (energy_balance()
+    5    28    21    10 4.7124e+00  1.0e+00 SO 7.5e-02 1.1e+00 (gen_max(12,wind)
+    6     3    22    11 4.7313e-01  1.0e+00 SO 3.0e-02 1.3e-01 (gen_max(12,wind)
+    7     1    23    12 5.5951e-02  1.0e+00 SO 1.2e-02 1.2e-02 (gen_max(6,base,)
+    8     1    24    13 4.6047e-03  1.0e+00 SO 4.8e-03 1.1e-03 (gen_max(6,base,)
+    9     1    25    14 4.1863e-05  1.0e+00 SO 4.6e-04 1.0e-05 (energy_balance()
+   10     1    26    15 3.6028e-09  1.0e+00 SO 4.2e-06 9.1e-10 (energy_balance()
 
 FINAL STATISTICS
-Inf-Norm of Complementarity . .  5.7797e-09 eqn: (KKT_GEN(11,base,south))
-Inf-Norm of Normal Map. . . . .  1.4809e-10 eqn: (KKT_GEN(9,base,north))
-Inf-Norm of Minimum Map . . . .  1.4809e-10 eqn: (KKT_GEN(9,base,north))
-Inf-Norm of Fischer Function. .  1.4809e-10 eqn: (KKT_GEN(9,base,north))
-Inf-Norm of Grad Fischer Fcn. .  1.4725e-10 eqn: (gen_max(14,base,north))
-Two-Norm of Grad Fischer Fcn. .  6.0410e-10
+Inf-Norm of Complementarity . .  8.4595e-08 eqn: (gen_max(6,wind,south))
+Inf-Norm of Normal Map. . . . .  9.1398e-10 eqn: (energy_balance(6))
+Inf-Norm of Minimum Map . . . .  9.1399e-10 eqn: (energy_balance(6))
+Inf-Norm of Fischer Function. .  9.1398e-10 eqn: (energy_balance(6))
+Inf-Norm of Grad Fischer Fcn. .  1.8267e-09 eqn: (KKT_GEN(6,peak,north))
+Two-Norm of Grad Fischer Fcn. .  6.6678e-09
 
 FINAL POINT STATISTICS
-Maximum of X. . . . . . . . . .  1.0056e+02 var: (mu_G_max(10,wind,north))
-Maximum of F. . . . . . . . . .  7.2244e+01 eqn: (KKT_GEN(1,peak,north))
-Maximum of Grad F . . . . . . .  5.5488e+00 eqn: (KKT_load(13))
-                                            var: (LOAD_zonal(13))
+Maximum of X. . . . . . . . . .  1.0956e+02 var: (mu_G_max(5,wind,south))
+Maximum of F. . . . . . . . . .  2.1830e+01 eqn: (KKT_GEN(1,peak,north))
+Maximum of Grad F . . . . . . .  5.1500e+00 eqn: (KKT_load(12))
+                                            var: (LOAD_zonal(12))
 
  ** EXIT - solution found.
 
-Major Iterations. . . . 11
-Minor Iterations. . . . 500
+Major Iterations. . . . 10
+Minor Iterations. . . . 405
 Restarts. . . . . . . . 0
 Crash Iterations. . . . 4
 Gradient Steps. . . . . 0
 Function Evaluations. . 26
-Gradient Evaluations. . 16
-Basis Time. . . . . . . 0.015000
-Total Time. . . . . . . 0.031000
-Residual. . . . . . . . 6.347690e-10
-Postsolved residual: 6.3476e-10
+Gradient Evaluations. . 15
+Basis Time. . . . . . . 0.016000
+Total Time. . . . . . . 0.016000
+Residual. . . . . . . . 3.602772e-09
+Postsolved residual: 3.6028e-09
 
 --- Restarting execution
---- MCP_for_testing.gms(193) 2 Mb
+--- MCP_for_testing.gms(192) 2 Mb
 --- Reading solution for model LOCI
---- Executing after solve: elapsed 0:00:00.208
---- MCP_for_testing.gms(205) 3 Mb
+--- Executing after solve: elapsed 0:00:00.377
+--- MCP_for_testing.gms(204) 3 Mb
 *** Status: Normal completion
---- Job MCP_for_testing.gms Stop 01/12/22 15:53:06 elapsed 0:00:00.209
+--- Job MCP_for_testing.gms Stop 01/21/22 16:20:32 elapsed 0:00:00.377

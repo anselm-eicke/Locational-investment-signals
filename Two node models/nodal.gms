@@ -1,6 +1,6 @@
 Sets
 all_t       all hours               /1*16/
-t(all_t)    hours                   /1*14/
+t(all_t)    hours                   /1*12/
 tec         generators              /base, peak, wind, solar/
 con(tec)    conventional generation /base, peak/
 all_n       all buses               /north, south/
@@ -12,8 +12,8 @@ alias (n,m);
 alias (all_n,all_m);
 
 * parameters for supply and demand functions
-Parameter elasticity / -0.25 /; 
-Parameter p_ref / 65 /;
+Parameter elasticity / -0.15 /; 
+Parameter p_ref / 70 /;
 Parameter specific_network_costs /200/;
 Parameter capacity_slope / 0.5 /;
 *Source for network costs: EMMA (3400 EUR/MW/km discontiert mit i = 0.07 ueber 40 Jahre)

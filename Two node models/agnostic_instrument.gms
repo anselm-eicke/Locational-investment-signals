@@ -1,6 +1,6 @@
 Sets
 all_t       all hours               /1*16/
-t(all_t)    hours                   /1*14/
+t(all_t)    hours                   /1*12/
 tec         generators              /base, peak, wind, solar/
 con(tec)    conventional generation /base, peak/
 all_n       all buses               /north, south/
@@ -12,8 +12,8 @@ alias (n,m);
 alias (all_n,all_m);
 
 * parameters for supply and demand functions
-Parameter elasticity / -0.25 /; 
-Parameter p_ref / 65 /;
+Parameter elasticity / -0.15 /; 
+Parameter p_ref / 70 /;
 Parameter specific_network_costs /200/;
 Parameter capacity_slope / 0.5 /;
 *Source for network costs: EMMA (3400 EUR/MW/km discontiert mit i = 0.07 ueber 40 Jahre)
@@ -276,7 +276,7 @@ consumer_surplus = sum((t), A_zonal(t) * LOAD_spot.L(t) + 1/2 * S_zonal(t) * LOA
 
 generation_costs = (sum((tec,n), CAP.L(tec,n) * c_fix(tec,n) + 0.5 * CAP.L(tec,n) * CAP.L(tec,n) * capacity_slope) + sum((t,tec,n), GEN.L(t,tec,n) * c_var(tec,n)));
                                                                     
-*sum_instrument = sum((tec,n), INSTRUMENT.L(tec,n) * CAP.L(tec,n));
+sum_instrument = sum((tec,n), INSTRUMENT.L(n) * CAP.L(tec,n));
 
 load_deviation(t,n) = ((SPOT_PRICE.L(t) - a_nodal(t,n)) / s_nodal(t,n)) - load_ref(t,n);
 load_shedding(t,n) = LOAD_spot.L(t) - LOAD_redi.L(t,n);

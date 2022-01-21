@@ -1,12 +1,11 @@
 Sets
-all_t       all hours               /1*48/
-t(all_t)    hours                   /1*15/
+all_t       all hours               /1*16/
+t(all_t)    hours                   /1*12/
 tec         generators              /base, peak, wind, solar/
 con(tec)    conventional generation /base, peak/
 all_n       all buses               /north, south/
 n(all_n)    selected buses          /north, south/
 ;
-
 
 alias (n,m);
 alias (all_n,all_m);
@@ -64,7 +63,7 @@ o_cap(tec,n)
 o_gen(t,tec,n)
 price(t)
 o_cap_instr(tec,n)
-o_instrument(tec,n)
+o_instrument
 sum_instrument
 network_cost
 
@@ -79,7 +78,7 @@ INSTRUMENT(tec,n)
 $GDXIN "in.gdx"
 $LOADdc i_cost, i_load, i_avail
 
-$GDXIN "Output/with_instrument.gdx"
+$GDXIN "Output/without_instrument.gdx"
 $LOADdc o_instrument
 
 * Data assignment
@@ -101,7 +100,7 @@ A_zonal(t)                  = sum(n, a_nodal(t,n) / s_nodal(t,n)) / sum(n, 1/ s_
 S_zonal(t)                  = 1 / sum(n, 1/ s_nodal(t,n));
 
 *load instrument
-INSTRUMENT(tec,n)           = o_instrument(tec,n) * sc * 1000;
+INSTRUMENT(tec,n)           = o_instrument * sc * 1000;
 
 display INSTRUMENT;
 
