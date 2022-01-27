@@ -1,5 +1,5 @@
 Sets
-all_t       all hours               /1*16/
+all_t       all hours               /1*12/
 t(all_t)    hours                   /1*12/
 tec         generators              /base, peak, wind, solar/
 con(tec)    conventional generation /base, peak/
@@ -12,10 +12,10 @@ alias (n,m);
 alias (all_n,all_m);
 
 * parameters for supply and demand functions
-Parameter elasticity / -0.15 /; 
-Parameter p_ref / 70 /;
+Parameter elasticity / -0.05 /; 
+Parameter p_ref / 55 /;
 Parameter specific_network_costs /200/;
-Parameter capacity_slope / 0.5 /;
+Parameter capacity_slope / 666 /;
 *Source for network costs: EMMA (3400 EUR/MW/km discontiert mit i = 0.07 ueber 40 Jahre)
 
 Table B(all_n,all_m)        Susceptance of transmission lines
@@ -65,11 +65,19 @@ o_gen(t,tec,n)
 price(t)
 o_instrument(tec,n)
 sum_instrument
+redispatch(t,tec,n) 
 ;
 
 * Load data
 $GDXIN "in.gdx"
-$LOADdc i_cost, i_load, i_avail
+$LOADdc i_cost
+
+$GDXIN "load.gdx"
+$LOADdc i_load
+
+$GDXIN "avail.gdx"
+$LOADdc i_avail
+ 
 
 * Data assignment
 sc = card(t) / 8760;
@@ -80,6 +88,7 @@ c_var(tec, n)               = i_cost(tec,"cost_var");
 c_fix(tec, n)               = round(i_cost(tec,"cost_fix") * 1000 * sc);
 cap_lim(tec,n)              = 100;
 grid_cost(n,m)              = round(B(n,m) * specific_network_costs * sc);
+capacity_slope              = capacity_slope * sc;
 
 *Inverse demand function at each node
 a_nodal(t,n)                = p_ref *(1-1/elasticity);
@@ -237,8 +246,8 @@ complementarity6b
 /;
 
 
-INSTRUMENT.lo(tec,n) = -10;
-INSTRUMENT.up(tec,n) = 10;
+INSTRUMENT.lo(tec,n) = -200;
+INSTRUMENT.up(tec,n) = 200;
 
 GEN.up(t,tec,n) = 100;
 GEN.lo(t,tec,n) = 0;
@@ -263,11 +272,11 @@ Solve LOCI maximizing WF using MIQCP;
 price(t) = SPOT_PRICE.L(t);
 
 o_instrument(tec,n) = INSTRUMENT.L(tec,n) / sc / 1000;
-
+                                    
 network_cost_1 = sum((n,m),(GRID_CAP.L(n,m) / 2 * grid_cost(n,m)));
 network_cost_2 = sum((t,tec,n), (UP.L(t,tec,n) - DOWN.L(t,tec,n)) * c_var(tec,n));
 network_cost_3 = sum((t), A_zonal(t) * LOAD_spot.L(t) + 1/2 * S_zonal(t) * LOAD_spot.L(t) * LOAD_spot.L(t))
-                - sum((t), A_zonal(t) * sum(n, LOAD_redi.L(t,n)) + 1/2 * S_zonal(t) * sum(n, LOAD_redi.L(t,n)) * sum(n, LOAD_redi.L(t,n))) 
+                - sum((t,n), a_nodal(t,n) * LOAD_redi.L(t,n) + 1/2 * s_nodal(t,n) * LOAD_redi.L(t,n) * LOAD_redi.L(t,n))
                 ;
          
 network_cost = network_cost_1 + network_cost_2 + network_cost_3;
@@ -278,7 +287,7 @@ generation_costs = (sum((tec,n), CAP.L(tec,n) * c_fix(tec,n) + 0.5 * CAP.L(tec,n
                                                                     
 sum_instrument = sum((tec,n), INSTRUMENT.L(tec,n) * CAP.L(tec,n));
 
-load_deviation(t,n) = ((SPOT_PRICE.L(t) - a_nodal(t,n)) / s_nodal(t,n)) - load_ref(t,n);
+load_deviation(t,n) = LOAD_spot.L(t) - load_ref(t,n);
 load_shedding(t,n) = LOAD_spot.L(t) - LOAD_redi.L(t,n);
 res_share = 1 - sum((t,con,n), GEN.L(t,con,n)) / sum((t,tec,n), GEN.L(t,tec,n));
 o_cap(tec,n) = CAP.L(tec,n);
@@ -286,6 +295,8 @@ o_gen(t,tec,n) = GEN.L(t,tec,n);
 real_generation(t,tec,n) = GEN.L(t,tec,n) + UP.L(t,tec,n) - DOWN.L(t,tec,n);
 welfare = WF.L;
 
-Display WF.L, consumer_surplus, generation_costs, network_cost, network_cost_1, network_cost_2, network_cost_3, CAP.L, GEN.L, UP.L, DOWN.L, FLOW.L, price, load_deviation, load_shedding, GRID_CAP.L, LOAD_redi.L, LOAD_spot.L, o_instrument, sum_instrument;
+redispatch(t,tec,n) = UP.L(t,tec,n) - DOWN.L(t,tec,n);
+
+Display WF.L, consumer_surplus, generation_costs, network_cost, network_cost_1, network_cost_2, network_cost_3, CAP.L, GEN.L, UP.L, DOWN.L, redispatch, FLOW.L, price, load_deviation, load_shedding, GRID_CAP.L, LOAD_redi.L, LOAD_spot.L, INSTRUMENT.L, o_instrument, sum_instrument;
 
 execute_UNLOAD 'Output/with_instrument.gdx' welfare, consumer_surplus, generation_costs, network_cost, res_share, o_instrument, sum_instrument, o_cap, o_gen, price, c_fix;

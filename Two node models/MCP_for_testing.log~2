@@ -1,9 +1,9 @@
---- Job MCP_for_testing.gms Start 01/12/22 15:53:06 30.3.0 rc5da09e WEX-WEI x86 64bit/MS Windows
+--- Job MCP_for_testing.gms Start 01/24/22 15:46:50 30.3.0 rc5da09e WEX-WEI x86 64bit/MS Windows
 --- GAMS Parameters defined
-    Input C:\GitHub\Locational-investment-signals\Two node models\MCP_for_testing.gms
+    Input C:\Users\a.eicke\Documents\Locational-investment-signals\Two node models\MCP_for_testing.gms
     PageSize 0
-    ScrDir C:\GitHub\Locational-investment-signals\Two node models\225c\
-    SysDir C:\Program Files\GAMS\
+    ScrDir C:\Users\a.eicke\Documents\Locational-investment-signals\Two node models\225a\
+    SysDir C:\GAMS\win64\30.3\
     LogOption 3
     ErrMsg 1
     ErrorLog 99
@@ -13,104 +13,45 @@ GAMS 30.3.0   Copyright (C) 1987-2020 GAMS Development. All rights reserved
 Licensee: Small MUD - 5 User License                     S190305:0326AO-WIN
           Hertie School of Governance GmbH, Governance of DigitalizaDC14808
 --- Starting compilation
---- MCP_for_testing.gms(79) 3 Mb
---- GDXin=C:\GitHub\Locational-investment-signals\Two node models\in.gdx
---- MCP_for_testing.gms(82) 3 Mb
---- GDXin=C:\GitHub\Locational-investment-signals\Two node models\Output/with_instrument.gdx
---- MCP_for_testing.gms(206) 3 Mb
---- Starting execution: elapsed 0:00:00.009
---- MCP_for_testing.gms(191) 4 Mb
---- Generating MCP model LOCI
---- MCP_for_testing.gms(193) 6 Mb
----   429 rows  429 columns  1,045 non-zeroes
----   0 nl-code  0 nl-non-zeroes
---- MCP_for_testing.gms(193) 4 Mb
---- Executing PATH: elapsed 0:00:00.020
-Reading dictionary...
-Reading row data...
-Evaluating functions...
-Checking model...
-Calculating Jacobian...
-
-PATH             30.3.0 rc5da09e Released Mar 06, 2020 WEI x86 64bit/MS Window
-
-*** This solver runs with a community license.
-429 row/cols, 1045 non-zeros, 0.57% dense.
-
-Path 5.0.02 (Fri Mar  6 16:28:13 2020)
-Written by Todd Munson, Steven Dirkse, Youngdae Kim, and Michael Ferris
-
-Zero:     0 Single:   166 Double:     0
-Preprocessed size   : 248
-
-INITIAL POINT STATISTICS
-Maximum of X. . . . . . . . . .  0.0000e+00 var: (mu_G_max(1,base,north))
-Maximum of F. . . . . . . . . .  3.2500e+02 eqn: (KKT_load(1))
-Maximum of Grad F . . . . . . .  5.5488e+00 eqn: (KKT_load(13))
-                                            var: (LOAD_zonal(13))
-
-INITIAL JACOBIAN NORM STATISTICS
-Maximum Row Norm. . . . . . . .  1.5500e+01 eqn: (KKT_CAP(base,north))
-Minimum Row Norm. . . . . . . .  1.0200e+00 eqn: (gen_max(4,solar,south))
-Maximum Column Norm . . . . . .  1.5500e+01 var: (CAP(base,north))
-Minimum Column Norm . . . . . .  1.0200e+00 var: (mu_G_max(4,solar,south))
-
-Crash Log
-major  func  diff  size  residual    step       prox   (label)
-    0     0             2.5174e+03             0.0e+00 (KKT_load(1))
-    1     5   105    30 2.2053e+03  2.6e-01    0.0e+00 (KKT_load(1))
-    2     6   225   135 1.7046e+03  1.0e+00    1.0e+01 (KKT_load(6))
-    3     7   105   240 1.4379e+03  1.0e+00    9.0e+00 (KKT_load(10))
-    4    10     0   240 1.4354e+03  6.4e-01    8.1e+00 (KKT_GEN(15,wind,north))
-pn_search terminated: no basis change.
-
-Major Iteration Log
-major minor  func  grad  residual    step  type prox    inorm  (label)
-    0     0    11     5 1.4354e+03           I 7.3e+00 1.8e+02 (KKT_GEN(15,wind)
-    1    45    16     6 4.6489e+03  3.3e-01 SB 2.9e+00 7.9e+02 (energy_balance()
-    2   239    17     7 1.2751e+03  1.0e+00 RO 1.2e+00 1.8e+02 (energy_balance()
-    3    96    18     8 2.0960e+02  1.0e+00 SO 4.7e-01 5.3e+01 (energy_balance()
-    4    69    19     9 5.1348e+01  1.0e+00 SO 1.9e-01 1.0e+01 (energy_balance()
-    5    27    20    10 5.6010e+00  1.0e+00 SO 7.5e-02 1.2e+00 (gen_max(14,wind)
-    6     3    21    11 1.1085e+00  1.0e+00 SO 3.0e-02 2.2e-01 (gen_max(13,wind)
-    7    11    22    12 1.9961e-01  1.0e+00 SO 1.2e-02 3.8e-02 (KKT_GEN(7,base,)
-    8     1    23    13 2.2878e-02  1.0e+00 SO 4.8e-03 4.3e-03 (KKT_GEN(9,base,)
-    9     1    24    14 1.1500e-03  1.0e+00 SO 1.9e-03 2.1e-04 (KKT_GEN(9,base,)
-   10     2    25    15 3.6627e-06  1.0e+00 SO 1.1e-04 6.9e-07 (KKT_GEN(9,base,)
-   11     6    26    16 6.3477e-10  1.0e+00 SO 3.7e-07 1.5e-10 (KKT_GEN(9,base,)
-
-FINAL STATISTICS
-Inf-Norm of Complementarity . .  5.7797e-09 eqn: (KKT_GEN(11,base,south))
-Inf-Norm of Normal Map. . . . .  1.4809e-10 eqn: (KKT_GEN(9,base,north))
-Inf-Norm of Minimum Map . . . .  1.4809e-10 eqn: (KKT_GEN(9,base,north))
-Inf-Norm of Fischer Function. .  1.4809e-10 eqn: (KKT_GEN(9,base,north))
-Inf-Norm of Grad Fischer Fcn. .  1.4725e-10 eqn: (gen_max(14,base,north))
-Two-Norm of Grad Fischer Fcn. .  6.0410e-10
-
-FINAL POINT STATISTICS
-Maximum of X. . . . . . . . . .  1.0056e+02 var: (mu_G_max(10,wind,north))
-Maximum of F. . . . . . . . . .  7.2244e+01 eqn: (KKT_GEN(1,peak,north))
-Maximum of Grad F . . . . . . .  5.5488e+00 eqn: (KKT_load(13))
-                                            var: (LOAD_zonal(13))
-
- ** EXIT - solution found.
-
-Major Iterations. . . . 11
-Minor Iterations. . . . 500
-Restarts. . . . . . . . 0
-Crash Iterations. . . . 4
-Gradient Steps. . . . . 0
-Function Evaluations. . 26
-Gradient Evaluations. . 16
-Basis Time. . . . . . . 0.015000
-Total Time. . . . . . . 0.031000
-Residual. . . . . . . . 6.347690e-10
-Postsolved residual: 6.3476e-10
-
---- Restarting execution
---- MCP_for_testing.gms(193) 2 Mb
---- Reading solution for model LOCI
---- Executing after solve: elapsed 0:00:00.208
---- MCP_for_testing.gms(205) 3 Mb
-*** Status: Normal completion
---- Job MCP_for_testing.gms Stop 01/12/22 15:53:06 elapsed 0:00:00.209
+--- MCP_for_testing.gms(30) 3 Mb
+--- GDXin=C:\Users\a.eicke\Documents\Locational-investment-signals\Two node models\Output/with_instrument.gdx
+--- MCP_for_testing.gms(34) 3 Mb 2 Errors
+*** Error 140 in C:\Users\a.eicke\Documents\Locational-investment-signals\Two node models\MCP_for_testing.gms
+    Unknown symbol
+*** Error  36 in C:\Users\a.eicke\Documents\Locational-investment-signals\Two node models\MCP_for_testing.gms
+    '=' or '..' or ':=' or '$=' operator expected
+    rest of statement ignored
+--- MCP_for_testing.gms(89) 3 Mb
+--- GDXin=C:\Users\a.eicke\Documents\Locational-investment-signals\Two node models\in.gdx
+--- MCP_for_testing.gms(199) 3 Mb 3 Errors
+*** Error 257 in C:\Users\a.eicke\Documents\Locational-investment-signals\Two node models\MCP_for_testing.gms
+    Solve statement not checked because of previous errors
+--- MCP_for_testing.gms(201) 3 Mb 4 Errors
+*** Error 141 in C:\Users\a.eicke\Documents\Locational-investment-signals\Two node models\MCP_for_testing.gms
+    Symbol declared but no values have been assigned. Check for missing
+       data definition, assignment, data loading or implicit assignment
+       via a solve statement.
+       A wild shot: You may have spurious commas in the explanatory
+       text of a declaration. Check symbol reference list.
+--- MCP_for_testing.gms(211) 3 Mb 7 Errors
+*** Error 141 in C:\Users\a.eicke\Documents\Locational-investment-signals\Two node models\MCP_for_testing.gms
+    Symbol declared but no values have been assigned. Check for missing
+       data definition, assignment, data loading or implicit assignment
+       via a solve statement.
+       A wild shot: You may have spurious commas in the explanatory
+       text of a declaration. Check symbol reference list.
+*** Error 141 in C:\Users\a.eicke\Documents\Locational-investment-signals\Two node models\MCP_for_testing.gms
+    Symbol declared but no values have been assigned. Check for missing
+       data definition, assignment, data loading or implicit assignment
+       via a solve statement.
+       A wild shot: You may have spurious commas in the explanatory
+       text of a declaration. Check symbol reference list.
+*** Error 141 in C:\Users\a.eicke\Documents\Locational-investment-signals\Two node models\MCP_for_testing.gms
+    Symbol declared but no values have been assigned. Check for missing
+       data definition, assignment, data loading or implicit assignment
+       via a solve statement.
+       A wild shot: You may have spurious commas in the explanatory
+       text of a declaration. Check symbol reference list.
+--- MCP_for_testing.gms(212) 3 Mb 7 Errors
+*** Status: Compilation error(s)
+--- Job MCP_for_testing.gms Stop 01/24/22 15:46:50 elapsed 0:00:00.020

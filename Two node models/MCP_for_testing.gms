@@ -7,12 +7,13 @@ all_n       all buses               /north, south/
 n(all_n)    selected buses          /north, south/
 ;
 
+
 alias (n,m);
 alias (all_n,all_m);
 
 * parameters for supply and demand functions
-Parameter elasticity / -0.25 /; 
-Parameter p_ref / 65 /;
+Parameter elasticity / -0.15 /; 
+Parameter p_ref / 70 /;
 Parameter specific_network_costs /200/;
 Parameter capacity_slope / 0.5 /;
 *Source for network costs: EMMA (3400 EUR/MW/km discontiert mit i = 0.07 ueber 40 Jahre)
@@ -22,6 +23,22 @@ Table B(all_n,all_m)        Susceptance of transmission lines
 north        1     700  
 south      700       1
 ;
+
+Parameters
+o_instrument(tec,n);
+
+$GDXIN "Output/with_instrument.gdx"
+$LOADdc o_instrument
+
+Parameters
+INSTRUMENT(tec,n)
+sc          scaling factor
+;
+
+sc = card(t) / 8760;
+*load instrument
+INSTRUMENT(tec,n)           = o_instrument(tec,n) * sc * 1000;
+
 
 Parameters
 * Input Parameters
@@ -36,7 +53,6 @@ c_var(tec,n)                variable costs (EUR per MWh)
 c_fix(tec,n)                annualized fixed costs (EUR per MW p.a.)
 cap_lim(tec,n)              capacity limit of generation in each node
 grid_cost(n,m)
-sc                          scaling factor
 a_nodal(t,n)                intercept of inverse nodal demand function
 s_nodal(t,n)                slope of inverse nodal demand function
 
@@ -63,7 +79,6 @@ o_cap(tec,n)
 o_gen(t,tec,n)
 price(t)
 o_cap_instr(tec,n)
-o_instrument
 sum_instrument
 network_cost
 
@@ -71,18 +86,21 @@ network_cost
 maximum
 threshold
 
-INSTRUMENT(tec,n)
 ;
 
 * Load data
 $GDXIN "in.gdx"
-$LOADdc i_cost, i_load, i_avail
+$LOADdc i_cost
 
-$GDXIN "Output/without_instrument.gdx"
-$LOADdc o_instrument
+$GDXIN "load.gdx"
+$LOADdc i_load
+
+$GDXIN "avail.gdx"
+$LOADdc i_avail
+ 
+
 
 * Data assignment
-sc = card(t) / 8760;
 load_ref(t,n)               = i_load(t,n) / 1000;
 avail(t,tec,n)              = i_avail(t,tec,n);
 avail(t,con,n)              = 1;
@@ -99,8 +117,7 @@ s_nodal(t,n)                = p_ref *(1/(elasticity*load_ref(t,n)));
 A_zonal(t)                  = sum(n, a_nodal(t,n) / s_nodal(t,n)) / sum(n, 1/ s_nodal(t,n));
 S_zonal(t)                  = 1 / sum(n, 1/ s_nodal(t,n));
 
-*load instrument
-INSTRUMENT(tec,n)           = o_instrument * sc * 1000;
+
 
 display INSTRUMENT;
 

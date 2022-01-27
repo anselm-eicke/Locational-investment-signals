@@ -1,8 +1,8 @@
---- Job preprocessing.gms Start 01/21/22 20:01:00 30.3.0 rc5da09e WEX-WEI x86 64bit/MS Windows
+--- Job preprocessing.gms Start 01/26/22 20:17:53 30.3.0 rc5da09e WEX-WEI x86 64bit/MS Windows
 --- GAMS Parameters defined
     Input C:\Users\a.eicke\Documents\Locational-investment-signals\Two node models\preprocessing.gms
     PageSize 0
-    ScrDir C:\Users\a.eicke\Documents\Locational-investment-signals\Two node models\225a\
+    ScrDir C:\Users\a.eicke\Documents\Locational-investment-signals\Two node models\225c\
     SysDir C:\GAMS\win64\30.3\
     LogOption 3
     ErrMsg 1
@@ -13,14 +13,42 @@ GAMS 30.3.0   Copyright (C) 1987-2020 GAMS Development. All rights reserved
 Licensee: Small MUD - 5 User License                     S190305:0326AO-WIN
           Hertie School of Governance GmbH, Governance of DigitalizaDC14808
 --- Starting compilation
---- preprocessing.gms(14) 2 Mb
---- call GDXXRW.exe    "in.xlsx"        @input.txt
+--- preprocessing.gms(21) 2 Mb
+--- call GDXXRW.exe    "in.xlsx"           @cost.txt
 
 GDXXRW           30.3.0 rc5da09e Released Mar 06, 2020 WEI x86 64bit/MS Window
 Input file : C:\Users\a.eicke\Documents\Locational-investment-signals\Two node models\in.xlsx
 Output file: C:\Users\a.eicke\Documents\Locational-investment-signals\Two node 
 Output file: C:\Users\a.eicke\Documents\Locational-investment-signals\Two node models\in.gdx
-Total time = 1515 Ms
+Total time = 3750 Ms
+--- preprocessing.gms(23) 2 Mb
+--- call GDXXRW.exe    "load.xlsx"        @load.txt
+
+GDXXRW           30.3.0 rc5da09e Released Mar 06, 2020 WEI x86 64bit/MS Window
+Input file : C:\Users\a.eicke\Documents\Locational-investment-signals\Two node models\load.xlsx
+Output file: C:\Users\a.eicke\Documents\Locational-investment-signals\Two nod
+Output file: C:\Users\a.eicke\Documents\Locational-investment-signals\Two node models\load.gdx
+Total time = 1312 Ms
+--- preprocessing.gms(25) 2 Mb
+--- call GDXXRW.exe    "avail.xlsx"        @renewables.txt
+
+GDXXRW           30.3.0 rc5da09e Released Mar 06, 2020 WEI x86 64bit/MS Window
+Input file : C:\Users\a.eicke\Documents\Locational-investment-signals\Two node models\avail.xlsx
+Output file: C:\Users\a.eicke\Documents\Locational-investment-signals\Two no
+Output file: C:\Users\a.eicke\Documents\Locational-investment-signals\Two node models\avail.gdx
+**** There were 7 duplicate entries for symbol i_avail
+ 1: 2,,south
+ 2: 3,,south
+ 3: 4,,south
+ 4: 7,,so
+ 4: 7,,south
+ 5: 8,,south
+ 6: 9,,south
+ 7: 10,,south
+Output gdx file deleted: C:\Users\a.eicke\Documents\Locational-investment-signal
+Output gdx file deleted: C:\Users\a.eicke\Documents\Locational-investment-signals\Two node models\avail.gdx
+Total time = 1234 Ms
+The option "MaxDupeErrors = <integer>" can be used to allow for some duplicate records
 --- Starting execution - empty program
 *** Status: Normal completion
---- Job preprocessing.gms Stop 01/21/22 20:01:01 elapsed 0:00:01.753
+--- Job preprocessing.gms Stop 01/26/22 20:18:01 elapsed 0:00:07.179

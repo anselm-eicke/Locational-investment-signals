@@ -1,5 +1,5 @@
 Sets
-all_t       all hours               /1*16/
+all_t       all hours               /1*12/
 t(all_t)    hours                   /1*12/
 tec         generators              /base, peak, wind, solar/
 con(tec)    conventional generation /base, peak/
@@ -12,10 +12,10 @@ alias (n,m);
 alias (all_n,all_m);
 
 * parameters for supply and demand functions
-Parameter elasticity / -0.15 /; 
-Parameter p_ref / 70 /;
+Parameter elasticity / -0.05 /; 
+Parameter p_ref / 55 /;
 Parameter specific_network_costs /200/;
-Parameter capacity_slope / 0.5 /;
+Parameter capacity_slope / 666 /;
 *Source for network costs: EMMA (3400 EUR/MW/km discontiert mit i = 0.07 ueber 40 Jahre)
 
 Table B(all_n,all_m)        Susceptance of transmission lines
@@ -59,7 +59,14 @@ price(t,n)
 
 * Load data
 $GDXIN "in.gdx"
-$LOADdc i_cost, i_load, i_avail
+$LOADdc i_cost
+
+$GDXIN "load.gdx"
+$LOADdc i_load
+
+$GDXIN "avail.gdx"
+$LOADdc i_avail
+ 
 
 * Data assignment
 sc = card(t) / 8760;
@@ -70,6 +77,7 @@ c_var(tec, n)               = i_cost(tec,"cost_var");
 c_fix(tec, n)               = round(i_cost(tec,"cost_fix") * 1000 * sc);
 cap_lim(tec,n)              = 100;
 grid_cost(n,m)              = round(B(n,m) * specific_network_costs * sc);
+capacity_slope              = capacity_slope * sc;
 
 a_nodal(t,n)                = p_ref *(1-1/elasticity);
 s_nodal(t,n)                = p_ref *(1/(elasticity*load_ref(t,n)));
