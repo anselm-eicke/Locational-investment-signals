@@ -262,7 +262,7 @@ LOCI.nodlim = 80000000;
 LOCI.resLim = 150000;
 
 * default value is too large (tested by comparing results to a nodal model with network costs = 0)
-Option optcr = 0.005;
+Option optcr = 0.0001;
 
 Option MIQCP = Cplex;
 
