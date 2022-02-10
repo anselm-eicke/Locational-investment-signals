@@ -46,11 +46,9 @@ A_zonal(t)                  intercept of inverse zonal demand function
 S_zonal(t)                  slope of inverse zonal demand function
     
 * Output Parameters
-welfare,
+welfare
 consumer_surplus
 generation_costs
-load_deviation(t,n)
-load_shedding(t,n)
 network_cost
 network_cost_1
 network_cost_2
@@ -58,13 +56,15 @@ network_cost_3
 
 res_share
 real_generation(t,tec,n)
+load_deviation(t,n)
+load_shedding(t,n)
 
 o_RES_share
 o_load(t,n)
 o_cap(tec,n)
 o_gen(t,tec,n)
 price(t)
-o_instrument(n)
+o_instrument
 sum_instrument
 ;
 
@@ -114,7 +114,7 @@ GEN(t,tec,n)
 CAP(tec,n)
 WF
 FLOW(t,n,m)
-INSTRUMENT(n)
+INSTRUMENT
 THETA(t,n)
 SPOT_PRICE(t)
 ;
@@ -189,7 +189,7 @@ demand_min(t)..                 0 =g= -LOAD_spot(t);
 energy_balance(t)..             0 =e= sum((tec,n),GEN(t,tec,n)) - LOAD_spot(t);
            
 KKT_GEN(t,tec,n)..              c_var(tec,n) + mu_G_max(t,tec,n) - mu_G_min(t,tec,n) - SPOT_PRICE(t) =e= 0;
-KKT_CAP(tec,n)..                c_fix(tec,n) + capacity_slope * CAP(tec,n) + INSTRUMENT(n) - sum(t,avail(t,tec,n) * mu_G_max(t,tec,n)) + mu_C_max(tec,n) - mu_C_min(tec,n) =e= 0;
+KKT_CAP(tec,n)..                c_fix(tec,n) + capacity_slope * CAP(tec,n) + INSTRUMENT - sum(t,avail(t,tec,n) * mu_G_max(t,tec,n)) + mu_C_max(tec,n) - mu_C_min(tec,n) =e= 0;
 KKT_load(t)..                   -(A_zonal(t) + S_zonal(t) * LOAD_spot(t)) - mu_D_min(t) + SPOT_PRICE(t) =e= 0;              
 
 complementarity1a(t,tec,n)..    GEN(t,tec,n)        =L= y1(t,tec,n) * M1;
@@ -245,9 +245,9 @@ complementarity6a
 complementarity6b
 /;
 
-
-INSTRUMENT.lo(n) = -40;
-INSTRUMENT.up(n) = 40;
+INSTRUMENT.L = 5;
+INSTRUMENT.lo = -20;
+INSTRUMENT.up = 40;
 
 GEN.up(t,tec,n) = 100;
 GEN.lo(t,tec,n) = 0;
@@ -258,8 +258,8 @@ DOWN.lo(t,tec,n) = 0;
 UP.up(t,tec,n) = 100;
 UP.lo(t,tec,n) = 0;
 
-LOCI.nodlim = 65000000;
-LOCI.resLim = 150000;
+LOCI.nodlim = 80000000;
+LOCI.resLim = 200000;
 
 * default value is too large (tested by comparing results to a nodal model with network costs = 0)
 Option optcr = 0.001;
@@ -271,7 +271,7 @@ Solve LOCI maximizing WF using MIQCP;
 
 price(t) = SPOT_PRICE.L(t);
 
-o_instrument(n) = INSTRUMENT.L(n) / sc / 1000;
+o_instrument = INSTRUMENT.L / sc / 1000;
 
 network_cost_1 = sum((n,m),(GRID_CAP.L(n,m) / 2 * grid_cost(n,m)));
 network_cost_2 = sum((t,tec,n), (UP.L(t,tec,n) - DOWN.L(t,tec,n)) * c_var(tec,n));
@@ -285,7 +285,7 @@ consumer_surplus = sum((t), A_zonal(t) * LOAD_spot.L(t) + 1/2 * S_zonal(t) * LOA
 
 generation_costs = (sum((tec,n), CAP.L(tec,n) * c_fix(tec,n) + 0.5 * CAP.L(tec,n) * CAP.L(tec,n) * capacity_slope) + sum((t,tec,n), GEN.L(t,tec,n) * c_var(tec,n)));
                                                                     
-sum_instrument = sum((tec,n), INSTRUMENT.L(n) * CAP.L(tec,n));
+sum_instrument = sum((tec,n), INSTRUMENT.L * CAP.L(tec,n));
 
 load_deviation(t,n) = ((SPOT_PRICE.L(t) - a_nodal(t,n)) / s_nodal(t,n)) - load_ref(t,n);
 load_shedding(t,n) = LOAD_spot.L(t) - LOAD_redi.L(t,n);
@@ -297,4 +297,4 @@ welfare = WF.L;
 
 Display WF.L, consumer_surplus, generation_costs, network_cost, network_cost_1, network_cost_2, network_cost_3, CAP.L, GEN.L, UP.L, DOWN.L, FLOW.L, price, load_deviation, load_shedding, GRID_CAP.L, LOAD_redi.L, LOAD_spot.L, o_instrument, sum_instrument;
 
-execute_UNLOAD 'Output/agnostic_instrument.gdx' welfare, consumer_surplus, generation_costs, network_cost, res_share, o_instrument, sum_instrument, o_cap, o_gen, price, c_fix;
+execute_UNLOAD 'Output/without_instrument.gdx' welfare, consumer_surplus, generation_costs, network_cost, res_share, o_instrument, sum_instrument, o_cap, o_gen, price, c_fix;

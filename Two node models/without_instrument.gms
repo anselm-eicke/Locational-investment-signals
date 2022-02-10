@@ -246,8 +246,8 @@ complementarity6b
 /;
 
 
-INSTRUMENT.lo = -50;
-INSTRUMENT.up = 50;
+INSTRUMENT.lo = -20;
+INSTRUMENT.up = 40;
 
 GEN.up(t,tec,n) = 100;
 GEN.lo(t,tec,n) = 0;
@@ -259,10 +259,10 @@ UP.up(t,tec,n) = 100;
 UP.lo(t,tec,n) = 0;
 
 LOCI.nodlim = 80000000;
-LOCI.resLim = 150000;
+LOCI.resLim = 200000;
 
 * default value is too large (tested by comparing results to a nodal model with network costs = 0)
-Option optcr = 0.0001;
+Option optcr = 0.001;
 
 Option MIQCP = Cplex;
 
