@@ -1,4 +1,4 @@
-GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 02/15/22 15:48:41 Page 1
+GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 02/15/22 16:00:52 Page 1
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
 C o m p i l a t i o n
 
@@ -20,7 +20,7 @@ C o m p i l a t i o n
   15  Parameter elasticity / -0.03 /;
   16  Parameter p_ref / 55 /;
   17  Parameter specific_network_costs /200/;
-  18  Parameter capacity_slope / 333 /;
+  18  Parameter capacity_slope / 666 /;
   19  *Source for network costs: EMMA (3400 EUR/MW/km discontiert mit i = 0.07 ueber 40 Jahre)
   20   
   21  Table B(all_n,all_m)        Susceptance of transmission lines
@@ -308,7 +308,7 @@ GDXIN   C:\Users\a.eicke\Documents\Locational-investment-signals\Two node models
 
 **** LIST OF STRAY NAMES - CHECK DECLARATIONS FOR SPURIOUS COMMAS
 **** STRAY NAME instr_const OF TYPE EQU  
-GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 02/15/22 15:48:41 Page 2
+GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 02/15/22 16:00:52 Page 2
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
 Include File Summary
 
@@ -321,8 +321,8 @@ Include File Summary
      4       78 GDXIN          1      78  C:\Users\a.eicke\Documents\Locational-investment-signals\Two node models\avail.gdx
 
 
-COMPILATION TIME     =        0.015 SECONDS      3 MB  30.3.0 rc5da09e WEX-WEI
-GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 02/15/22 15:48:41 Page 3
+COMPILATION TIME     =        0.016 SECONDS      3 MB  30.3.0 rc5da09e WEX-WEI
+GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 02/15/22 16:00:52 Page 3
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
 E x e c u t i o n
 
@@ -432,7 +432,7 @@ solar      55.000      55.000
 
 1 -41.254,    2 -40.614,    3 -33.857,    4 -29.976,    5 -29.054,    6 -30.228,    7 -30.637,    8 -30.434
 
-GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 02/15/22 15:48:41 Page 4
+GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 02/15/22 16:00:52 Page 4
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
 Equation Listing    SOLVE LOCI Using MIQCP From line 269
 
@@ -626,15 +626,15 @@ REMAINING 61 ENTRIES SKIPPED
 
 ---- KKT_CAP  =E=  
 
-KKT_CAP(base,north)..  0.304109589041096*CAP(base,north) + INSTRUMENT(base,north) - mu_G_max(1,base,north) - mu_G_max(2,base,north) - mu_G_max(3,base,north) - mu_G_max(4,base,north) - mu_G_max(5,base,north) - mu_G_max(6,base,north)
+KKT_CAP(base,north)..  0.608219178082192*CAP(base,north) + INSTRUMENT(base,north) - mu_G_max(1,base,north) - mu_G_max(2,base,north) - mu_G_max(3,base,north) - mu_G_max(4,base,north) - mu_G_max(5,base,north) - mu_G_max(6,base,north)
      
       - mu_G_max(7,base,north) - mu_G_max(8,base,north) - mu_C_min(base,north) + mu_C_max(base,north) =E= -274 ; (LHS = 0, INFES = 274 ****)
      
-KKT_CAP(base,south)..  0.304109589041096*CAP(base,south) + INSTRUMENT(base,south) - mu_G_max(1,base,south) - mu_G_max(2,base,south) - mu_G_max(3,base,south) - mu_G_max(4,base,south) - mu_G_max(5,base,south) - mu_G_max(6,base,south)
+KKT_CAP(base,south)..  0.608219178082192*CAP(base,south) + INSTRUMENT(base,south) - mu_G_max(1,base,south) - mu_G_max(2,base,south) - mu_G_max(3,base,south) - mu_G_max(4,base,south) - mu_G_max(5,base,south) - mu_G_max(6,base,south)
      
       - mu_G_max(7,base,south) - mu_G_max(8,base,south) - mu_C_min(base,south) + mu_C_max(base,south) =E= -274 ; (LHS = 0, INFES = 274 ****)
      
-KKT_CAP(peak,north)..  0.304109589041096*CAP(peak,north) + INSTRUMENT(peak,north) - mu_G_max(1,peak,north) - mu_G_max(2,peak,north) - mu_G_max(3,peak,north) - mu_G_max(4,peak,north) - mu_G_max(5,peak,north) - mu_G_max(6,peak,north)
+KKT_CAP(peak,north)..  0.608219178082192*CAP(peak,north) + INSTRUMENT(peak,north) - mu_G_max(1,peak,north) - mu_G_max(2,peak,north) - mu_G_max(3,peak,north) - mu_G_max(4,peak,north) - mu_G_max(5,peak,north) - mu_G_max(6,peak,north)
      
       - mu_G_max(7,peak,north) - mu_G_max(8,peak,north) - mu_C_min(peak,north) + mu_C_max(peak,north) =E= -100 ; (LHS = 0, INFES = 100 ****)
      
@@ -783,7 +783,7 @@ complementarity6b(3)..  100000*y6(3) + SPOT_PRICE(3) =L= 100000 ; (LHS = 0)
      
 REMAINING 5 ENTRIES SKIPPED
 
-GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 02/15/22 15:48:41 Page 5
+GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 02/15/22 16:00:52 Page 5
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
 Column Listing      SOLVE LOCI Using MIQCP From line 269
 
@@ -968,7 +968,7 @@ CAP(base,north)
         1       gen_max(8,base,north)
         1       cap_min(base,north)
        -1       cap_max(base,north)
-        0.3041  KKT_CAP(base,north)
+        0.6082  KKT_CAP(base,north)
         1       complementarity2a(1,base,north)
         1       complementarity2a(2,base,north)
         1       complementarity2a(3,base,north)
@@ -1001,7 +1001,7 @@ CAP(base,south)
         1       gen_max(8,base,south)
         1       cap_min(base,south)
        -1       cap_max(base,south)
-        0.3041  KKT_CAP(base,south)
+        0.6082  KKT_CAP(base,south)
         1       complementarity2a(1,base,south)
         1       complementarity2a(2,base,south)
         1       complementarity2a(3,base,south)
@@ -1034,7 +1034,7 @@ CAP(peak,north)
         1       gen_max(8,peak,north)
         1       cap_min(peak,north)
        -1       cap_max(peak,north)
-        0.3041  KKT_CAP(peak,north)
+        0.6082  KKT_CAP(peak,north)
         1       complementarity2a(1,peak,north)
         1       complementarity2a(2,peak,north)
         1       complementarity2a(3,peak,north)
@@ -1388,7 +1388,7 @@ DOWN(1,peak,north)
         1       redispatch1(1,peak,north)
 
 REMAINING 61 ENTRIES SKIPPED
-GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 02/15/22 15:48:41 Page 6
+GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 02/15/22 16:00:52 Page 6
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
 Model Statistics    SOLVE LOCI Using MIQCP From line 269
 
@@ -1402,11 +1402,11 @@ DERIVATIVE POOL              20     CONSTANT POOL              38
 CODE LENGTH                 154     DISCRETE VARIABLES        160
 
 
-GENERATION TIME      =        0.016 SECONDS      4 MB  30.3.0 rc5da09e WEX-WEI
+GENERATION TIME      =        0.000 SECONDS      4 MB  30.3.0 rc5da09e WEX-WEI
 
 
-EXECUTION TIME       =        0.016 SECONDS      4 MB  30.3.0 rc5da09e WEX-WEI
-GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 02/15/22 15:48:41 Page 7
+EXECUTION TIME       =        0.000 SECONDS      4 MB  30.3.0 rc5da09e WEX-WEI
+GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 02/15/22 16:00:52 Page 7
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
 Solution Report     SOLVE LOCI Using MIQCP From line 269
 
@@ -1419,10 +1419,10 @@ Solution Report     SOLVE LOCI Using MIQCP From line 269
 
 **** SOLVER STATUS     1 Normal Completion         
 **** MODEL STATUS      1 Optimal                   
-**** OBJECTIVE VALUE           401177.9561
+**** OBJECTIVE VALUE           400679.0685
 
- RESOURCE USAGE, LIMIT          0.906    150000.000
- ITERATION COUNT, LIMIT      7015    2000000000
+ RESOURCE USAGE, LIMIT          0.453    150000.000
+ ITERATION COUNT, LIMIT      2036    2000000000
  EVALUATION ERRORS              0             0
 
 IBM ILOG CPLEX   30.3.0 rc5da09e Released Mar 06, 2020 WEI x86 64bit/MS Window
@@ -1433,16 +1433,16 @@ The search will stop after 65000000 nodes.
 Space for names approximately 0.04 Mb
 Use option 'names no' to turn use of names off
 MIQP status(101): integer optimal solution
-Cplex Time: 0.89sec (det. 369.40 ticks)
+Cplex Time: 0.44sec (det. 185.88 ticks)
 Fixing integer variables, and solving final QP..
 QP status(1): optimal
-Cplex Time: 0.00sec (det. 2.31 ticks)
+Cplex Time: 0.00sec (det. 2.01 ticks)
 Proven optimal solution.
 
-MIP Solution:       401177.956273    (7015 iterations, 239 nodes)
-Final Solve:        401177.956129    (0 iterations)
+MIP Solution:       400679.068569    (2036 iterations, 80 nodes)
+Final Solve:        400679.068492    (0 iterations)
 
-Best possible:      401177.956273
+Best possible:      400679.068569
 Absolute gap:            0.000000
 Relative gap:            0.000000
 
@@ -1455,103 +1455,103 @@ Relative gap:            0.000000
 
                LOWER          LEVEL          UPPER         MARGINAL
 
-1.north          .              .              .           -34.3073      
-1.south          .              .              .           -45.6998      
-2.north          .              .              .           -62.6423      
-2.south          .              .              .           -69.9999      
-3.north          .              .              .           -27.1079      
-3.south          .              .              .           -70.0000      
+1.north          .              .              .           -45.6712      
+1.south          .              .              .           -48.5259      
+2.north          .              .              .           -48.6354      
+2.south          .              .              .           -70.0000      
+3.north          .              .              .           -40.0000      
+3.south          .              .              .           -78.0410      
 4.north          .              .              .           -70.0000      
 4.south          .              .              .           -70.0000      
-5.north          .              .              .          -155.5878      
-5.south          .              .              .          -171.8723      
-6.north          .              .              .           -90.0731      
+5.north          .              .              .          -155.5398      
+5.south          .              .              .          -166.0145      
+6.north          .              .              .           -95.2650      
 6.south          .              .              .           -70.0000      
 7.north          .              .              .           -70.0000      
 7.south          .              .              .           -40.0000      
-8.north          .              .              .           -65.8811      
-8.south          .              .              .           -65.8811      
+8.north          .              .              .           -70.0000      
+8.south          .              .              .           -70.0000      
 
 ---- EQU grid_eq1  
 
                      LOWER          LEVEL          UPPER         MARGINAL
 
 1.north.north        -INF             .              .             EPS         
-1.north.south        -INF      -2.217214E-7          .            11.3925      
-1.south.north        -INF          -12.4043          .       1.6377863E-7      
+1.north.south        -INF      -6.390127E-7          .             2.8547      
+1.south.north        -INF          -12.4635          .       9.3492691E-8      
 1.south.south        -INF             .              .             EPS         
 2.north.north        -INF             .              .             EPS         
-2.north.south        -INF      -2.644171E-7          .             7.3576      
-2.south.north        -INF          -12.4043          .       1.6362886E-7      
+2.north.south        -INF      -5.981038E-8          .            21.3646      
+2.south.north        -INF          -12.4635          .       9.4253647E-8      
 2.south.south        -INF             .              .             EPS         
 3.north.north        -INF             .              .             EPS         
-3.north.south        -INF      -4.802305E-8          .            42.8921      
-3.south.north        -INF          -12.4043          .       1.6378268E-7      
+3.north.south        -INF      -3.172540E-8          .            38.0410      
+3.south.north        -INF          -12.4635          .       9.4100019E-8      
 3.south.south        -INF             .              .             EPS         
 4.north.north        -INF             .              .             EPS         
-4.north.south        -INF           -5.8407          .       3.5284395E-7      
-4.south.north        -INF           -6.5636          .       3.0778820E-7      
+4.north.south        -INF           -5.7543          .       2.0416349E-7      
+4.south.north        -INF           -6.7092          .       1.7426405E-7      
 4.south.south        -INF             .              .             EPS         
 5.north.north        -INF             .              .             EPS         
-5.north.south        -INF      -2.190428E-7          .            16.2846      
-5.south.north        -INF          -12.4043          .       1.6658575E-7      
+5.north.south        -INF      -1.031634E-7          .            10.4747      
+5.south.north        -INF          -12.4635          .       9.6391230E-8      
 5.south.south        -INF             .              .             EPS         
 6.north.north        -INF             .              .             EPS         
-6.north.south        -INF          -12.4043          .       1.6914899E-7      
-6.south.north        -INF      -1.597469E-7          .            20.0731      
+6.north.south        -INF          -12.4635          .       9.5157820E-8      
+6.south.north        -INF      -5.695241E-8          .            25.2650      
 6.south.south        -INF             .              .             EPS         
 7.north.north        -INF             .              .             EPS         
-7.north.south        -INF          -12.4043          .       1.6541944E-7      
-7.south.north        -INF      -1.023837E-7          .            30.0000      
+7.north.south        -INF          -12.4635          .       9.4480902E-8      
+7.south.north        -INF      -5.005379E-8          .            30.0000      
 7.south.south        -INF             .              .             EPS         
 8.north.north        -INF             .              .             EPS         
-8.north.south        -INF           -2.1367          .       1.0113724E-6      
-8.south.north        -INF          -10.2676          .       1.9645416E-7      
+8.north.south        -INF           -0.6055          .       1.9789670E-6      
+8.south.north        -INF          -11.8579          .       9.8537126E-8      
 8.south.south        -INF             .              .             EPS         
 
 ---- EQU grid_eq2  
 
                    LOWER          LEVEL          UPPER         MARGINAL
 
-north.south          .              .              .            13.9269      
+north.south          .              .              .             8.7350      
 south.north          .              .              .             EPS         
 
 ---- EQU grid_eq3  
 
                      LOWER          LEVEL          UPPER         MARGINAL
 
-1.north.north          .              .              .           -34.3073      
-1.north.south          .              .              .           -45.6998      
-1.south.north          .              .              .           -45.6998      
-1.south.south          .              .              .           -45.6998      
-2.north.north          .              .              .           -62.6423      
-2.north.south          .              .              .           -69.9999      
-2.south.north          .              .              .           -69.9999      
-2.south.south          .              .              .           -69.9999      
-3.north.north          .              .              .           -27.1079      
-3.north.south          .              .              .           -70.0000      
-3.south.north          .              .              .           -70.0000      
-3.south.south          .              .              .           -70.0000      
+1.north.north          .              .              .           -45.6712      
+1.north.south          .              .              .           -48.5259      
+1.south.north          .              .              .           -48.5259      
+1.south.south          .              .              .           -48.5259      
+2.north.north          .              .              .           -48.6354      
+2.north.south          .              .              .           -70.0000      
+2.south.north          .              .              .           -70.0000      
+2.south.south          .              .              .           -70.0000      
+3.north.north          .              .              .           -40.0000      
+3.north.south          .              .              .           -78.0410      
+3.south.north          .              .              .           -78.0410      
+3.south.south          .              .              .           -78.0410      
 4.north.north          .              .              .           -70.0000      
 4.north.south          .              .              .           -70.0000      
 4.south.north          .              .              .           -70.0000      
 4.south.south          .              .              .           -70.0000      
-5.north.north          .              .              .          -155.5878      
-5.north.south          .              .              .          -171.8723      
-5.south.north          .              .              .          -171.8723      
-5.south.south          .              .              .          -171.8723      
-6.north.north          .              .              .           -90.0731      
-6.north.south          .              .              .           -90.0731      
-6.south.north          .              .              .           -90.0731      
+5.north.north          .              .              .          -155.5398      
+5.north.south          .              .              .          -166.0145      
+5.south.north          .              .              .          -166.0145      
+5.south.south          .              .              .          -166.0145      
+6.north.north          .              .              .           -95.2650      
+6.north.south          .              .              .           -95.2650      
+6.south.north          .              .              .           -95.2650      
 6.south.south          .              .              .           -70.0000      
 7.north.north          .              .              .           -70.0000      
 7.north.south          .              .              .           -70.0000      
 7.south.north          .              .              .           -70.0000      
 7.south.south          .              .              .           -40.0000      
-8.north.north          .              .              .           -65.8811      
-8.north.south          .              .              .           -65.8811      
-8.south.north          .              .              .           -65.8811      
-8.south.south          .              .              .           -65.8811      
+8.north.north          .              .              .           -70.0000      
+8.north.south          .              .              .           -70.0000      
+8.south.north          .              .              .           -70.0000      
+8.south.south          .              .              .           -70.0000      
 
 ---- EQU grid_eq4  
 
@@ -1578,393 +1578,393 @@ south.north          .              .              .             EPS
 
                      LOWER          LEVEL          UPPER         MARGINAL
 
-1.base .north        -INF      -4.170838E-7          .             5.6927      
-1.base .south        -INF          -30.7623          .       8.5118220E-8      
-1.peak .north        -INF             .              .            35.6927      
-1.peak .south        -INF             .              .            24.3002      
-1.wind .north        -INF          -11.9665          .       1.7582987E-7      
-1.wind .south        -INF           -1.6498          .       2.3286200E-6      
+1.base .north        -INF           -1.8273          .       6.6509145E-7      
+1.base .south        -INF          -30.5506          .       4.5315366E-8      
+1.peak .north        -INF             .              .            24.3288      
+1.peak .south        -INF             .              .            21.4741      
+1.wind .north        -INF          -10.1335          .       1.1828254E-7      
+1.wind .south        -INF           -2.0945          .       6.5918586E-7      
 1.solar.north        -INF             .              .             EPS         
 1.solar.south        -INF             .              .             EPS         
-2.base .north        -INF           -0.6060          .       3.1621646E-6      
-2.base .south        -INF          -31.0845          .       7.5826320E-8      
-2.peak .north        -INF             .              .             7.3577      
-2.peak .south        -INF           -0.0948          .             0.0001      
-2.wind .north        -INF           -6.6790          .       3.1556072E-7      
-2.wind .south        -INF           -0.8515          .       4.5173410E-6      
-2.solar.north        -INF           -1.9644          .       1.1187432E-6      
-2.solar.south        -INF           -3.3176          .       6.6810464E-7      
-3.base .north        -INF      -1.089163E-7          .            12.8922      
-3.base .south        -INF          -31.0845          .       7.4763477E-8      
-3.peak .north        -INF      -4.769453E-8          .            42.8922      
-3.peak .south        -INF           -0.6402          .       4.1504943E-6      
-3.wind .north        -INF           -5.8441          .       3.6109397E-7      
-3.wind .south        -INF           -0.6386          .       6.0161432E-6      
-3.solar.north        -INF           -3.2413          .       6.7311927E-7      
-3.solar.south        -INF           -9.9527          .       2.2050763E-7      
-4.base .north        -INF           -0.6060          .       3.0161521E-6      
-4.base .south        -INF          -31.0845          .       7.3913827E-8      
-4.peak .north        -INF          -15.9036          .       1.4083469E-7      
-4.peak .south        -INF           -3.9098          .       5.7745444E-7      
-4.wind .north        -INF           -4.4526          .       4.7257246E-7      
-4.wind .south        -INF           -0.6919          .       5.5138556E-6      
-4.solar.north        -INF           -0.3929          .       5.7014481E-6      
-4.solar.south        -INF           -1.6588          .       1.3468634E-6      
-5.base .north        -INF           -0.6060          .       3.0391209E-6      
-5.base .south        -INF          -31.0845          .       7.3824846E-8      
-5.peak .north        -INF          -18.6148          .       1.1792684E-7      
-5.peak .south        -INF           -6.1568          .       3.6019443E-7      
-5.wind .north        -INF           -2.2263          .       9.4636613E-7      
-5.wind .south        -INF           -0.5322          .       7.1787225E-6      
+2.base .north        -INF           -1.8273          .       6.6095047E-7      
+2.base .south        -INF          -30.5506          .       4.4539065E-8      
+2.peak .north        -INF      -5.890808E-8          .            21.3646      
+2.peak .south        -INF             .              .       4.5646092E-7      
+2.wind .north        -INF           -5.6559          .       2.1262602E-7      
+2.wind .south        -INF           -1.0810          .       1.2786729E-6      
+2.solar.north        -INF           -1.8192          .       6.8289843E-7      
+2.solar.south        -INF           -2.1347          .       5.8670697E-7      
+3.base .north        -INF           -1.1444          .       1.0107548E-6      
+3.base .south        -INF          -30.5506          .       4.3750359E-8      
+3.peak .north        -INF      -4.002144E-8          .            30.0000      
+3.peak .south        -INF           -2.3443          .       5.1928718E-7      
+3.wind .north        -INF           -4.9489          .       2.4345393E-7      
+3.wind .south        -INF           -0.8108          .       1.7046207E-6      
+3.solar.north        -INF           -3.0017          .       4.1195800E-7      
+3.solar.south        -INF           -6.4042          .       1.9394277E-7      
+4.base .north        -INF           -1.8273          .       6.5817409E-7      
+4.base .south        -INF          -30.5506          .       4.3247217E-8      
+4.peak .north        -INF          -15.8133          .       8.1519953E-8      
+4.peak .south        -INF           -4.9266          .       2.4144828E-7      
+4.wind .north        -INF           -3.7706          .       3.1861168E-7      
+4.wind .south        -INF           -0.8783          .       1.5698934E-6      
+4.solar.north        -INF           -0.3638          .       3.4769788E-6      
+4.solar.south        -INF           -1.0674          .       1.1862120E-6      
+5.base .north        -INF           -1.8273          .       6.5995940E-7      
+5.base .south        -INF          -30.5506          .       4.3023502E-8      
+5.peak .north        -INF          -17.7646          .       7.1007737E-8      
+5.peak .south        -INF           -6.6679          .       1.8018279E-7      
+5.wind .north        -INF           -1.8853          .       6.3932615E-7      
+5.wind .south        -INF           -0.6756          .       2.0448684E-6      
 5.solar.north        -INF             .              .             EPS         
 5.solar.south        -INF             .              .             EPS         
-6.base .north        -INF           -0.6060          .       3.0341683E-6      
-6.base .south        -INF          -31.0845          .       7.3931446E-8      
-6.peak .north        -INF          -18.2583          .       1.2188808E-7      
-6.peak .south        -INF           -4.7618          .       4.8365965E-7      
-6.wind .north        -INF           -3.0612          .       6.8815875E-7      
-6.wind .south        -INF           -0.4258          .       8.9618230E-6      
-6.solar.north        -INF           -0.1964          .       1.1428079E-5      
-6.solar.south        -INF           -0.8294          .       2.7271173E-6      
-7.base .north        -INF           -0.6060          .       3.0162126E-6      
-7.base .south        -INF          -22.4876          .       9.6329692E-8      
-7.peak .north        -INF           -1.7692          .       1.3453066E-6      
-7.peak .south        -INF      -7.479937E-8          .            30.0000      
-7.wind .north        -INF           -5.2875          .       3.9795754E-7      
-7.wind .south        -INF           -0.9580          .       4.0048785E-6      
-7.solar.north        -INF           -2.2591          .       9.6247041E-7      
-7.solar.south        -INF          -14.5143          .       1.5110510E-7      
-8.base .north        -INF           -0.6060          .       3.0153310E-6      
-8.base .south        -INF          -31.0845          .       7.6348966E-8      
-8.peak .north        -INF             .              .             4.1189      
-8.peak .south        -INF             .              .             4.1189      
-8.wind .north        -INF           -7.2355          .       2.9075849E-7      
-8.wind .south        -INF           -1.5966          .       2.4038971E-6      
-8.solar.north        -INF           -2.3573          .       9.2528647E-7      
-8.solar.south        -INF          -17.0025          .       1.2888603E-7      
+6.base .north        -INF           -1.8273          .       6.5992817E-7      
+6.base .south        -INF          -30.5506          .       4.3172543E-8      
+6.peak .north        -INF          -17.2597          .       7.5519049E-8      
+6.peak .south        -INF           -5.7600          .       2.0707564E-7      
+6.wind .north        -INF           -2.5923          .       4.6443273E-7      
+6.wind .south        -INF           -0.5405          .       2.5476229E-6      
+6.solar.north        -INF           -0.1819          .       7.0801104E-6      
+6.solar.south        -INF           -0.5337          .       2.4227295E-6      
+7.base .north        -INF           -1.8273          .       6.5937821E-7      
+7.base .south        -INF          -27.4338          .       4.5898758E-8      
+7.peak .north        -INF           -5.0492          .       2.5904107E-7      
+7.peak .south        -INF      -4.870778E-8          .            30.0000      
+7.wind .north        -INF           -4.4776          .       2.6818595E-7      
+7.wind .south        -INF           -1.2162          .       1.1345163E-6      
+7.solar.north        -INF           -2.0921          .       5.9016107E-7      
+7.solar.south        -INF           -9.3395          .       1.3301103E-7      
+8.base .north        -INF           -1.8273          .       6.6456213E-7      
+8.base .south        -INF          -30.5506          .       4.4540763E-8      
+8.peak .north        -INF           -0.6902          .       1.5735975E-6      
+8.peak .south        -INF           -1.5763          .       7.4702452E-7      
+8.wind .north        -INF           -6.1272          .       1.9592111E-7      
+8.wind .south        -INF           -2.0269          .       6.8179606E-7      
+8.solar.north        -INF           -2.1830          .       5.6692214E-7      
+8.solar.south        -INF          -10.9405          .       1.1330796E-7      
 
 ---- EQU redispatch2  
 
                      LOWER          LEVEL          UPPER         MARGINAL
 
-1.base .north        -INF           -0.1810          .       7.5256575E-6      
-1.base .south        -INF      -5.470848E-7          .             5.6998      
-1.peak .north        -INF          -18.6148          .       1.1815584E-7      
-1.peak .south        -INF           -6.1568          .       3.6223474E-7      
-1.wind .north        -INF             .              .            34.3073      
-1.wind .south        -INF             .              .            45.6998      
-1.solar.north        -INF             .              .            34.3073      
-1.solar.south        -INF             .              .            45.6998      
-2.base .north        -INF             .              .            22.6423      
-2.base .south        -INF             .              .            29.9999      
-2.peak .north        -INF          -18.6148          .       1.1828745E-7      
-2.peak .south        -INF           -5.7040          .       3.5424925E-7      
-2.wind .north        -INF             .              .            62.6423      
-2.wind .south        -INF             .              .            69.9999      
-2.solar.north        -INF             .              .            62.6423      
-2.solar.south        -INF             .              .            69.9999      
-3.base .north        -INF             .              .             EPS         
-3.base .south        -INF             .              .            30.0000      
-3.peak .north        -INF          -17.5467          .       1.2585681E-7      
-3.peak .south        -INF           -2.5132          .       7.8319315E-7      
-3.wind .north        -INF             .              .            27.1079      
-3.wind .south        -INF             .              .            70.0000      
-3.solar.north        -INF             .              .            27.1079      
-3.solar.south        -INF             .              .            70.0000      
+1.base .north        -INF             .              .             5.6712      
+1.base .south        -INF             .              .             8.5259      
+1.peak .north        -INF          -17.7646          .       7.1395803E-8      
+1.peak .south        -INF           -6.6679          .       1.8149660E-7      
+1.wind .north        -INF             .              .            45.6712      
+1.wind .south        -INF             .              .            48.5259      
+1.solar.north        -INF             .              .            45.6712      
+1.solar.south        -INF             .              .            48.5259      
+2.base .north        -INF             .              .             8.6354      
+2.base .south        -INF             .              .            30.0000      
+2.peak .north        -INF          -16.0626          .       8.1169612E-8      
+2.peak .south        -INF           -4.9302          .       2.4229541E-7      
+2.wind .north        -INF             .              .            48.6354      
+2.wind .south        -INF             .              .            70.0000      
+2.solar.north        -INF             .              .            48.6354      
+2.solar.south        -INF             .              .            70.0000      
+3.base .north        -INF             .              .       8.8654650E-7      
+3.base .south        -INF             .              .            38.0410      
+3.peak .north        -INF          -13.9453          .       9.0994524E-8      
+3.peak .south        -INF      -1.392114E-7          .             8.0410      
+3.wind .north        -INF             .              .            40.0000      
+3.wind .south        -INF             .              .            78.0410      
+3.solar.north        -INF             .              .            40.0000      
+3.solar.south        -INF             .              .            78.0410      
 4.base .north        -INF             .              .            30.0000      
 4.base .south        -INF             .              .            30.0000      
-4.peak .north        -INF           -0.5504          .       3.7548237E-6      
-4.peak .south        -INF           -0.4889          .       4.3001586E-6      
+4.peak .north        -INF           -0.3993          .       3.1165578E-6      
+4.peak .south        -INF           -0.3698          .       3.3371613E-6      
 4.wind .north        -INF             .              .            70.0000      
 4.wind .south        -INF             .              .            70.0000      
 4.solar.north        -INF             .              .            70.0000      
 4.solar.south        -INF             .              .            70.0000      
-5.base .north        -INF             .              .           115.5878      
-5.base .south        -INF             .              .           131.8723      
-5.peak .north        -INF             .              .            85.5878      
-5.peak .south        -INF             .              .           101.8723      
-5.wind .north        -INF             .              .           155.5878      
-5.wind .south        -INF             .              .           171.8723      
-5.solar.north        -INF             .              .           155.5878      
-5.solar.south        -INF             .              .           171.8723      
-6.base .north        -INF             .              .            50.0731      
+5.base .north        -INF             .              .           115.5398      
+5.base .south        -INF             .              .           126.0145      
+5.peak .north        -INF             .              .            85.5398      
+5.peak .south        -INF             .              .            96.0145      
+5.wind .north        -INF             .              .           155.5398      
+5.wind .south        -INF             .              .           166.0145      
+5.solar.north        -INF             .              .           155.5398      
+5.solar.south        -INF             .              .           166.0145      
+6.base .north        -INF             .              .            55.2650      
 6.base .south        -INF             .              .            30.0000      
-6.peak .north        -INF      -1.010252E-7          .            20.0732      
-6.peak .south        -INF           -0.2110          .       9.3058563E-6      
-6.wind .north        -INF             .              .            90.0731      
+6.peak .north        -INF      -4.878219E-8          .            25.2650      
+6.peak .south        -INF             .              .       1.1854582E-6      
+6.wind .north        -INF             .              .            95.2650      
 6.wind .south        -INF             .              .            70.0000      
-6.solar.north        -INF             .              .            90.0731      
+6.solar.north        -INF             .              .            95.2650      
 6.solar.south        -INF             .              .            70.0000      
 7.base .north        -INF             .              .            30.0000      
-7.base .south        -INF             .              .       3.1024411E-7      
-7.peak .north        -INF           -3.6179          .       5.4675325E-7      
-7.peak .south        -INF           -4.5285          .       4.9185999E-7      
+7.base .south        -INF             .              .       8.1758770E-7      
+7.peak .north        -INF           -2.3877          .       4.9421347E-7      
+7.peak .south        -INF           -3.7673          .       3.2362931E-7      
 7.wind .north        -INF             .              .            70.0000      
 7.wind .south        -INF             .              .            40.0000      
 7.solar.north        -INF             .              .            70.0000      
 7.solar.south        -INF             .              .            40.0000      
-8.base .north        -INF             .              .            25.8811      
-8.base .south        -INF             .              .            25.8811      
-8.peak .north        -INF          -18.6148          .       1.1854034E-7      
-8.peak .south        -INF           -6.1568          .       3.6034942E-7      
-8.wind .north        -INF             .              .            65.8811      
-8.wind .south        -INF             .              .            65.8811      
-8.solar.north        -INF             .              .            65.8811      
-8.solar.south        -INF             .              .            65.8811      
+8.base .north        -INF             .              .            30.0000      
+8.base .south        -INF             .              .            30.0000      
+8.peak .north        -INF          -13.1906          .       9.6988608E-8      
+8.peak .south        -INF           -1.3252          .       1.1119310E-6      
+8.wind .north        -INF             .              .            70.0000      
+8.wind .south        -INF             .              .            70.0000      
+8.solar.north        -INF             .              .            70.0000      
+8.solar.south        -INF             .              .            70.0000      
 
 ---- EQU gen_min  
 
                      LOWER          LEVEL          UPPER         MARGINAL
 
-1.base .north          .             0.4250        +INF            EPS         
-1.base .south          .            30.7623        +INF            EPS         
+1.base .north          .             1.8273        +INF            EPS         
+1.base .south          .            30.5506        +INF            EPS         
 1.peak .north          .              .            +INF            EPS         
 1.peak .south          .              .            +INF            EPS         
-1.wind .north          .            11.9665        +INF            EPS         
-1.wind .south          .             1.6498        +INF            EPS         
+1.wind .north          .            10.1335        +INF            EPS         
+1.wind .south          .             2.0945        +INF            EPS         
 1.solar.north          .              .            +INF            EPS         
 1.solar.south          .              .            +INF            EPS         
-2.base .north          .             0.6060        +INF            EPS         
-2.base .south          .            31.0845        +INF            EPS         
-2.peak .north          .              .            +INF            EPS         
-2.peak .south          .             0.2677        +INF            EPS         
-2.wind .north          .             6.6790        +INF            EPS         
-2.wind .south          .             0.8515        +INF            EPS         
-2.solar.north          .             1.9644        +INF            EPS         
-2.solar.south          .             3.3176        +INF            EPS         
-3.base .north          .             0.6060        +INF            EPS         
-3.base .south          .            31.0845        +INF            EPS         
-3.peak .north          .             1.0681        +INF            EPS         
-3.peak .south          .             1.2716        +INF            EPS         
-3.wind .north          .             5.8441        +INF            EPS         
-3.wind .south          .             0.6386        +INF            EPS         
-3.solar.north          .             3.2413        +INF            EPS         
-3.solar.south          .             9.9527        +INF            EPS         
-4.base .north          .             0.6060        +INF            EPS         
-4.base .south          .            31.0845        +INF            EPS         
-4.peak .north          .            16.9802        +INF            EPS         
-4.peak .south          .             4.7926        +INF            EPS         
-4.wind .north          .             4.4526        +INF            EPS         
-4.wind .south          .             0.6919        +INF            EPS         
-4.solar.north          .             0.3929        +INF            EPS         
-4.solar.south          .             1.6588        +INF            EPS         
-5.base .north          .             0.6060        +INF            EPS         
-5.base .south          .            31.0845        +INF            EPS         
-5.peak .north          .            18.6148        +INF            EPS         
-5.peak .south          .             6.1568        +INF            EPS         
-5.wind .north          .             2.2263        +INF            EPS         
-5.wind .south          .             0.5322        +INF            EPS         
-5.solar.north          .              .            +INF            EPS         
+2.base .north          .             1.8273        +INF            EPS         
+2.base .south          .            30.5506        +INF            EPS         
+2.peak .north          .             1.7020        +INF            EPS         
+2.peak .south          .              .            +INF            EPS         
+2.wind .north          .             5.6559        +INF            EPS         
+2.wind .south          .             1.0810        +INF            EPS         
+2.solar.north          .             1.8192        +INF            EPS         
+2.solar.south          .             2.1347        +INF            EPS         
+3.base .north          .             1.8273        +INF            EPS         
+3.base .south          .            30.5506        +INF            EPS         
+3.peak .north          .             3.8193        +INF            EPS         
+3.peak .south          .             2.3443        +INF            EPS         
+3.wind .north          .             4.9489        +INF            EPS         
+3.wind .south          .             0.8108        +INF            EPS         
+3.solar.north          .             3.0017        +INF            EPS         
+3.solar.south          .             6.4042        +INF            EPS         
+4.base .north          .             1.8273        +INF            EPS         
+4.base .south          .            30.5506        +INF            EPS         
+4.peak .north          .            16.5850        +INF            EPS         
+4.peak .south          .             5.6166        +INF            EPS         
+4.wind .north          .             3.7706        +INF            EPS         
+4.wind .south          .             0.8783        +INF            EPS         
+4.solar.north          .             0.3638        +INF            EPS         
+4.solar.south          .             1.0674        +INF            EPS         
+5.base .north          .             1.8273        +INF            EPS         
+5.base .south          .            30.5506        +INF            EPS         
+5.peak .north          .            17.7646        +INF            EPS         
+5.peak .south          .             6.6679        +INF            EPS         
+5.wind .north          .             1.8853        +INF            EPS         
+5.wind .south          .             0.6756        +INF            EPS         
+5.solar.north          .              .            +INF      1.4605400E-7      
 5.solar.south          .              .            +INF            EPS         
-6.base .north          .             0.6060        +INF            EPS         
-6.base .south          .            31.0845        +INF            EPS         
-6.peak .north          .            18.2583        +INF            EPS         
-6.peak .south          .             5.6921        +INF            EPS         
-6.wind .north          .             3.0612        +INF            EPS         
-6.wind .south          .             0.4258        +INF            EPS         
-6.solar.north          .             0.1964        +INF            EPS         
-6.solar.south          .             0.8294        +INF            EPS         
-7.base .north          .             0.6060        +INF            EPS         
-7.base .south          .            31.0845        +INF            EPS         
-7.peak .north          .             3.0127        +INF            EPS         
-7.peak .south          .             1.6283        +INF            EPS         
-7.wind .north          .             5.2875        +INF            EPS         
-7.wind .south          .             0.9580        +INF            EPS         
-7.solar.north          .             2.2591        +INF            EPS         
-7.solar.south          .            14.5143        +INF            EPS         
-8.base .north          .             0.6060        +INF            EPS         
-8.base .south          .            31.0845        +INF            EPS         
-8.peak .north          .              .            +INF            EPS         
-8.peak .south          .              .            +INF            EPS         
-8.wind .north          .             7.2355        +INF            EPS         
-8.wind .south          .             1.5966        +INF            EPS         
-8.solar.north          .             2.3573        +INF            EPS         
-8.solar.south          .            17.0025        +INF            EPS         
+6.base .north          .             1.8273        +INF            EPS         
+6.base .south          .            30.5506        +INF            EPS         
+6.peak .north          .            17.2597        +INF            EPS         
+6.peak .south          .             6.6679        +INF            EPS         
+6.wind .north          .             2.5923        +INF            EPS         
+6.wind .south          .             0.5405        +INF            EPS         
+6.solar.north          .             0.1819        +INF            EPS         
+6.solar.south          .             0.5337        +INF            EPS         
+7.base .north          .             1.8273        +INF            EPS         
+7.base .south          .            30.5506        +INF            EPS         
+7.peak .north          .             6.9467        +INF            EPS         
+7.peak .south          .             2.9006        +INF            EPS         
+7.wind .north          .             4.4776        +INF            EPS         
+7.wind .south          .             1.2162        +INF            EPS         
+7.solar.north          .             2.0921        +INF            EPS         
+7.solar.south          .             9.3395        +INF            EPS         
+8.base .north          .             1.8273        +INF            EPS         
+8.base .south          .            30.5506        +INF            EPS         
+8.peak .north          .             3.6560        +INF            EPS         
+8.peak .south          .             2.4356        +INF            EPS         
+8.wind .north          .             6.1272        +INF            EPS         
+8.wind .south          .             2.0269        +INF            EPS         
+8.solar.north          .             2.1830        +INF            EPS         
+8.solar.south          .            10.9405        +INF            EPS         
 
 ---- EQU gen_max  
 
                      LOWER          LEVEL          UPPER         MARGINAL
 
-1.base .north          .             0.1810        +INF      -9.902078E-6      
-1.base .south          .             0.3223        +INF      -4.898044E-6      
-1.peak .north          .            18.6148        +INF            EPS         
-1.peak .south          .             6.1568        +INF            EPS         
-1.wind .north          .              .            +INF      -9.235744E-6      
-1.wind .south          .              .            +INF      -1.138853E-5      
+1.base .north          .              .            +INF            EPS         
+1.base .south          .              .            +INF            EPS         
+1.peak .north          .            17.7646        +INF            EPS         
+1.peak .south          .             6.6679        +INF            EPS         
+1.wind .north          .              .            +INF            EPS         
+1.wind .south          .              .            +INF            EPS         
 1.solar.north          .              .            +INF            EPS         
 1.solar.south          .              .            +INF            EPS         
 2.base .north          .              .            +INF            EPS         
 2.base .south          .              .            +INF            EPS         
-2.peak .north          .            18.6148        +INF      -9.103845E-8      
-2.peak .south          .             5.8892        +INF      -3.513588E-7      
+2.peak .north          .            16.0626        +INF      -7.998566E-8      
+2.peak .south          .             6.6679        +INF            EPS         
 2.wind .north          .              .            +INF            EPS         
-2.wind .south          .              .            +INF            EPS         
+2.wind .south          .              .            +INF      -5.913831E-8      
 2.solar.north          .              .            +INF            EPS         
-2.solar.south          .              .            +INF            EPS         
-3.base .north          .              .            +INF            EPS         
+2.solar.south          .              .            +INF      6.3282762E-7      
+3.base .north          .              .            +INF      -5.550147E-7      
 3.base .south          .              .            +INF            EPS         
-3.peak .north          .            17.5467        +INF      -1.248870E-7      
-3.peak .south          .             4.8852        +INF      -4.370975E-7      
+3.peak .north          .            13.9453        +INF      -9.017314E-8      
+3.peak .south          .             4.3236        +INF      -2.820422E-7      
 3.wind .north          .              .            +INF            EPS         
-3.wind .south          .              .            +INF      -1.286358E-6      
-3.solar.north          .              .            +INF            EPS         
+3.wind .south          .              .            +INF      -1.248881E-6      
+3.solar.north          .              .            +INF      4.3782014E-8      
 3.solar.south          .              .            +INF            EPS         
-4.base .north          .              .            +INF      -5.978045E-6      
-4.base .south          .              .            +INF      -3.035807E-6      
-4.peak .north          .             1.6346        +INF      -1.282320E-6      
-4.peak .south          .             1.3642        +INF      -1.558740E-6      
-4.wind .north          .              .            +INF      -3.434465E-6      
-4.wind .south          .              .            +INF      -8.475748E-6      
-4.solar.north          .              .            +INF      -8.663341E-6      
-4.solar.south          .              .            +INF      -4.308756E-6      
-5.base .north          .              .            +INF      -3.034200E-6      
-5.base .south          .              .            +INF      -6.890378E-8      
+4.base .north          .              .            +INF      -3.188018E-6      
+4.base .south          .              .            +INF      -2.573091E-6      
+4.peak .north          .             1.1796        +INF      -1.065670E-6      
+4.peak .south          .             1.0512        +INF      -1.172637E-6      
+4.wind .north          .              .            +INF      -2.848455E-6      
+4.wind .south          .              .            +INF      -4.099737E-6      
+4.solar.north          .              .            +INF      -6.006822E-6      
+4.solar.south          .              .            +INF      -3.716056E-6      
+5.base .north          .              .            +INF      -8.060134E-7      
+5.base .south          .              .            +INF      -1.890775E-7      
 5.peak .north          .              .            +INF            EPS         
-5.peak .south          .              .            +INF      -3.552734E-7      
-5.wind .north          .              .            +INF      -9.414451E-7      
-5.wind .south          .              .            +INF      -7.173801E-6      
+5.peak .south          .              .            +INF      -3.262368E-7      
+5.wind .north          .              .            +INF      -7.853801E-7      
+5.wind .south          .              .            +INF      -2.190922E-6      
 5.solar.north          .              .            +INF            EPS         
-5.solar.south          .              .            +INF            EPS         
-6.base .north          .              .            +INF      -1.394148E-5      
-6.base .south          .              .            +INF      -1.098124E-5      
-6.peak .north          .             0.3565        +INF      -5.548815E-6      
-6.peak .south          .             0.4647        +INF      -4.171535E-6      
-6.wind .north          .              .            +INF      -1.159547E-5      
-6.wind .south          .              .            +INF      -1.986913E-5      
-6.solar.north          .              .            +INF      -2.233539E-5      
-6.solar.south          .              .            +INF      -1.363442E-5      
-7.base .north          .              .            +INF      -1.266809E-6      
+5.solar.south          .              .            +INF      -1.460540E-7      
+6.base .north          .              .            +INF      -6.121753E-6      
+6.base .south          .              .            +INF      -5.504997E-6      
+6.peak .north          .             0.5049        +INF      -2.834108E-6      
+6.peak .south          .              .            +INF      -5.668900E-6      
+6.wind .north          .              .            +INF      -5.926257E-6      
+6.wind .south          .              .            +INF      -8.009447E-6      
+6.solar.north          .              .            +INF      -1.254193E-5      
+6.solar.south          .              .            +INF      -7.884554E-6      
+7.base .north          .              .            +INF      -4.975204E-7      
 7.base .south          .              .            +INF            EPS         
-7.peak .north          .            15.6021        +INF      -1.401717E-7      
-7.peak .south          .             4.5285        +INF      -4.874364E-7      
-7.wind .north          .              .            +INF            EPS         
-7.wind .south          .              .            +INF      -2.255474E-6      
+7.peak .north          .            10.8179        +INF      -1.171383E-7      
+7.peak .south          .             3.7673        +INF      -3.225708E-7      
+7.wind .north          .              .            +INF      -1.063282E-7      
+7.wind .south          .              .            +INF      -9.726585E-7      
 7.solar.north          .              .            +INF            EPS         
 7.solar.south          .              .            +INF            EPS         
-8.base .north          .              .            +INF      -1.414147E-5      
-8.base .south          .              .            +INF      -1.120249E-5      
-8.peak .north          .            18.6148        +INF            EPS         
-8.peak .south          .             6.1568        +INF      -3.363093E-7      
-8.wind .north          .              .            +INF      -1.141690E-5      
-8.wind .south          .              .            +INF      -1.353003E-5      
-8.solar.north          .              .            +INF      -1.205142E-5      
-8.solar.south          .              .            +INF      -1.125502E-5      
+8.base .north          .              .            +INF            EPS         
+8.base .south          .              .            +INF            EPS         
+8.peak .north          .            14.1086        +INF      -8.997288E-8      
+8.peak .south          .             4.2323        +INF      -2.899454E-7      
+8.wind .north          .              .            +INF      3.6509367E-7      
+8.wind .south          .              .            +INF            EPS         
+8.solar.north          .              .            +INF      -5.907368E-9      
+8.solar.south          .              .            +INF      4.4770681E-7      
 
 ---- EQU cap_min  
 
                    LOWER          LEVEL          UPPER         MARGINAL
 
-base .north          .             0.6060        +INF      -3.039983E-6      
-base .south          .            31.0845        +INF      -4.171671E-8      
-peak .north          .            18.6148        +INF            EPS         
-peak .south          .             6.1568        +INF            EPS         
-wind .north          .            27.8290        +INF      -4.463363E-8      
-wind .south          .             5.3221        +INF      -6.930772E-7      
-solar.north          .             9.8220        +INF      -1.945722E-7      
-solar.south          .            41.4694        +INF      -1.574188E-8      
+base .north          .             1.8273        +INF      -6.461082E-7      
+base .south          .            30.5506        +INF      -2.534405E-8      
+peak .north          .            17.7646        +INF      -5.576524E-8      
+peak .south          .             6.6679        +INF      -1.665512E-7      
+wind .north          .            23.5662        +INF      -3.416421E-8      
+wind .south          .             6.7565        +INF      -1.910824E-7      
+solar.north          .             9.0960        +INF      -1.209671E-7      
+solar.south          .            26.6842        +INF      -2.943273E-8      
 
 ---- EQU cap_max  
 
                    LOWER          LEVEL          UPPER         MARGINAL
 
-base .north      -100.0000        -0.6060        +INF            EPS         
-base .south      -100.0000       -31.0845        +INF            EPS         
-peak .north      -100.0000       -18.6148        +INF            EPS         
-peak .south      -100.0000        -6.1568        +INF            EPS         
-wind .north      -100.0000       -27.8290        +INF            EPS         
-wind .south      -100.0000        -5.3221        +INF            EPS         
-solar.north      -100.0000        -9.8220        +INF            EPS         
-solar.south      -100.0000       -41.4694        +INF            EPS         
+base .north      -100.0000        -1.8273        +INF            EPS         
+base .south      -100.0000       -30.5506        +INF            EPS         
+peak .north      -100.0000       -17.7646        +INF            EPS         
+peak .south      -100.0000        -6.6679        +INF            EPS         
+wind .north      -100.0000       -23.5662        +INF            EPS         
+wind .south      -100.0000        -6.7565        +INF            EPS         
+solar.north      -100.0000        -9.0960        +INF            EPS         
+solar.south      -100.0000       -26.6842        +INF            EPS         
 
 ---- EQU demand_min  
 
          LOWER          LEVEL          UPPER         MARGINAL
 
-1          .            44.8036        +INF            EPS         
+1          .            44.6058        +INF            EPS         
 2          .            44.7707        +INF            EPS         
 3          .            53.7070        +INF            EPS         
 4          .            60.6596        +INF            EPS         
-5          .            59.2207        +INF            EPS         
+5          .            59.3712        +INF            EPS         
 6          .            60.1538        +INF            EPS         
 7          .            59.3504        +INF            EPS         
-8          .            59.8825        +INF            EPS         
+8          .            59.7471        +INF            EPS         
 
 ---- EQU energy_balance  
 
          LOWER          LEVEL          UPPER         MARGINAL
 
-1          .              .              .       9.0599145E-6      
-2          .              .              .       -9.746367E-5      
-3          .              .              .       -4.729786E-6      
-4          .              .              .       2.9618928E-6      
-5          .              .              .       -4.921072E-9      
-6          .              .              .       1.0907307E-5      
-7          .              .              .       -1.749404E-6      
-8          .              .              .       1.1126137E-5      
+1          .              .              .       -1.787196E-6      
+2          .              .              .       -1.219535E-6      
+3          .              .              .       -4.557400E-7      
+4          .              .              .       2.5298435E-6      
+5          .              .              .       1.4605400E-7      
+6          .              .              .       5.4618245E-6      
+7          .              .              .       -1.618578E-7      
+8          .              .              .       -5.610148E-7      
 
 ---- EQU KKT_GEN  
 
                      LOWER          LEVEL          UPPER         MARGINAL
 
-1.base .north       -40.0000       -40.0000       -40.0000   -2.196123E-7      
-1.base .south       -40.0000       -40.0000       -40.0000         EPS         
+1.base .north       -40.0000       -40.0000       -40.0000   4.9955109E-8      
+1.base .south       -40.0000       -40.0000       -40.0000   -6.633476E-9      
 1.peak .north       -70.0000       -70.0000       -70.0000         EPS         
 1.peak .south       -70.0000       -70.0000       -70.0000         EPS         
 1.wind .north          .              .              .             EPS         
 1.wind .south          .              .              .             EPS         
 1.solar.north          .              .              .             EPS         
 1.solar.south          .              .              .             EPS         
-2.base .north       -40.0000       -40.0000       -40.0000   -1.218909E-8      
-2.base .south       -40.0000       -40.0000       -40.0000   -1.157462E-8      
-2.peak .north       -70.0000       -70.0000       -70.0000         EPS         
-2.peak .south       -70.0000       -70.0000       -70.0000   2.4234965E-6      
+2.base .north       -40.0000       -40.0000       -40.0000   -7.315182E-9      
+2.base .south       -40.0000       -40.0000       -40.0000   -6.633476E-9      
+2.peak .north       -70.0000       -70.0000       -70.0000   4.3975817E-8      
+2.peak .south       -70.0000       -70.0000       -70.0000         EPS         
 2.wind .north          .              .              .             EPS         
 2.wind .south          .              .              .             EPS         
 2.solar.north          .              .              .             EPS         
 2.solar.south          .              .              .             EPS         
-3.base .north       -40.0000       -40.0000       -40.0000   -1.218909E-8      
-3.base .south       -40.0000       -40.0000       -40.0000   -1.157462E-8      
-3.peak .north       -70.0000       -70.0000       -70.0000   1.6346437E-7      
+3.base .north       -40.0000       -40.0000       -40.0000   -7.315182E-9      
+3.base .south       -40.0000       -40.0000       -40.0000   -6.633476E-9      
+3.peak .north       -70.0000       -70.0000       -70.0000   2.7409561E-8      
 3.peak .south       -70.0000       -70.0000       -70.0000         EPS         
 3.wind .north          .              .              .             EPS         
 3.wind .south          .              .              .             EPS         
 3.solar.north          .              .              .             EPS         
 3.solar.south          .              .              .             EPS         
-4.base .north       -40.0000       -40.0000       -40.0000   -1.218909E-8      
-4.base .south       -40.0000       -40.0000       -40.0000   -1.157462E-8      
-4.peak .north       -70.0000       -70.0000       -70.0000   -7.504504E-8      
+4.base .north       -40.0000       -40.0000       -40.0000   -7.315182E-9      
+4.base .south       -40.0000       -40.0000       -40.0000   -6.633476E-9      
+4.peak .north       -70.0000       -70.0000       -70.0000   -7.044692E-8      
 4.peak .south       -70.0000       -70.0000       -70.0000         EPS         
 4.wind .north          .              .              .             EPS         
 4.wind .south          .              .              .             EPS         
 4.solar.north          .              .              .             EPS         
 4.solar.south          .              .              .             EPS         
-5.base .north       -40.0000       -40.0000       -40.0000   -1.218909E-8      
-5.base .south       -40.0000       -40.0000       -40.0000   -1.157462E-8      
-5.peak .north       -70.0000       -70.0000       -70.0000   3.4238729E-8      
-5.peak .south       -70.0000       -70.0000       -70.0000   -1.030565E-8      
+5.base .north       -40.0000       -40.0000       -40.0000   -7.315182E-9      
+5.base .south       -40.0000       -40.0000       -40.0000   -6.633476E-9      
+5.peak .north       -70.0000       -70.0000       -70.0000   1.4663090E-8      
+5.peak .south       -70.0000       -70.0000       -70.0000   -5.741345E-9      
 5.wind .north          .              .              .             EPS         
 5.wind .south          .              .              .             EPS         
 5.solar.north          .              .              .             EPS         
 5.solar.south          .              .              .             EPS         
-6.base .north       -40.0000       -40.0000       -40.0000   -1.218909E-8      
-6.base .south       -40.0000       -40.0000       -40.0000   -1.157462E-8      
-6.peak .north       -70.0000       -70.0000       -70.0000   -3.370699E-7      
+6.base .north       -40.0000       -40.0000       -40.0000   -7.315182E-9      
+6.base .south       -40.0000       -40.0000       -40.0000   -6.633476E-9      
+6.peak .north       -70.0000       -70.0000       -70.0000   -1.667384E-7      
 6.peak .south       -70.0000       -70.0000       -70.0000         EPS         
 6.wind .north          .              .              .             EPS         
 6.wind .south          .              .              .             EPS         
 6.solar.north          .              .              .             EPS         
 6.solar.south          .              .              .             EPS         
-7.base .north       -40.0000       -40.0000       -40.0000   -1.218909E-8      
-7.base .south       -40.0000       -40.0000       -40.0000   -1.157462E-8      
-7.peak .north       -70.0000       -70.0000       -70.0000   8.0864253E-8      
+7.base .north       -40.0000       -40.0000       -40.0000   -7.315182E-9      
+7.base .south       -40.0000       -40.0000       -40.0000   -6.633476E-9      
+7.peak .north       -70.0000       -70.0000       -70.0000   1.9231696E-8      
 7.peak .south       -70.0000       -70.0000       -70.0000         EPS         
 7.wind .north          .              .              .             EPS         
 7.wind .south          .              .              .             EPS         
 7.solar.north          .              .              .             EPS         
 7.solar.south          .              .              .             EPS         
-8.base .north       -40.0000       -40.0000       -40.0000   -1.218909E-8      
-8.base .south       -40.0000       -40.0000       -40.0000   -1.157462E-8      
-8.peak .north       -70.0000       -70.0000       -70.0000   -3.418209E-7      
+8.base .north       -40.0000       -40.0000       -40.0000   -7.315182E-9      
+8.base .south       -40.0000       -40.0000       -40.0000   -6.633476E-9      
+8.peak .north       -70.0000       -70.0000       -70.0000   3.2382584E-8      
 8.peak .south       -70.0000       -70.0000       -70.0000         EPS         
 8.wind .north          .              .              .             EPS         
 8.wind .south          .              .              .             EPS         
@@ -1975,10 +1975,10 @@ solar.south      -100.0000       -41.4694        +INF            EPS
 
                    LOWER          LEVEL          UPPER         MARGINAL
 
-base .north      -274.0000      -274.0000      -274.0000   -1.218909E-8      
-base .south      -274.0000      -274.0000      -274.0000   -1.157462E-8      
-peak .north      -100.0000      -100.0000      -100.0000   -1.012320E-8      
-peak .south      -100.0000      -100.0000      -100.0000   -1.030565E-8      
+base .north      -274.0000      -274.0000      -274.0000   -7.315182E-9      
+base .south      -274.0000      -274.0000      -274.0000   -6.633476E-9      
+peak .north      -100.0000      -100.0000      -100.0000   -5.573742E-9      
+peak .south      -100.0000      -100.0000      -100.0000   -5.741345E-9      
 wind .north       -91.0000       -91.0000       -91.0000         EPS         
 wind .south       -91.0000       -91.0000       -91.0000         EPS         
 solar.north       -55.0000       -55.0000       -55.0000         EPS         
@@ -1988,107 +1988,107 @@ solar.south       -55.0000       -55.0000       -55.0000         EPS
 
          LOWER          LEVEL          UPPER         MARGINAL
 
-1      1888.3333      1888.3333      1888.3333   -2.196123E-7      
-2      1888.3333      1888.3333      1888.3333   2.3997328E-6      
-3      1888.3333      1888.3333      1888.3333   1.3970067E-7      
-4      1888.3333      1888.3333      1888.3333   -9.880874E-8      
-5      1888.3333      1888.3333      1888.3333   1.693743E-10      
-6      1888.3333      1888.3333      1888.3333   -3.608336E-7      
-7      1888.3333      1888.3333      1888.3333   5.7100548E-8      
-8      1888.3333      1888.3333      1888.3333   -3.655846E-7      
+1      1888.3333      1888.3333      1888.3333   4.3321633E-8      
+2      1888.3333      1888.3333      1888.3333   3.0027159E-8      
+3      1888.3333      1888.3333      1888.3333   1.3460903E-8      
+4      1888.3333      1888.3333      1888.3333   -8.439558E-8      
+5      1888.3333      1888.3333      1888.3333   -5.026913E-9      
+6      1888.3333      1888.3333      1888.3333   -1.806871E-7      
+7      1888.3333      1888.3333      1888.3333   5.2830381E-9      
+8      1888.3333      1888.3333      1888.3333   1.8433925E-8      
 
 ---- EQU complementarity1a  
 
                      LOWER          LEVEL          UPPER         MARGINAL
 
-1.base .north        -INF       -99999.5750          .             EPS         
-1.base .south        -INF       -99969.2377          .             EPS         
-1.peak .north        -INF             .              .       8.9417586E-6      
-1.peak .south        -INF             .              .       8.6976797E-6      
-1.wind .north        -INF       -99988.0335          .             EPS         
-1.wind .south        -INF       -99998.3502          .             EPS         
-1.solar.north        -INF             .              .       9.0599145E-6      
-1.solar.south        -INF             .              .       9.0599145E-6      
-2.base .north        -INF       -99999.3940          .             EPS         
-2.base .south        -INF       -99968.9155          .             EPS         
-2.peak .north        -INF             .              .             EPS         
-2.peak .south        -INF       -99999.7323          .             EPS         
-2.wind .north        -INF       -99993.3210          .             EPS         
-2.wind .south        -INF       -99999.1485          .             EPS         
-2.solar.north        -INF       -99998.0356          .             EPS         
-2.solar.south        -INF       -99996.6824          .             EPS         
-3.base .north        -INF       -99999.3940          .             EPS         
-3.base .south        -INF       -99968.9155          .             EPS         
-3.peak .north        -INF       -99998.9319          .             EPS         
-3.peak .south        -INF       -99998.7284          .             EPS         
-3.wind .north        -INF       -99994.1559          .             EPS         
-3.wind .south        -INF       -99999.3614          .             EPS         
-3.solar.north        -INF       -99996.7587          .             EPS         
-3.solar.south        -INF       -99990.0473          .             EPS         
-4.base .north        -INF       -99999.3940          .             EPS         
-4.base .south        -INF       -99968.9155          .             EPS         
-4.peak .north        -INF       -99983.0198          .             EPS         
-4.peak .south        -INF       -99995.2074          .             EPS         
-4.wind .north        -INF       -99995.5474          .             EPS         
-4.wind .south        -INF       -99999.3081          .             EPS         
-4.solar.north        -INF       -99999.6071          .             EPS         
-4.solar.south        -INF       -99998.3412          .             EPS         
-5.base .north        -INF       -99999.3940          .             EPS         
-5.base .south        -INF       -99968.9155          .             EPS         
-5.peak .north        -INF       -99981.3852          .             EPS         
-5.peak .south        -INF       -99993.8432          .             EPS         
-5.wind .north        -INF       -99997.7737          .             EPS         
-5.wind .south        -INF       -99999.4678          .             EPS         
+1.base .north        -INF       -99998.1727          .             EPS         
+1.base .south        -INF       -99969.4494          .             EPS         
+1.peak .north        -INF             .              .             EPS         
+1.peak .south        -INF             .              .             EPS         
+1.wind .north        -INF       -99989.8665          .             EPS         
+1.wind .south        -INF       -99997.9055          .             EPS         
+1.solar.north        -INF             .              .             EPS         
+1.solar.south        -INF             .              .             EPS         
+2.base .north        -INF       -99998.1727          .             EPS         
+2.base .south        -INF       -99969.4494          .             EPS         
+2.peak .north        -INF       -99998.2980          .             EPS         
+2.peak .south        -INF             .              .             EPS         
+2.wind .north        -INF       -99994.3441          .             EPS         
+2.wind .south        -INF       -99998.9190          .             EPS         
+2.solar.north        -INF       -99998.1808          .             EPS         
+2.solar.south        -INF       -99997.8653          .             EPS         
+3.base .north        -INF       -99998.1727          .             EPS         
+3.base .south        -INF       -99969.4494          .             EPS         
+3.peak .north        -INF       -99996.1807          .             EPS         
+3.peak .south        -INF       -99997.6557          .             EPS         
+3.wind .north        -INF       -99995.0511          .             EPS         
+3.wind .south        -INF       -99999.1892          .             EPS         
+3.solar.north        -INF       -99996.9983          .             EPS         
+3.solar.south        -INF       -99993.5958          .             EPS         
+4.base .north        -INF       -99998.1727          .             EPS         
+4.base .south        -INF       -99969.4494          .             EPS         
+4.peak .north        -INF       -99983.4150          .             EPS         
+4.peak .south        -INF       -99994.3834          .             EPS         
+4.wind .north        -INF       -99996.2294          .             EPS         
+4.wind .south        -INF       -99999.1217          .             EPS         
+4.solar.north        -INF       -99999.6362          .             EPS         
+4.solar.south        -INF       -99998.9326          .             EPS         
+5.base .north        -INF       -99998.1727          .             EPS         
+5.base .south        -INF       -99969.4494          .             EPS         
+5.peak .north        -INF       -99982.2354          .             EPS         
+5.peak .south        -INF       -99993.3321          .             EPS         
+5.wind .north        -INF       -99998.1147          .             EPS         
+5.wind .south        -INF       -99999.3244          .             EPS         
 5.solar.north        -INF             .              .             EPS         
 5.solar.south        -INF             .              .             EPS         
-6.base .north        -INF       -99999.3940          .             EPS         
-6.base .south        -INF       -99968.9155          .             EPS         
-6.peak .north        -INF       -99981.7417          .             EPS         
-6.peak .south        -INF       -99994.3079          .             EPS         
-6.wind .north        -INF       -99996.9388          .             EPS         
-6.wind .south        -INF       -99999.5742          .             EPS         
-6.solar.north        -INF       -99999.8036          .             EPS         
-6.solar.south        -INF       -99999.1706          .             EPS         
-7.base .north        -INF       -99999.3940          .             EPS         
-7.base .south        -INF       -99968.9155          .             EPS         
-7.peak .north        -INF       -99996.9873          .             EPS         
-7.peak .south        -INF       -99998.3717          .             EPS         
-7.wind .north        -INF       -99994.7125          .             EPS         
-7.wind .south        -INF       -99999.0420          .             EPS         
-7.solar.north        -INF       -99997.7409          .             EPS         
-7.solar.south        -INF       -99985.4857          .             EPS         
-8.base .north        -INF       -99999.3940          .             EPS         
-8.base .south        -INF       -99968.9155          .             EPS         
-8.peak .north        -INF             .              .       1.1007597E-5      
-8.peak .south        -INF             .              .       1.0429478E-5      
-8.wind .north        -INF       -99992.7645          .             EPS         
-8.wind .south        -INF       -99998.4034          .             EPS         
-8.solar.north        -INF       -99997.6427          .             EPS         
-8.solar.south        -INF       -99982.9975          .             EPS         
+6.base .north        -INF       -99998.1727          .             EPS         
+6.base .south        -INF       -99969.4494          .             EPS         
+6.peak .north        -INF       -99982.7403          .             EPS         
+6.peak .south        -INF       -99993.3321          .             EPS         
+6.wind .north        -INF       -99997.4077          .             EPS         
+6.wind .south        -INF       -99999.4595          .             EPS         
+6.solar.north        -INF       -99999.8181          .             EPS         
+6.solar.south        -INF       -99999.4663          .             EPS         
+7.base .north        -INF       -99998.1727          .             EPS         
+7.base .south        -INF       -99969.4494          .             EPS         
+7.peak .north        -INF       -99993.0533          .             EPS         
+7.peak .south        -INF       -99997.0994          .             EPS         
+7.wind .north        -INF       -99995.5224          .             EPS         
+7.wind .south        -INF       -99998.7838          .             EPS         
+7.solar.north        -INF       -99997.9079          .             EPS         
+7.solar.south        -INF       -99990.6605          .             EPS         
+8.base .north        -INF       -99998.1727          .             EPS         
+8.base .south        -INF       -99969.4494          .             EPS         
+8.peak .north        -INF       -99996.3440          .             EPS         
+8.peak .south        -INF       -99997.5644          .             EPS         
+8.wind .north        -INF       -99993.8728          .             EPS         
+8.wind .south        -INF       -99997.9731          .             EPS         
+8.solar.north        -INF       -99997.8170          .             EPS         
+8.solar.south        -INF       -99989.0595          .             EPS         
 
 ---- EQU complementarity1b  
 
                      LOWER          LEVEL          UPPER         MARGINAL
 
-1.base .north        -INF       100000.0000    100000.0000         EPS         
+1.base .north        -INF       100000.0000    100000.0000   4.9955109E-8      
 1.base .south        -INF       100000.0000    100000.0000         EPS         
-1.peak .north        -INF           30.0000    100000.0000         EPS         
-1.peak .south        -INF           30.0000    100000.0000         EPS         
+1.peak .north        -INF           21.8402    100000.0000         EPS         
+1.peak .south        -INF           21.8402    100000.0000         EPS         
 1.wind .north        -INF       100000.0000    100000.0000         EPS         
 1.wind .south        -INF       100000.0000    100000.0000         EPS         
 1.solar.north        -INF             .        100000.0000         EPS         
 1.solar.south        -INF             .        100000.0000         EPS         
 2.base .north        -INF       100000.0000    100000.0000         EPS         
 2.base .south        -INF       100000.0000    100000.0000         EPS         
-2.peak .north        -INF             .        100000.0000         EPS         
-2.peak .south        -INF       100000.0000    100000.0000   2.4234965E-6      
+2.peak .north        -INF       100000.0000    100000.0000   4.3975817E-8      
+2.peak .south        -INF             .        100000.0000         EPS         
 2.wind .north        -INF       100000.0000    100000.0000         EPS         
 2.wind .south        -INF       100000.0000    100000.0000         EPS         
 2.solar.north        -INF       100000.0000    100000.0000         EPS         
 2.solar.south        -INF       100000.0000    100000.0000         EPS         
 3.base .north        -INF       100000.0000    100000.0000         EPS         
 3.base .south        -INF       100000.0000    100000.0000         EPS         
-3.peak .north        -INF       100000.0000    100000.0000   1.6346437E-7      
+3.peak .north        -INF       100000.0000    100000.0000   2.7409561E-8      
 3.peak .south        -INF       100000.0000    100000.0000         EPS         
 3.wind .north        -INF       100000.0000    100000.0000         EPS         
 3.wind .south        -INF       100000.0000    100000.0000         EPS         
@@ -2104,7 +2104,7 @@ solar.south       -55.0000       -55.0000       -55.0000         EPS
 4.solar.south        -INF       100000.0000    100000.0000         EPS         
 5.base .north        -INF       100000.0000    100000.0000         EPS         
 5.base .south        -INF       100000.0000    100000.0000         EPS         
-5.peak .north        -INF       100000.0000    100000.0000   3.4238729E-8      
+5.peak .north        -INF       100000.0000    100000.0000   1.4663090E-8      
 5.peak .south        -INF       100000.0000    100000.0000         EPS         
 5.wind .north        -INF       100000.0000    100000.0000         EPS         
 5.wind .south        -INF       100000.0000    100000.0000         EPS         
@@ -2120,7 +2120,7 @@ solar.south       -55.0000       -55.0000       -55.0000         EPS
 6.solar.south        -INF       100000.0000    100000.0000         EPS         
 7.base .north        -INF       100000.0000    100000.0000         EPS         
 7.base .south        -INF       100000.0000    100000.0000         EPS         
-7.peak .north        -INF       100000.0000    100000.0000   8.0864253E-8      
+7.peak .north        -INF       100000.0000    100000.0000   1.9231696E-8      
 7.peak .south        -INF       100000.0000    100000.0000         EPS         
 7.wind .north        -INF       100000.0000    100000.0000         EPS         
 7.wind .south        -INF       100000.0000    100000.0000         EPS         
@@ -2128,8 +2128,8 @@ solar.south       -55.0000       -55.0000       -55.0000         EPS
 7.solar.south        -INF       100000.0000    100000.0000         EPS         
 8.base .north        -INF       100000.0000    100000.0000         EPS         
 8.base .south        -INF       100000.0000    100000.0000         EPS         
-8.peak .north        -INF            4.1189    100000.0000         EPS         
-8.peak .south        -INF            4.1189    100000.0000         EPS         
+8.peak .north        -INF       100000.0000    100000.0000   3.2382584E-8      
+8.peak .south        -INF       100000.0000    100000.0000         EPS         
 8.wind .north        -INF       100000.0000    100000.0000         EPS         
 8.wind .south        -INF       100000.0000    100000.0000         EPS         
 8.solar.north        -INF       100000.0000    100000.0000         EPS         
@@ -2139,41 +2139,41 @@ solar.south       -55.0000       -55.0000       -55.0000         EPS
 
                      LOWER          LEVEL          UPPER         MARGINAL
 
-1.base .north        -INF       -99999.8190          .             EPS         
-1.base .south        -INF       -99999.6777          .             EPS         
-1.peak .north        -INF       -99981.3852          .             EPS         
-1.peak .south        -INF       -99993.8432          .             EPS         
-1.wind .north        -INF             .              .             EPS         
-1.wind .south        -INF             .              .             EPS         
+1.base .north        -INF             .              .       1.1221046E-6      
+1.base .south        -INF             .              .       1.7418807E-6      
+1.peak .north        -INF       -99982.2354          .             EPS         
+1.peak .south        -INF       -99993.3321          .             EPS         
+1.wind .north        -INF             .              .       1.6689135E-6      
+1.wind .south        -INF             .              .       1.1280102E-6      
 1.solar.north        -INF             .              .             EPS         
 1.solar.south        -INF             .              .             EPS         
-2.base .north        -INF             .              .       9.4301507E-5      
-2.base .south        -INF             .              .       9.7387845E-5      
-2.peak .north        -INF       -99981.3852          .             EPS         
-2.peak .south        -INF       -99994.1108          .             EPS         
-2.wind .north        -INF             .              .       9.7148111E-5      
-2.wind .south        -INF             .              .       9.2946331E-5      
-2.solar.north        -INF             .              .       9.6344928E-5      
-2.solar.south        -INF             .              .       9.6795567E-5      
-3.base .north        -INF             .              .       1.3786128E-6      
-3.base .south        -INF             .              .       4.6550221E-6      
-3.peak .north        -INF       -99982.4533          .             EPS         
-3.peak .south        -INF       -99995.1148          .             EPS         
-3.wind .north        -INF             .              .       4.3686916E-6      
+2.base .north        -INF             .              .       5.5858412E-7      
+2.base .south        -INF             .              .       1.1749955E-6      
+2.peak .north        -INF       -99983.9374          .             EPS         
+2.peak .south        -INF       -99993.3321          .             EPS         
+2.wind .north        -INF             .              .       1.0069086E-6      
+2.wind .south        -INF             .              .             EPS         
+2.solar.north        -INF             .              .       5.3663616E-7      
+2.solar.south        -INF             .              .             EPS         
+3.base .north        -INF             .              .             EPS         
+3.base .south        -INF             .              .       4.1198965E-7      
+3.peak .north        -INF       -99986.0547          .             EPS         
+3.peak .south        -INF       -99995.6764          .             EPS         
+3.wind .north        -INF             .              .       2.1228609E-7      
 3.wind .south        -INF             .              .             EPS         
-3.solar.north        -INF             .              .       4.0566663E-6      
-3.solar.south        -INF             .              .       4.5092780E-6      
+3.solar.north        -INF             .              .             EPS         
+3.solar.south        -INF             .              .       2.6179725E-7      
 4.base .north        -INF             .              .             EPS         
 4.base .south        -INF             .              .             EPS         
-4.peak .north        -INF       -99998.3654          .             EPS         
-4.peak .south        -INF       -99998.6358          .             EPS         
+4.peak .north        -INF       -99998.8204          .             EPS         
+4.peak .south        -INF       -99998.9488          .             EPS         
 4.wind .north        -INF             .              .             EPS         
 4.wind .south        -INF             .              .             EPS         
 4.solar.north        -INF             .              .             EPS         
 4.solar.south        -INF             .              .             EPS         
 5.base .north        -INF             .              .             EPS         
 5.base .south        -INF             .              .             EPS         
-5.peak .north        -INF             .              .       -1.130058E-7      
+5.peak .north        -INF             .              .       -2.170617E-7      
 5.peak .south        -INF             .              .             EPS         
 5.wind .north        -INF             .              .             EPS         
 5.wind .south        -INF             .              .             EPS         
@@ -2181,26 +2181,26 @@ solar.south       -55.0000       -55.0000       -55.0000         EPS
 5.solar.south        -INF             .              .             EPS         
 6.base .north        -INF             .              .             EPS         
 6.base .south        -INF             .              .             EPS         
-6.peak .north        -INF       -99999.6435          .             EPS         
-6.peak .south        -INF       -99999.5353          .             EPS         
+6.peak .north        -INF       -99999.4951          .             EPS         
+6.peak .south        -INF             .              .             EPS         
 6.wind .north        -INF             .              .             EPS         
 6.wind .south        -INF             .              .             EPS         
 6.solar.north        -INF             .              .             EPS         
 6.solar.south        -INF             .              .             EPS         
 7.base .north        -INF             .              .             EPS         
-7.base .south        -INF             .              .       1.6530744E-6      
-7.peak .north        -INF       -99984.3979          .             EPS         
-7.peak .south        -INF       -99995.4715          .             EPS         
-7.wind .north        -INF             .              .       1.3514465E-6      
+7.base .south        -INF             .              .       1.1595903E-7      
+7.peak .north        -INF       -99989.1821          .             EPS         
+7.peak .south        -INF       -99996.2327          .             EPS         
+7.wind .north        -INF             .              .             EPS         
 7.wind .south        -INF             .              .             EPS         
-7.solar.north        -INF             .              .       7.8693365E-7      
-7.solar.south        -INF             .              .       1.5982990E-6      
-8.base .north        -INF             .              .             EPS         
-8.base .south        -INF             .              .             EPS         
-8.peak .north        -INF       -99981.3852          .             EPS         
-8.peak .south        -INF       -99993.8432          .             EPS         
+7.solar.north        -INF             .              .       -4.283033E-7      
+7.solar.south        -INF             .              .       2.8846750E-8      
+8.base .north        -INF             .              .       -1.035474E-7      
+8.base .south        -INF             .              .       5.1647401E-7      
+8.peak .north        -INF       -99985.8914          .             EPS         
+8.peak .south        -INF       -99995.7677          .             EPS         
 8.wind .north        -INF             .              .             EPS         
-8.wind .south        -INF             .              .             EPS         
+8.wind .south        -INF             .              .       -1.207813E-7      
 8.solar.north        -INF             .              .             EPS         
 8.solar.south        -INF             .              .             EPS         
 
@@ -2208,14 +2208,14 @@ solar.south       -55.0000       -55.0000       -55.0000         EPS
 
                      LOWER          LEVEL          UPPER         MARGINAL
 
-1.base .north        -INF       100000.0000    100000.0000   2.0742324E-7      
-1.base .south        -INF       100000.0000    100000.0000         EPS         
+1.base .north        -INF            8.1598    100000.0000         EPS         
+1.base .south        -INF            8.1598    100000.0000         EPS         
 1.peak .north        -INF       100000.0000    100000.0000         EPS         
 1.peak .south        -INF       100000.0000    100000.0000         EPS         
-1.wind .north        -INF           40.0000    100000.0000         EPS         
-1.wind .south        -INF           40.0000    100000.0000         EPS         
-1.solar.north        -INF           40.0000    100000.0000         EPS         
-1.solar.south        -INF           40.0000    100000.0000         EPS         
+1.wind .north        -INF           48.1598    100000.0000         EPS         
+1.wind .south        -INF           48.1598    100000.0000         EPS         
+1.solar.north        -INF           48.1598    100000.0000         EPS         
+1.solar.south        -INF           48.1598    100000.0000         EPS         
 2.base .north        -INF           30.0000    100000.0000         EPS         
 2.base .south        -INF           30.0000    100000.0000         EPS         
 2.peak .north        -INF       100000.0000    100000.0000         EPS         
@@ -2234,24 +2234,24 @@ solar.south       -55.0000       -55.0000       -55.0000         EPS
 3.solar.south        -INF           70.0000    100000.0000         EPS         
 4.base .north        -INF           30.0000    100000.0000         EPS         
 4.base .south        -INF           30.0000    100000.0000         EPS         
-4.peak .north        -INF       100000.0000    100000.0000   6.4921835E-8      
+4.peak .north        -INF       100000.0000    100000.0000   6.4873180E-8      
 4.peak .south        -INF       100000.0000    100000.0000         EPS         
 4.wind .north        -INF           70.0000    100000.0000         EPS         
 4.wind .south        -INF           70.0000    100000.0000         EPS         
 4.solar.north        -INF           70.0000    100000.0000         EPS         
 4.solar.south        -INF           70.0000    100000.0000         EPS         
-5.base .north        -INF          127.7096    100000.0000         EPS         
-5.base .south        -INF          127.7096    100000.0000         EPS         
-5.peak .north        -INF           97.7096    100000.0000         EPS         
-5.peak .south        -INF           97.7096    100000.0000         EPS         
-5.wind .north        -INF          167.7096    100000.0000         EPS         
-5.wind .south        -INF          167.7096    100000.0000         EPS         
-5.solar.north        -INF          167.7096    100000.0000         EPS         
-5.solar.south        -INF          167.7096    100000.0000         EPS         
+5.base .north        -INF          123.3369    100000.0000         EPS         
+5.base .south        -INF          123.3369    100000.0000         EPS         
+5.peak .north        -INF           93.3369    100000.0000         EPS         
+5.peak .south        -INF           93.3369    100000.0000         EPS         
+5.wind .north        -INF          163.3369    100000.0000         EPS         
+5.wind .south        -INF          163.3369    100000.0000         EPS         
+5.solar.north        -INF          163.3369    100000.0000         EPS         
+5.solar.south        -INF          163.3369    100000.0000         EPS         
 6.base .north        -INF           30.0000    100000.0000         EPS         
 6.base .south        -INF           30.0000    100000.0000         EPS         
-6.peak .north        -INF       100000.0000    100000.0000   3.2694665E-7      
-6.peak .south        -INF       100000.0000    100000.0000         EPS         
+6.peak .north        -INF       100000.0000    100000.0000   1.6116468E-7      
+6.peak .south        -INF             .        100000.0000         EPS         
 6.wind .north        -INF           70.0000    100000.0000         EPS         
 6.wind .south        -INF           70.0000    100000.0000         EPS         
 6.solar.north        -INF           70.0000    100000.0000         EPS         
@@ -2264,27 +2264,27 @@ solar.south       -55.0000       -55.0000       -55.0000         EPS
 7.wind .south        -INF           70.0000    100000.0000         EPS         
 7.solar.north        -INF           70.0000    100000.0000         EPS         
 7.solar.south        -INF           70.0000    100000.0000         EPS         
-8.base .north        -INF           25.8811    100000.0000         EPS         
-8.base .south        -INF           25.8811    100000.0000         EPS         
-8.peak .north        -INF       100000.0000    100000.0000   3.3169773E-7      
+8.base .north        -INF           30.0000    100000.0000         EPS         
+8.base .south        -INF           30.0000    100000.0000         EPS         
+8.peak .north        -INF       100000.0000    100000.0000         EPS         
 8.peak .south        -INF       100000.0000    100000.0000         EPS         
-8.wind .north        -INF           65.8811    100000.0000         EPS         
-8.wind .south        -INF           65.8811    100000.0000         EPS         
-8.solar.north        -INF           65.8811    100000.0000         EPS         
-8.solar.south        -INF           65.8811    100000.0000         EPS         
+8.wind .north        -INF           70.0000    100000.0000         EPS         
+8.wind .south        -INF           70.0000    100000.0000         EPS         
+8.solar.north        -INF           70.0000    100000.0000         EPS         
+8.solar.south        -INF           70.0000    100000.0000         EPS         
 
 ---- EQU complementarity3a  
 
                    LOWER          LEVEL          UPPER         MARGINAL
 
-base .north        -INF       -99999.3940          .             EPS         
-base .south        -INF       -99968.9155          .             EPS         
-peak .north        -INF       -99981.3852          .             EPS         
-peak .south        -INF       -99993.8432          .             EPS         
-wind .north        -INF       -99972.1710          .             EPS         
-wind .south        -INF       -99994.6779          .             EPS         
-solar.north        -INF       -99990.1780          .             EPS         
-solar.south        -INF       -99958.5306          .             EPS         
+base .north        -INF       -99998.1727          .             EPS         
+base .south        -INF       -99969.4494          .             EPS         
+peak .north        -INF       -99982.2354          .             EPS         
+peak .south        -INF       -99993.3321          .             EPS         
+wind .north        -INF       -99976.4338          .             EPS         
+wind .south        -INF       -99993.2435          .             EPS         
+solar.north        -INF       -99990.9040          .             EPS         
+solar.south        -INF       -99973.3158          .             EPS         
 
 ---- EQU complementarity3b  
 
@@ -2303,23 +2303,23 @@ solar.south        -INF       100000.0000    100000.0000         EPS
 
                    LOWER          LEVEL          UPPER         MARGINAL
 
-base .north        -INF      -100000.6060      -100.0000         EPS         
-base .south        -INF      -100031.0845      -100.0000         EPS         
-peak .north        -INF      -100018.6148      -100.0000         EPS         
-peak .south        -INF      -100006.1568      -100.0000         EPS         
-wind .north        -INF      -100027.8290      -100.0000         EPS         
-wind .south        -INF      -100005.3221      -100.0000         EPS         
-solar.north        -INF      -100009.8220      -100.0000         EPS         
-solar.south        -INF      -100041.4694      -100.0000         EPS         
+base .north        -INF      -100001.8273      -100.0000         EPS         
+base .south        -INF      -100030.5506      -100.0000         EPS         
+peak .north        -INF      -100017.7646      -100.0000         EPS         
+peak .south        -INF      -100006.6679      -100.0000         EPS         
+wind .north        -INF      -100023.5662      -100.0000         EPS         
+wind .south        -INF      -100006.7565      -100.0000         EPS         
+solar.north        -INF      -100009.0960      -100.0000         EPS         
+solar.south        -INF      -100026.6842      -100.0000         EPS         
 
 ---- EQU complementarity4b  
 
                    LOWER          LEVEL          UPPER         MARGINAL
 
-base .north        -INF       100000.0000    100000.0000   1.2189088E-8      
-base .south        -INF       100000.0000    100000.0000   1.1574617E-8      
-peak .north        -INF       100000.0000    100000.0000   1.0123204E-8      
-peak .south        -INF       100000.0000    100000.0000   1.0305650E-8      
+base .north        -INF       100000.0000    100000.0000   7.3151821E-9      
+base .south        -INF       100000.0000    100000.0000   6.6334762E-9      
+peak .north        -INF       100000.0000    100000.0000   5.5737418E-9      
+peak .south        -INF       100000.0000    100000.0000   5.7413451E-9      
 wind .north        -INF       100000.0000    100000.0000         EPS         
 wind .south        -INF       100000.0000    100000.0000         EPS         
 solar.north        -INF       100000.0000    100000.0000         EPS         
@@ -2329,27 +2329,27 @@ solar.south        -INF       100000.0000    100000.0000         EPS
 
          LOWER          LEVEL          UPPER         MARGINAL
 
-1        -INF       -99955.1964          .             EPS         
+1        -INF       -99955.3942          .             EPS         
 2        -INF       -99955.2293          .             EPS         
 3        -INF       -99946.2930          .             EPS         
 4        -INF       -99939.3404          .             EPS         
-5        -INF       -99940.7793          .             EPS         
+5        -INF       -99940.6288          .             EPS         
 6        -INF       -99939.8462          .             EPS         
 7        -INF       -99940.6496          .             EPS         
-8        -INF       -99940.1175          .             EPS         
+8        -INF       -99940.2529          .             EPS         
 
 ---- EQU complementarity5b  
 
          LOWER          LEVEL          UPPER         MARGINAL
 
-1        -INF       100000.0000    100000.0000         EPS         
-2        -INF       100000.0000    100000.0000   2.3997328E-6      
-3        -INF       100000.0000    100000.0000   1.3970067E-7      
+1        -INF       100000.0000    100000.0000   4.3321633E-8      
+2        -INF       100000.0000    100000.0000   3.0027159E-8      
+3        -INF       100000.0000    100000.0000   1.3460903E-8      
 4        -INF       100000.0000    100000.0000         EPS         
-5        -INF       100000.0000    100000.0000   1.693743E-10      
+5        -INF       100000.0000    100000.0000         EPS         
 6        -INF       100000.0000    100000.0000         EPS         
-7        -INF       100000.0000    100000.0000   5.7100548E-8      
-8        -INF       100000.0000    100000.0000         EPS         
+7        -INF       100000.0000    100000.0000   5.2830381E-9      
+8        -INF       100000.0000    100000.0000   1.8433925E-8      
 
 ---- EQU complementarity6a  
 
@@ -2368,38 +2368,38 @@ solar.south        -INF       100000.0000    100000.0000         EPS
 
          LOWER          LEVEL          UPPER         MARGINAL
 
-1        -INF           40.0000    100000.0000         EPS         
+1        -INF           48.1598    100000.0000         EPS         
 2        -INF           70.0000    100000.0000         EPS         
 3        -INF           70.0000    100000.0000         EPS         
 4        -INF           70.0000    100000.0000         EPS         
-5        -INF          167.7096    100000.0000         EPS         
+5        -INF          163.3369    100000.0000         EPS         
 6        -INF           70.0000    100000.0000         EPS         
 7        -INF           70.0000    100000.0000         EPS         
-8        -INF           65.8811    100000.0000         EPS         
+8        -INF           70.0000    100000.0000         EPS         
 
 ---- VAR y1  
 
                      LOWER          LEVEL          UPPER         MARGINAL
 
-1.base .north          .             1.0000         1.0000         EPS         
+1.base .north          .             1.0000         1.0000        -0.0050      
 1.base .south          .             1.0000         1.0000         EPS         
-1.peak .north          .              .             1.0000         0.8942      
-1.peak .south          .              .             1.0000         0.8698      
+1.peak .north          .              .             1.0000         EPS         
+1.peak .south          .              .             1.0000         EPS         
 1.wind .north          .             1.0000         1.0000         EPS         
 1.wind .south          .             1.0000         1.0000         EPS         
-1.solar.north          .              .             1.0000         0.9060      
-1.solar.south          .              .             1.0000         0.9060      
+1.solar.north          .              .             1.0000         EPS         
+1.solar.south          .              .             1.0000         EPS         
 2.base .north          .             1.0000         1.0000         EPS         
 2.base .south          .             1.0000         1.0000         EPS         
-2.peak .north          .              .             1.0000         EPS         
-2.peak .south          .             1.0000         1.0000        -0.2423      
+2.peak .north          .             1.0000         1.0000        -0.0044      
+2.peak .south          .              .             1.0000         EPS         
 2.wind .north          .             1.0000         1.0000         EPS         
 2.wind .south          .             1.0000         1.0000         EPS         
 2.solar.north          .             1.0000         1.0000         EPS         
 2.solar.south          .             1.0000         1.0000         EPS         
 3.base .north          .             1.0000         1.0000         EPS         
 3.base .south          .             1.0000         1.0000         EPS         
-3.peak .north          .             1.0000         1.0000        -0.0163      
+3.peak .north          .             1.0000         1.0000        -0.0027      
 3.peak .south          .             1.0000         1.0000         EPS         
 3.wind .north          .             1.0000         1.0000         EPS         
 3.wind .south          .             1.0000         1.0000         EPS         
@@ -2415,7 +2415,7 @@ solar.south        -INF       100000.0000    100000.0000         EPS
 4.solar.south          .             1.0000         1.0000         EPS         
 5.base .north          .             1.0000         1.0000         EPS         
 5.base .south          .             1.0000         1.0000         EPS         
-5.peak .north          .             1.0000         1.0000        -0.0034      
+5.peak .north          .             1.0000         1.0000        -0.0015      
 5.peak .south          .             1.0000         1.0000         EPS         
 5.wind .north          .             1.0000         1.0000         EPS         
 5.wind .south          .             1.0000         1.0000         EPS         
@@ -2431,7 +2431,7 @@ solar.south        -INF       100000.0000    100000.0000         EPS
 6.solar.south          .             1.0000         1.0000         EPS         
 7.base .north          .             1.0000         1.0000         EPS         
 7.base .south          .             1.0000         1.0000         EPS         
-7.peak .north          .             1.0000         1.0000        -0.0081      
+7.peak .north          .             1.0000         1.0000        -0.0019      
 7.peak .south          .             1.0000         1.0000         EPS         
 7.wind .north          .             1.0000         1.0000         EPS         
 7.wind .south          .             1.0000         1.0000         EPS         
@@ -2439,8 +2439,8 @@ solar.south        -INF       100000.0000    100000.0000         EPS
 7.solar.south          .             1.0000         1.0000         EPS         
 8.base .north          .             1.0000         1.0000         EPS         
 8.base .south          .             1.0000         1.0000         EPS         
-8.peak .north          .              .             1.0000         1.1008      
-8.peak .south          .              .             1.0000         1.0429      
+8.peak .north          .             1.0000         1.0000        -0.0032      
+8.peak .south          .             1.0000         1.0000         EPS         
 8.wind .north          .             1.0000         1.0000         EPS         
 8.wind .south          .             1.0000         1.0000         EPS         
 8.solar.north          .             1.0000         1.0000         EPS         
@@ -2450,30 +2450,30 @@ solar.south        -INF       100000.0000    100000.0000         EPS
 
                      LOWER          LEVEL          UPPER         MARGINAL
 
-1.base .north          .             1.0000         1.0000        -0.0207      
-1.base .south          .             1.0000         1.0000         EPS         
+1.base .north          .              .             1.0000         0.1122      
+1.base .south          .              .             1.0000         0.1742      
 1.peak .north          .             1.0000         1.0000         EPS         
 1.peak .south          .             1.0000         1.0000         EPS         
-1.wind .north          .              .             1.0000         EPS         
-1.wind .south          .              .             1.0000         EPS         
+1.wind .north          .              .             1.0000         0.1669      
+1.wind .south          .              .             1.0000         0.1128      
 1.solar.north          .              .             1.0000         EPS         
 1.solar.south          .              .             1.0000         EPS         
-2.base .north          .              .             1.0000         9.4302      
-2.base .south          .              .             1.0000         9.7388      
+2.base .north          .              .             1.0000         0.0559      
+2.base .south          .              .             1.0000         0.1175      
 2.peak .north          .             1.0000         1.0000         EPS         
 2.peak .south          .             1.0000         1.0000         EPS         
-2.wind .north          .              .             1.0000         9.7148      
-2.wind .south          .              .             1.0000         9.2946      
-2.solar.north          .              .             1.0000         9.6345      
-2.solar.south          .              .             1.0000         9.6796      
-3.base .north          .              .             1.0000         0.1379      
-3.base .south          .              .             1.0000         0.4655      
+2.wind .north          .              .             1.0000         0.1007      
+2.wind .south          .              .             1.0000         EPS         
+2.solar.north          .              .             1.0000         0.0537      
+2.solar.south          .              .             1.0000         EPS         
+3.base .north          .              .             1.0000         EPS         
+3.base .south          .              .             1.0000         0.0412      
 3.peak .north          .             1.0000         1.0000         EPS         
 3.peak .south          .             1.0000         1.0000         EPS         
-3.wind .north          .              .             1.0000         0.4369      
+3.wind .north          .              .             1.0000         0.0212      
 3.wind .south          .              .             1.0000         EPS         
-3.solar.north          .              .             1.0000         0.4057      
-3.solar.south          .              .             1.0000         0.4509      
+3.solar.north          .              .             1.0000         EPS         
+3.solar.south          .              .             1.0000         0.0262      
 4.base .north          .              .             1.0000         EPS         
 4.base .south          .              .             1.0000         EPS         
 4.peak .north          .             1.0000         1.0000        -0.0065      
@@ -2484,7 +2484,7 @@ solar.south        -INF       100000.0000    100000.0000         EPS
 4.solar.south          .              .             1.0000         EPS         
 5.base .north          .              .             1.0000         EPS         
 5.base .south          .              .             1.0000         EPS         
-5.peak .north          .              .             1.0000        -0.0113      
+5.peak .north          .              .             1.0000        -0.0217      
 5.peak .south          .              .             1.0000         EPS         
 5.wind .north          .              .             1.0000         EPS         
 5.wind .south          .              .             1.0000         EPS         
@@ -2492,26 +2492,26 @@ solar.south        -INF       100000.0000    100000.0000         EPS
 5.solar.south          .              .             1.0000         EPS         
 6.base .north          .              .             1.0000         EPS         
 6.base .south          .              .             1.0000         EPS         
-6.peak .north          .             1.0000         1.0000        -0.0327      
-6.peak .south          .             1.0000         1.0000         EPS         
+6.peak .north          .             1.0000         1.0000        -0.0161      
+6.peak .south          .              .             1.0000         EPS         
 6.wind .north          .              .             1.0000         EPS         
 6.wind .south          .              .             1.0000         EPS         
 6.solar.north          .              .             1.0000         EPS         
 6.solar.south          .              .             1.0000         EPS         
 7.base .north          .              .             1.0000         EPS         
-7.base .south          .              .             1.0000         0.1653      
+7.base .south          .              .             1.0000         0.0116      
 7.peak .north          .             1.0000         1.0000         EPS         
 7.peak .south          .             1.0000         1.0000         EPS         
-7.wind .north          .              .             1.0000         0.1351      
+7.wind .north          .              .             1.0000         EPS         
 7.wind .south          .              .             1.0000         EPS         
-7.solar.north          .              .             1.0000         0.0787      
-7.solar.south          .              .             1.0000         0.1598      
-8.base .north          .              .             1.0000         EPS         
-8.base .south          .              .             1.0000         EPS         
-8.peak .north          .             1.0000         1.0000        -0.0332      
+7.solar.north          .              .             1.0000        -0.0428      
+7.solar.south          .              .             1.0000         0.0029      
+8.base .north          .              .             1.0000        -0.0104      
+8.base .south          .              .             1.0000         0.0516      
+8.peak .north          .             1.0000         1.0000         EPS         
 8.peak .south          .             1.0000         1.0000         EPS         
 8.wind .north          .              .             1.0000         EPS         
-8.wind .south          .              .             1.0000         EPS         
+8.wind .south          .              .             1.0000        -0.0121      
 8.solar.north          .              .             1.0000         EPS         
 8.solar.south          .              .             1.0000         EPS         
 
@@ -2532,10 +2532,10 @@ solar.south          .             1.0000         1.0000         EPS
 
                    LOWER          LEVEL          UPPER         MARGINAL
 
-base .north          .             1.0000         1.0000        -0.0012      
-base .south          .             1.0000         1.0000        -0.0012      
-peak .north          .             1.0000         1.0000        -0.0010      
-peak .south          .             1.0000         1.0000        -0.0010      
+base .north          .             1.0000         1.0000        -0.0007      
+base .south          .             1.0000         1.0000        -0.0007      
+peak .north          .             1.0000         1.0000        -0.0006      
+peak .south          .             1.0000         1.0000        -0.0006      
 wind .north          .             1.0000         1.0000         EPS         
 wind .south          .             1.0000         1.0000         EPS         
 solar.north          .             1.0000         1.0000         EPS         
@@ -2545,14 +2545,14 @@ solar.south          .             1.0000         1.0000         EPS
 
          LOWER          LEVEL          UPPER         MARGINAL
 
-1          .             1.0000         1.0000         EPS         
-2          .             1.0000         1.0000        -0.2400      
-3          .             1.0000         1.0000        -0.0140      
+1          .             1.0000         1.0000        -0.0043      
+2          .             1.0000         1.0000        -0.0030      
+3          .             1.0000         1.0000        -0.0013      
 4          .             1.0000         1.0000         EPS         
-5          .             1.0000         1.0000   -1.693743E-5      
+5          .             1.0000         1.0000         EPS         
 6          .             1.0000         1.0000         EPS         
-7          .             1.0000         1.0000        -0.0057      
-8          .             1.0000         1.0000         EPS         
+7          .             1.0000         1.0000        -0.0005      
+8          .             1.0000         1.0000        -0.0018      
 
 ---- VAR y6  
 
@@ -2571,137 +2571,137 @@ solar.south          .             1.0000         1.0000         EPS
 
                      LOWER          LEVEL          UPPER         MARGINAL
 
-1.base .north          .             0.4250       100.0000   -4.363604E-6      
-1.base .south          .            30.7623       100.0000   -4.397766E-8      
-1.peak .north          .              .           100.0000         EPS         
-1.peak .south          .              .           100.0000         EPS         
-1.wind .north          .            11.9665       100.0000         EPS         
-1.wind .south          .             1.6498       100.0000         EPS         
-1.solar.north          .              .           100.0000         EPS         
-1.solar.south          .              .           100.0000         EPS         
-2.base .north          .             0.6060       100.0000         EPS         
-2.base .south          .            31.0845       100.0000         EPS         
-2.peak .north          .              .           100.0000   -9.767300E-5      
-2.peak .south          .             0.2677       100.0000   -3.913486E-5      
-2.wind .north          .             6.6790       100.0000         EPS         
-2.wind .south          .             0.8515       100.0000         EPS         
-2.solar.north          .             1.9644       100.0000         EPS         
-2.solar.south          .             3.3176       100.0000         EPS         
-3.base .north          .             0.6060       100.0000         EPS         
-3.base .south          .            31.0845       100.0000         EPS         
-3.peak .north          .             1.0681       100.0000   -2.468912E-6      
-3.peak .south          .             1.2716       100.0000   -2.004714E-6      
-3.wind .north          .             5.8441       100.0000         EPS         
-3.wind .south          .             0.6386       100.0000         EPS         
-3.solar.north          .             3.2413       100.0000         EPS         
-3.solar.south          .             9.9527       100.0000         EPS         
-4.base .north          .             0.6060       100.0000         EPS         
-4.base .south          .            31.0845       100.0000         EPS         
-4.peak .north          .            16.9802       100.0000   -1.049602E-7      
-4.peak .south          .             4.7926       100.0000   -4.446182E-7      
-4.wind .north          .             4.4526       100.0000         EPS         
-4.wind .south          .             0.6919       100.0000         EPS         
-4.solar.north          .             0.3929       100.0000         EPS         
-4.solar.south          .             1.6588       100.0000         EPS         
-5.base .north          .             0.6060       100.0000         EPS         
-5.base .south          .            31.0845       100.0000         EPS         
-5.peak .north          .            18.6148       100.0000         EPS         
-5.peak .south          .             6.1568       100.0000         EPS         
-5.wind .north          .             2.2263       100.0000         EPS         
-5.wind .south          .             0.5322       100.0000         EPS         
-5.solar.north          .              .           100.0000   -4.921072E-9      
-5.solar.south          .              .           100.0000   -4.921072E-9      
-6.base .north          .             0.6060       100.0000         EPS         
-6.base .south          .            31.0845       100.0000         EPS         
-6.peak .north          .            18.2583       100.0000   -9.471537E-8      
-6.peak .south          .             5.6921       100.0000   -3.706216E-7      
-6.wind .north          .             3.0612       100.0000         EPS         
-6.wind .south          .             0.4258       100.0000         EPS         
-6.solar.north          .             0.1964       100.0000         EPS         
-6.solar.south          .             0.8294       100.0000         EPS         
-7.base .north          .             0.6060       100.0000         EPS         
-7.base .south          .            31.0845       100.0000         EPS         
-7.peak .north          .             3.0127       100.0000   -7.285519E-7      
-7.peak .south          .             1.6283       100.0000   -1.351252E-6      
-7.wind .north          .             5.2875       100.0000         EPS         
-7.wind .south          .             0.9580       100.0000         EPS         
-7.solar.north          .             2.2591       100.0000         EPS         
-7.solar.south          .            14.5143       100.0000         EPS         
-8.base .north          .             0.6060       100.0000         EPS         
-8.base .south          .            31.0845       100.0000         EPS         
-8.peak .north          .              .           100.0000         EPS         
-8.peak .south          .              .           100.0000         EPS         
-8.wind .north          .             7.2355       100.0000         EPS         
-8.wind .south          .             1.5966       100.0000         EPS         
-8.solar.north          .             2.3573       100.0000         EPS         
-8.solar.south          .            17.0025       100.0000         EPS         
+1.base .north          .             1.8273       100.0000         EPS         
+1.base .south          .            30.5506       100.0000         EPS         
+1.peak .north          .              .           100.0000   -1.858592E-6      
+1.peak .south          .              .           100.0000   -1.968693E-6      
+1.wind .north          .            10.1335       100.0000         EPS         
+1.wind .south          .             2.0945       100.0000         EPS         
+1.solar.north          .              .           100.0000   -1.787196E-6      
+1.solar.south          .              .           100.0000   -1.787196E-6      
+2.base .north          .             1.8273       100.0000         EPS         
+2.base .south          .            30.5506       100.0000         EPS         
+2.peak .north          .             1.7020       100.0000   -6.900087E-7      
+2.peak .south          .              .           100.0000   -1.461830E-6      
+2.wind .north          .             5.6559       100.0000         EPS         
+2.wind .south          .             1.0810       100.0000         EPS         
+2.solar.north          .             1.8192       100.0000         EPS         
+2.solar.south          .             2.1347       100.0000         EPS         
+3.base .north          .             1.8273       100.0000         EPS         
+3.base .south          .            30.5506       100.0000         EPS         
+3.peak .north          .             3.8193       100.0000   -3.136520E-7      
+3.peak .south          .             2.3443       100.0000   -4.865875E-7      
+3.wind .north          .             4.9489       100.0000         EPS         
+3.wind .south          .             0.8108       100.0000         EPS         
+3.solar.north          .             3.0017       100.0000         EPS         
+3.solar.south          .             6.4042       100.0000         EPS         
+4.base .north          .             1.8273       100.0000         EPS         
+4.base .south          .            30.5506       100.0000         EPS         
+4.peak .north          .            16.5850       100.0000   -6.230192E-8      
+4.peak .south          .             5.6166       100.0000   -1.995931E-7      
+4.wind .north          .             3.7706       100.0000         EPS         
+4.wind .south          .             0.8783       100.0000         EPS         
+4.solar.north          .             0.3638       100.0000         EPS         
+4.solar.south          .             1.0674       100.0000         EPS         
+5.base .north          .             1.8273       100.0000         EPS         
+5.base .south          .            30.5506       100.0000         EPS         
+5.peak .north          .            17.7646       100.0000         EPS         
+5.peak .south          .             6.6679       100.0000         EPS         
+5.wind .north          .             1.8853       100.0000         EPS         
+5.wind .south          .             0.6756       100.0000         EPS         
+5.solar.north          .              .           100.0000         EPS         
+5.solar.south          .              .           100.0000         EPS         
+6.base .north          .             1.8273       100.0000         EPS         
+6.base .south          .            30.5506       100.0000         EPS         
+6.peak .north          .            17.2597       100.0000   -5.986355E-8      
+6.peak .south          .             6.6679       100.0000         EPS         
+6.wind .north          .             2.5923       100.0000         EPS         
+6.wind .south          .             0.5405       100.0000         EPS         
+6.solar.north          .             0.1819       100.0000         EPS         
+6.solar.south          .             0.5337       100.0000         EPS         
+7.base .north          .             1.8273       100.0000         EPS         
+7.base .south          .            30.5506       100.0000         EPS         
+7.peak .north          .             6.9467       100.0000   -1.662359E-7      
+7.peak .south          .             2.9006       100.0000   -3.962049E-7      
+7.wind .north          .             4.4776       100.0000         EPS         
+7.wind .south          .             1.2162       100.0000         EPS         
+7.solar.north          .             2.0921       100.0000         EPS         
+7.solar.south          .             9.3395       100.0000         EPS         
+8.base .north          .             1.8273       100.0000         EPS         
+8.base .south          .            30.5506       100.0000         EPS         
+8.peak .north          .             3.6560       100.0000   -3.245887E-7      
+8.peak .south          .             2.4356       100.0000   -4.856525E-7      
+8.wind .north          .             6.1272       100.0000         EPS         
+8.wind .south          .             2.0269       100.0000         EPS         
+8.solar.north          .             2.1830       100.0000         EPS         
+8.solar.south          .            10.9405       100.0000         EPS         
 
 ---- VAR CAP  
 
                    LOWER          LEVEL          UPPER         MARGINAL
 
-base .north        -INF            0.6060        +INF      -7.60225E-14      
-base .south        -INF           31.0845        +INF      -2.70006E-13      
-peak .north        -INF           18.6148        +INF      -9.85878E-14      
-peak .south        -INF            6.1568        +INF      -8.21565E-14      
-wind .north        -INF           27.8290        +INF      -2.25597E-13      
-wind .south        -INF            5.3221        +INF      -6.21503E-13      
-solar.north        -INF            9.8220        +INF      -1.66533E-13      
-solar.south        -INF           41.4694        +INF      -1.31450E-13      
+base .north        -INF            1.8273        +INF      -2.75335E-14      
+base .south        -INF           30.5506        +INF      1.598721E-13      
+peak .north        -INF           17.7646        +INF      7.105427E-15      
+peak .south        -INF            6.6679        +INF      -1.42109E-14      
+wind .north        -INF           23.5662        +INF      -1.77636E-14      
+wind .south        -INF            6.7565        +INF      1.598721E-14      
+solar.north        -INF            9.0960        +INF      -7.99361E-15      
+solar.south        -INF           26.6842        +INF      -1.42109E-14      
 
                            LOWER          LEVEL          UPPER         MARGINAL
 
----- VAR WF                -INF       401177.9561        +INF            EPS         
+---- VAR WF                -INF       400679.0685        +INF            EPS         
 
 ---- VAR FLOW  
 
                      LOWER          LEVEL          UPPER         MARGINAL
 
 1.north.north        -INF             .            +INF            EPS         
-1.north.south        -INF            6.2021        +INF            EPS         
-1.south.north        -INF           -6.2021        +INF            EPS         
+1.north.south        -INF            6.2317        +INF            EPS         
+1.south.north        -INF           -6.2317        +INF            EPS         
 1.south.south        -INF             .            +INF            EPS         
 2.north.north        -INF             .            +INF            EPS         
-2.north.south        -INF            6.2021        +INF            EPS         
-2.south.north        -INF           -6.2021        +INF            EPS         
+2.north.south        -INF            6.2317        +INF            EPS         
+2.south.north        -INF           -6.2317        +INF            EPS         
 2.south.south        -INF             .            +INF            EPS         
 3.north.north        -INF             .            +INF            EPS         
-3.north.south        -INF            6.2021        +INF            EPS         
-3.south.north        -INF           -6.2021        +INF            EPS         
+3.north.south        -INF            6.2317        +INF            EPS         
+3.south.north        -INF           -6.2317        +INF            EPS         
 3.south.south        -INF             .            +INF            EPS         
 4.north.north        -INF             .            +INF            EPS         
-4.north.south        -INF            0.3615        +INF            EPS         
-4.south.north        -INF           -0.3615        +INF            EPS         
+4.north.south        -INF            0.4774        +INF            EPS         
+4.south.north        -INF           -0.4774        +INF            EPS         
 4.south.south        -INF             .            +INF            EPS         
 5.north.north        -INF             .            +INF            EPS         
-5.north.south        -INF            6.2021        +INF            EPS         
-5.south.north        -INF           -6.2021        +INF            EPS         
+5.north.south        -INF            6.2317        +INF            EPS         
+5.south.north        -INF           -6.2317        +INF            EPS         
 5.south.south        -INF             .            +INF            EPS         
 6.north.north        -INF             .            +INF            EPS         
-6.north.south        -INF           -6.2021        +INF            EPS         
-6.south.north        -INF            6.2021        +INF            EPS         
+6.north.south        -INF           -6.2317        +INF            EPS         
+6.south.north        -INF            6.2317        +INF            EPS         
 6.south.south        -INF             .            +INF            EPS         
 7.north.north        -INF             .            +INF            EPS         
-7.north.south        -INF           -6.2021        +INF            EPS         
-7.south.north        -INF            6.2021        +INF            EPS         
+7.north.south        -INF           -6.2317        +INF            EPS         
+7.south.north        -INF            6.2317        +INF            EPS         
 7.south.south        -INF             .            +INF            EPS         
 8.north.north        -INF             .            +INF            EPS         
-8.north.south        -INF            4.0655        +INF            EPS         
-8.south.north        -INF           -4.0655        +INF            EPS         
+8.north.south        -INF            5.6262        +INF            EPS         
+8.south.north        -INF           -5.6262        +INF            EPS         
 8.south.south        -INF             .            +INF            EPS         
 
 ---- VAR INSTRUMENT  
 
                    LOWER          LEVEL          UPPER         MARGINAL
 
-base .north      -200.0000        29.4064       200.0000   1.2189088E-8      
-base .south      -200.0000        20.1376       200.0000   1.1574617E-8      
-peak .north      -200.0000        -7.9514       200.0000   1.0123204E-8      
-peak .south      -200.0000        -4.1628       200.0000   1.0305650E-8      
-wind .north      -200.0000        11.9828       200.0000         EPS         
-wind .south      -200.0000         3.2168       200.0000         EPS         
-solar.north      -200.0000        15.2245       200.0000         EPS         
-solar.south      -200.0000        10.5000       200.0000         EPS         
+base .north      -200.0000        36.3853       200.0000   7.3151821E-9      
+base .south      -200.0000        18.9152       200.0000   6.6334762E-9      
+peak .north      -200.0000       -17.4679       200.0000   5.5737418E-9      
+peak .south      -200.0000       -10.7186       200.0000   5.7413451E-9      
+wind .north      -200.0000        10.3422       200.0000         EPS         
+wind .south      -200.0000         4.0538       200.0000         EPS         
+solar.north      -200.0000        13.6676       200.0000         EPS         
+solar.south      -200.0000         8.5702       200.0000         EPS         
 
 ---- VAR THETA  
 
@@ -2713,7 +2713,7 @@ solar.south      -200.0000        10.5000       200.0000         EPS
 2.south        -INF             .            +INF            EPS         
 3.north        -INF            0.0089        +INF            EPS         
 3.south        -INF             .            +INF            EPS         
-4.north        -INF            0.0005        +INF            EPS         
+4.north        -INF            0.0007        +INF            EPS         
 4.south        -INF             .            +INF            EPS         
 5.north        -INF            0.0089        +INF            EPS         
 5.south        -INF             .            +INF            EPS         
@@ -2721,86 +2721,86 @@ solar.south      -200.0000        10.5000       200.0000         EPS
 6.south        -INF             .            +INF            EPS         
 7.north        -INF           -0.0089        +INF            EPS         
 7.south        -INF             .            +INF            EPS         
-8.north        -INF            0.0058        +INF            EPS         
+8.north        -INF            0.0080        +INF            EPS         
 8.south        -INF             .            +INF            EPS         
 
 ---- VAR SPOT_PRICE  
 
          LOWER          LEVEL          UPPER         MARGINAL
 
-1        -INF           40.0000        +INF            EPS         
+1        -INF           48.1598        +INF            EPS         
 2        -INF           70.0000        +INF            EPS         
 3        -INF           70.0000        +INF            EPS         
 4        -INF           70.0000        +INF            EPS         
-5        -INF          167.7096        +INF            EPS         
+5        -INF          163.3369        +INF            EPS         
 6        -INF           70.0000        +INF            EPS         
 7        -INF           70.0000        +INF            EPS         
-8        -INF           65.8811        +INF            EPS         
+8        -INF           70.0000        +INF            EPS         
 
 ---- VAR mu_G_min  
 
                      LOWER          LEVEL          UPPER         MARGINAL
 
-1.base .north          .              .            +INF      -2.196123E-7      
-1.base .south          .              .            +INF            EPS         
-1.peak .north          .            30.0000        +INF            EPS         
-1.peak .south          .            30.0000        +INF            EPS         
+1.base .north          .              .            +INF            EPS         
+1.base .south          .              .            +INF      -6.633476E-9      
+1.peak .north          .            21.8402        +INF            EPS         
+1.peak .south          .            21.8402        +INF            EPS         
 1.wind .north          .              .            +INF            EPS         
 1.wind .south          .              .            +INF            EPS         
 1.solar.north          .              .            +INF            EPS         
 1.solar.south          .              .            +INF            EPS         
-2.base .north          .              .            +INF      -1.218909E-8      
-2.base .south          .              .            +INF      -1.157462E-8      
+2.base .north          .              .            +INF      -7.315182E-9      
+2.base .south          .              .            +INF      -6.633476E-9      
 2.peak .north          .              .            +INF            EPS         
 2.peak .south          .              .            +INF            EPS         
 2.wind .north          .              .            +INF            EPS         
 2.wind .south          .              .            +INF            EPS         
 2.solar.north          .              .            +INF            EPS         
 2.solar.south          .              .            +INF            EPS         
-3.base .north          .              .            +INF      -1.218909E-8      
-3.base .south          .              .            +INF      -1.157462E-8      
+3.base .north          .              .            +INF      -7.315182E-9      
+3.base .south          .              .            +INF      -6.633476E-9      
 3.peak .north          .              .            +INF            EPS         
 3.peak .south          .              .            +INF            EPS         
 3.wind .north          .              .            +INF            EPS         
 3.wind .south          .              .            +INF            EPS         
 3.solar.north          .              .            +INF            EPS         
 3.solar.south          .              .            +INF            EPS         
-4.base .north          .              .            +INF      -1.218909E-8      
-4.base .south          .              .            +INF      -1.157462E-8      
-4.peak .north          .              .            +INF      -7.504504E-8      
+4.base .north          .              .            +INF      -7.315182E-9      
+4.base .south          .              .            +INF      -6.633476E-9      
+4.peak .north          .              .            +INF      -7.044692E-8      
 4.peak .south          .              .            +INF            EPS         
 4.wind .north          .              .            +INF            EPS         
 4.wind .south          .              .            +INF            EPS         
 4.solar.north          .              .            +INF            EPS         
 4.solar.south          .              .            +INF            EPS         
-5.base .north          .              .            +INF      -1.218909E-8      
-5.base .south          .              .            +INF      -1.157462E-8      
+5.base .north          .              .            +INF      -7.315182E-9      
+5.base .south          .              .            +INF      -6.633476E-9      
 5.peak .north          .              .            +INF            EPS         
-5.peak .south          .              .            +INF      -1.030565E-8      
+5.peak .south          .              .            +INF      -5.741345E-9      
 5.wind .north          .              .            +INF            EPS         
 5.wind .south          .              .            +INF            EPS         
 5.solar.north          .              .            +INF            EPS         
 5.solar.south          .              .            +INF            EPS         
-6.base .north          .              .            +INF      -1.218909E-8      
-6.base .south          .              .            +INF      -1.157462E-8      
-6.peak .north          .              .            +INF      -3.370699E-7      
+6.base .north          .              .            +INF      -7.315182E-9      
+6.base .south          .              .            +INF      -6.633476E-9      
+6.peak .north          .              .            +INF      -1.667384E-7      
 6.peak .south          .              .            +INF            EPS         
 6.wind .north          .              .            +INF            EPS         
 6.wind .south          .              .            +INF            EPS         
 6.solar.north          .              .            +INF            EPS         
 6.solar.south          .              .            +INF            EPS         
-7.base .north          .              .            +INF      -1.218909E-8      
-7.base .south          .              .            +INF      -1.157462E-8      
+7.base .north          .              .            +INF      -7.315182E-9      
+7.base .south          .              .            +INF      -6.633476E-9      
 7.peak .north          .              .            +INF            EPS         
 7.peak .south          .              .            +INF            EPS         
 7.wind .north          .              .            +INF            EPS         
 7.wind .south          .              .            +INF            EPS         
 7.solar.north          .              .            +INF            EPS         
 7.solar.south          .              .            +INF            EPS         
-8.base .north          .              .            +INF      -1.218909E-8      
-8.base .south          .              .            +INF      -1.157462E-8      
-8.peak .north          .             4.1189        +INF      -3.418209E-7      
-8.peak .south          .             4.1189        +INF            EPS         
+8.base .north          .              .            +INF      -7.315182E-9      
+8.base .south          .              .            +INF      -6.633476E-9      
+8.peak .north          .              .            +INF            EPS         
+8.peak .south          .              .            +INF            EPS         
 8.wind .north          .              .            +INF            EPS         
 8.wind .south          .              .            +INF            EPS         
 8.solar.north          .              .            +INF            EPS         
@@ -2810,26 +2810,26 @@ solar.south      -200.0000        10.5000       200.0000         EPS
 
                      LOWER          LEVEL          UPPER         MARGINAL
 
-1.base .north          .              .            +INF            EPS         
-1.base .south          .              .            +INF      -1.157462E-8      
-1.peak .north          .              .            +INF      -1.012320E-8      
-1.peak .south          .              .            +INF      -1.030565E-8      
-1.wind .north          .            40.0000        +INF            EPS         
-1.wind .south          .            40.0000        +INF            EPS         
-1.solar.north          .            40.0000        +INF            EPS         
-1.solar.south          .            40.0000        +INF            EPS         
+1.base .north          .             8.1598        +INF      -5.727029E-8      
+1.base .south          .             8.1598        +INF            EPS         
+1.peak .north          .              .            +INF      -5.573742E-9      
+1.peak .south          .              .            +INF      -5.741345E-9      
+1.wind .north          .            48.1598        +INF            EPS         
+1.wind .south          .            48.1598        +INF            EPS         
+1.solar.north          .            48.1598        +INF            EPS         
+1.solar.south          .            48.1598        +INF            EPS         
 2.base .north          .            30.0000        +INF            EPS         
 2.base .south          .            30.0000        +INF            EPS         
-2.peak .north          .              .            +INF      -1.012320E-8      
-2.peak .south          .              .            +INF      -2.433802E-6      
+2.peak .north          .              .            +INF      -4.954956E-8      
+2.peak .south          .              .            +INF      -5.741345E-9      
 2.wind .north          .            70.0000        +INF            EPS         
 2.wind .south          .            70.0000        +INF            EPS         
 2.solar.north          .            70.0000        +INF            EPS         
 2.solar.south          .            70.0000        +INF            EPS         
 3.base .north          .            30.0000        +INF            EPS         
 3.base .south          .            30.0000        +INF            EPS         
-3.peak .north          .              .            +INF      -1.735876E-7      
-3.peak .south          .              .            +INF      -1.030565E-8      
+3.peak .north          .              .            +INF      -3.298330E-8      
+3.peak .south          .              .            +INF      -5.741345E-9      
 3.wind .north          .            70.0000        +INF            EPS         
 3.wind .south          .            70.0000        +INF            EPS         
 3.solar.north          .            70.0000        +INF            EPS         
@@ -2837,52 +2837,52 @@ solar.south      -200.0000        10.5000       200.0000         EPS
 4.base .north          .            30.0000        +INF            EPS         
 4.base .south          .            30.0000        +INF            EPS         
 4.peak .north          .              .            +INF            EPS         
-4.peak .south          .              .            +INF      -1.030565E-8      
+4.peak .south          .              .            +INF      -5.741345E-9      
 4.wind .north          .            70.0000        +INF            EPS         
 4.wind .south          .            70.0000        +INF            EPS         
 4.solar.north          .            70.0000        +INF            EPS         
 4.solar.south          .            70.0000        +INF            EPS         
-5.base .north          .           127.7096        +INF            EPS         
-5.base .south          .           127.7096        +INF            EPS         
-5.peak .north          .            97.7096        +INF      -4.436193E-8      
-5.peak .south          .            97.7096        +INF            EPS         
-5.wind .north          .           167.7096        +INF            EPS         
-5.wind .south          .           167.7096        +INF            EPS         
-5.solar.north          .           167.7096        +INF            EPS         
-5.solar.south          .           167.7096        +INF            EPS         
+5.base .north          .           123.3369        +INF            EPS         
+5.base .south          .           123.3369        +INF            EPS         
+5.peak .north          .            93.3369        +INF      -2.023683E-8      
+5.peak .south          .            93.3369        +INF            EPS         
+5.wind .north          .           163.3369        +INF            EPS         
+5.wind .south          .           163.3369        +INF            EPS         
+5.solar.north          .           163.3369        +INF            EPS         
+5.solar.south          .           163.3369        +INF            EPS         
 6.base .north          .            30.0000        +INF            EPS         
 6.base .south          .            30.0000        +INF            EPS         
 6.peak .north          .              .            +INF            EPS         
-6.peak .south          .              .            +INF      -1.030565E-8      
+6.peak .south          .              .            +INF      -5.741345E-9      
 6.wind .north          .            70.0000        +INF            EPS         
 6.wind .south          .            70.0000        +INF            EPS         
 6.solar.north          .            70.0000        +INF            EPS         
 6.solar.south          .            70.0000        +INF            EPS         
 7.base .north          .            30.0000        +INF            EPS         
 7.base .south          .            30.0000        +INF            EPS         
-7.peak .north          .              .            +INF      -9.098746E-8      
-7.peak .south          .              .            +INF      -1.030565E-8      
+7.peak .north          .              .            +INF      -2.480544E-8      
+7.peak .south          .              .            +INF      -5.741345E-9      
 7.wind .north          .            70.0000        +INF            EPS         
 7.wind .south          .            70.0000        +INF            EPS         
 7.solar.north          .            70.0000        +INF            EPS         
 7.solar.south          .            70.0000        +INF            EPS         
-8.base .north          .            25.8811        +INF            EPS         
-8.base .south          .            25.8811        +INF            EPS         
-8.peak .north          .              .            +INF            EPS         
-8.peak .south          .              .            +INF      -1.030565E-8      
-8.wind .north          .            65.8811        +INF            EPS         
-8.wind .south          .            65.8811        +INF            EPS         
-8.solar.north          .            65.8811        +INF            EPS         
-8.solar.south          .            65.8811        +INF            EPS         
+8.base .north          .            30.0000        +INF            EPS         
+8.base .south          .            30.0000        +INF            EPS         
+8.peak .north          .              .            +INF      -3.795633E-8      
+8.peak .south          .              .            +INF      -5.741345E-9      
+8.wind .north          .            70.0000        +INF            EPS         
+8.wind .south          .            70.0000        +INF            EPS         
+8.solar.north          .            70.0000        +INF            EPS         
+8.solar.south          .            70.0000        +INF            EPS         
 
 ---- VAR mu_C_min  
 
                    LOWER          LEVEL          UPPER         MARGINAL
 
-base .north          .              .            +INF      -1.218909E-8      
-base .south          .              .            +INF      -1.157462E-8      
-peak .north          .              .            +INF      -1.012320E-8      
-peak .south          .              .            +INF      -1.030565E-8      
+base .north          .              .            +INF      -7.315182E-9      
+base .south          .              .            +INF      -6.633476E-9      
+peak .north          .              .            +INF      -5.573742E-9      
+peak .south          .              .            +INF      -5.741345E-9      
 wind .north          .              .            +INF            EPS         
 wind .south          .              .            +INF            EPS         
 solar.north          .              .            +INF            EPS         
@@ -2905,90 +2905,90 @@ solar.south          .              .            +INF            EPS
 
          LOWER          LEVEL          UPPER         MARGINAL
 
-1          .              .            +INF      -2.196123E-7      
+1          .              .            +INF            EPS         
 2          .              .            +INF            EPS         
 3          .              .            +INF            EPS         
-4          .              .            +INF      -9.880874E-8      
-5          .              .            +INF            EPS         
-6          .              .            +INF      -3.608336E-7      
+4          .              .            +INF      -8.439558E-8      
+5          .              .            +INF      -5.026913E-9      
+6          .              .            +INF      -1.806871E-7      
 7          .              .            +INF            EPS         
-8          .              .            +INF      -3.655846E-7      
+8          .              .            +INF            EPS         
 
 ---- VAR GRID_CAP  
 
                    LOWER          LEVEL          UPPER         MARGINAL
 
 north.north          .              .            +INF            EPS         
-north.south          .             6.2021        +INF            EPS         
-south.north          .             6.2021        +INF      -3.271563E-7      
+north.south          .             6.2317        +INF            EPS         
+south.north          .             6.2317        +INF      -1.877665E-7      
 south.south          .              .            +INF            EPS         
 
 ---- VAR LOAD_redi  
 
                LOWER          LEVEL          UPPER         MARGINAL
 
-1.north          .             5.7643        +INF      -3.759906E-7      
-1.south          .            38.9365        +INF      -5.554125E-8      
-2.north          .             3.0472        +INF      -7.115254E-7      
-2.south          .            41.7357        +INF      -5.186075E-8      
-3.north          .             2.8832        +INF      -7.506367E-7      
-3.south          .            50.8902        +INF      -4.249409E-8      
-4.north          .            22.0779        +INF      -9.814880E-8      
-4.south          .            38.5817        +INF      -5.612469E-8      
-5.north          .            15.2450        +INF      -1.420344E-7      
-5.south          .            43.9757        +INF      -4.911067E-8      
-6.north          .            28.6806        +INF      -7.555923E-8      
-6.south          .            31.1530        +INF      -6.960545E-8      
-7.north          .            28.1081        +INF      -7.700396E-8      
-7.south          .            31.7577        +INF      -6.822938E-8      
-8.north          .             6.1334        +INF      -3.532430E-7      
-8.south          .            53.7491        +INF      -4.023673E-8      
+1.north          .             5.7290        +INF      -2.158488E-7      
+1.south          .            38.8768        +INF      -3.179798E-8      
+2.north          .             3.0706        +INF      -4.036008E-7      
+2.south          .            41.7357        +INF      -2.969796E-8      
+3.north          .             2.8632        +INF      -4.326189E-7      
+3.south          .            50.6651        +INF      -2.447405E-8      
+4.north          .            22.0779        +INF      -5.617744E-8      
+4.south          .            38.5817        +INF      -3.214791E-8      
+5.north          .            15.2454        +INF      -8.119105E-8      
+5.south          .            44.1258        +INF      -2.805587E-8      
+6.north          .            28.5978        +INF      -4.335834E-8      
+6.south          .            31.1530        +INF      -3.982700E-8      
+7.north          .            28.1081        +INF      -4.409799E-8      
+7.south          .            31.7577        +INF      -3.907758E-8      
+8.north          .             6.1195        +INF      -2.022950E-7      
+8.south          .            53.6276        +INF      -2.310298E-8      
 
 ---- VAR LOAD_spot  
 
          LOWER          LEVEL          UPPER         MARGINAL
 
-1          .            44.8036        +INF            EPS         
+1          .            44.6058        +INF            EPS         
 2          .            44.7707        +INF            EPS         
 3          .            53.7070        +INF            EPS         
 4          .            60.6596        +INF            EPS         
-5          .            59.2207        +INF            EPS         
+5          .            59.3712        +INF            EPS         
 6          .            60.1538        +INF            EPS         
 7          .            59.3504        +INF            EPS         
-8          .            59.8825        +INF            EPS         
+8          .            59.7471        +INF            EPS         
 
 ---- VAR UP  
 
                      LOWER          LEVEL          UPPER         MARGINAL
 
-1.base .north          .       4.6473610E-7       100.0000        -5.6927      
-1.base .south          .             0.3223       100.0000   -4.290966E-6      
-1.peak .north          .       6.0843412E-8       100.0000       -35.6927      
-1.peak .south          .       8.8452040E-8       100.0000       -24.3002      
+1.base .north          .              .           100.0000         EPS         
+1.base .south          .              .           100.0000         EPS         
+1.peak .north          .       3.9246005E-8       100.0000       -24.3288      
+1.peak .south          .       4.2481206E-8       100.0000       -21.4741      
 1.wind .north          .              .           100.0000         EPS         
 1.wind .south          .              .           100.0000         EPS         
 1.solar.north          .              .           100.0000         EPS         
 1.solar.south          .              .           100.0000         EPS         
 2.base .north          .              .           100.0000         EPS         
 2.base .south          .              .           100.0000         EPS         
-2.peak .north          .       3.3624736E-7       100.0000        -7.3577      
-2.peak .south          .             0.1852       100.0000   -5.512748E-5      
+2.peak .north          .       5.9410761E-8       100.0000       -21.3646      
+2.peak .south          .             1.7376       100.0000   -6.987563E-7      
 2.wind .north          .              .           100.0000         EPS         
 2.wind .south          .              .           100.0000         EPS         
 2.solar.north          .              .           100.0000         EPS         
 2.solar.south          .              .           100.0000         EPS         
-3.base .north          .              .           100.0000       -12.8921      
+3.base .north          .              .           100.0000         EPS         
 3.base .south          .              .           100.0000         EPS         
-3.peak .north          .       4.8479318E-8       100.0000       -42.8921      
-3.peak .south          .             2.3720       100.0000   -9.883249E-7      
+3.peak .north          .       4.0667528E-8       100.0000       -30.0000      
+3.peak .south          .             4.3236       100.0000   -2.680926E-7      
 3.wind .north          .              .           100.0000         EPS         
 3.wind .south          .              .           100.0000         EPS         
 3.solar.north          .              .           100.0000         EPS         
 3.solar.south          .              .           100.0000         EPS         
 4.base .north          .              .           100.0000         EPS         
 4.base .south          .              .           100.0000         EPS         
-4.peak .north          .             1.0842       100.0000   -1.925368E-6      
-4.peak .south          .             0.8753       100.0000   -2.425226E-6      
+4.peak .north          .             0.7803       100.0000   -1.607995E-6      
+4.peak .south          .             0.6815       100.0000   -1.798248E-6      
 4.wind .north          .              .           100.0000         EPS         
 4.wind .south          .              .           100.0000         EPS         
 4.solar.north          .              .           100.0000         EPS         
@@ -3003,24 +3003,24 @@ south.south          .              .            +INF            EPS
 5.solar.south          .              .           100.0000         EPS         
 6.base .north          .              .           100.0000         EPS         
 6.base .south          .              .           100.0000         EPS         
-6.peak .north          .             0.3565       100.0000   -5.575115E-6      
-6.peak .south          .             0.2537       100.0000   -7.590054E-6      
+6.peak .north          .             0.5049       100.0000   -2.763099E-6      
+6.peak .south          .              .           100.0000         EPS         
 6.wind .north          .              .           100.0000         EPS         
 6.wind .south          .              .           100.0000         EPS         
 6.solar.north          .              .           100.0000         EPS         
 6.solar.south          .              .           100.0000         EPS         
 7.base .north          .              .           100.0000         EPS         
 7.base .south          .              .           100.0000         EPS         
-7.peak .north          .            11.9842       100.0000   -1.842828E-7      
-7.peak .south          .       7.6202394E-8       100.0000       -30.0000      
+7.peak .north          .             8.4302       100.0000   -1.462809E-7      
+7.peak .south          .       4.6386563E-8       100.0000       -30.0000      
 7.wind .north          .              .           100.0000         EPS         
 7.wind .south          .              .           100.0000         EPS         
 7.solar.north          .              .           100.0000         EPS         
 7.solar.south          .              .           100.0000         EPS         
 8.base .north          .              .           100.0000         EPS         
 8.base .south          .              .           100.0000         EPS         
-8.peak .north          .       5.4378772E-7       100.0000        -4.1189      
-8.peak .south          .       5.9238332E-7       100.0000        -4.1189      
+8.peak .north          .             0.9180       100.0000   -1.247199E-6      
+8.peak .south          .             2.9071       100.0000   -3.817168E-7      
 8.wind .north          .              .           100.0000         EPS         
 8.wind .south          .              .           100.0000         EPS         
 8.solar.north          .              .           100.0000         EPS         
@@ -3030,324 +3030,323 @@ south.south          .              .            +INF            EPS
 
                      LOWER          LEVEL          UPPER         MARGINAL
 
-1.base .north          .             0.4250       100.0000   -4.004217E-6      
-1.base .south          .       4.6943976E-7       100.0000        -5.6998      
+1.base .north          .       2.8433351E-7       100.0000        -5.6712      
+1.base .south          .       1.8991373E-7       100.0000        -8.5259      
 1.peak .north          .              .           100.0000         EPS         
 1.peak .south          .              .           100.0000         EPS         
-1.wind .north          .       6.2542675E-8       100.0000       -34.3073      
-1.wind .south          .       4.8400487E-8       100.0000       -45.6998      
-1.solar.north          .              .           100.0000       -34.3073      
-1.solar.south          .              .           100.0000       -45.6998      
-2.base .north          .       1.3633810E-7       100.0000       -22.6423      
-2.base .south          .       6.8925129E-8       100.0000       -29.9999      
-2.peak .north          .              .           100.0000         EPS         
-2.peak .south          .             0.1729       100.0000   -5.903442E-5      
-2.wind .north          .       3.5240492E-8       100.0000       -62.6423      
-2.wind .south          .       3.0293710E-8       100.0000       -69.9999      
-2.solar.north          .       3.4568203E-8       100.0000       -62.6423      
-2.solar.south          .       3.0003954E-8       100.0000       -69.9999      
-3.base .north          .             0.6060       100.0000   -3.351173E-6      
-3.base .south          .       7.0628262E-8       100.0000       -30.0000      
-3.peak .north          .             1.0681       100.0000   -2.511618E-6      
-3.peak .south          .             0.6314       100.0000   -3.945363E-6      
-3.wind .north          .       8.6336620E-8       100.0000       -27.1079      
-3.wind .south          .       3.0584034E-8       100.0000       -70.0000      
-3.solar.north          .       8.5575806E-8       100.0000       -27.1079      
-3.solar.south          .       3.0577922E-8       100.0000       -70.0000      
-4.base .north          .       7.0256175E-8       100.0000       -30.0000      
-4.base .south          .       6.9840386E-8       100.0000       -30.0000      
-4.peak .north          .             1.0767       100.0000   -1.970291E-6      
-4.peak .south          .             0.8828       100.0000   -2.452387E-6      
-4.wind .north          .       3.0348487E-8       100.0000       -70.0000      
-4.wind .south          .       3.0394306E-8       100.0000       -70.0000      
-4.solar.north          .       2.9130695E-8       100.0000       -70.0000      
-4.solar.south          .       2.9893785E-8       100.0000       -70.0000      
-5.base .north          .       1.8859403E-8       100.0000      -115.5878      
-5.base .south          .       1.7138119E-8       100.0000      -131.8723      
-5.peak .north          .       2.5647475E-8       100.0000       -85.5878      
-5.peak .south          .       2.2747070E-8       100.0000      -101.8723      
-5.wind .north          .       1.3910482E-8       100.0000      -155.5878      
-5.wind .south          .       1.2906118E-8       100.0000      -171.8723      
-5.solar.north          .              .           100.0000      -155.5878      
-5.solar.south          .              .           100.0000      -171.8723      
-6.base .north          .       4.1880080E-8       100.0000       -50.0732      
-6.base .south          .       6.8388149E-8       100.0000       -30.0000      
-6.peak .north          .       1.0063091E-7       100.0000       -20.0731      
-6.peak .south          .             0.9303       100.0000   -2.199462E-6      
-6.wind .north          .       2.3480522E-8       100.0000       -90.0731      
-6.wind .south          .       2.9956362E-8       100.0000       -70.0000      
-6.solar.north          .       2.2351360E-8       100.0000       -90.0732      
-6.solar.south          .       2.9283222E-8       100.0000       -70.0000      
-7.base .north          .       7.2000151E-8       100.0000       -30.0000      
-7.base .south          .             8.5969       100.0000   -4.065738E-7      
-7.peak .north          .             1.2435       100.0000   -1.707777E-6      
-7.peak .south          .             1.6283       100.0000   -1.377448E-6      
-7.wind .north          .       3.0829291E-8       100.0000       -70.0000      
-7.wind .south          .       5.2133268E-8       100.0000       -40.0000      
-7.solar.north          .       3.0589444E-8       100.0000       -70.0000      
-7.solar.south          .       5.1995989E-8       100.0000       -40.0000      
-8.base .north          .       8.4507083E-8       100.0000       -25.8811      
-8.base .south          .       8.2150270E-8       100.0000       -25.8811      
-8.peak .north          .              .           100.0000         EPS         
-8.peak .south          .              .           100.0000         EPS         
-8.wind .north          .       3.3022202E-8       100.0000       -65.8811      
-8.wind .south          .       3.2482386E-8       100.0000       -65.8811      
-8.solar.north          .       3.2604634E-8       100.0000       -65.8811      
-8.solar.south          .       3.2465479E-8       100.0000       -65.8811      
+1.wind .north          .       2.8968106E-8       100.0000       -45.6712      
+1.wind .south          .       2.7606599E-8       100.0000       -48.5259      
+1.solar.north          .              .           100.0000       -45.6712      
+1.solar.south          .              .           100.0000       -48.5259      
+2.base .north          .       1.2569606E-7       100.0000        -8.6354      
+2.base .south          .       4.0763982E-8       100.0000       -30.0000      
+2.peak .north          .             1.7020       100.0000   -6.906812E-7      
+2.peak .south          .              .           100.0000         EPS         
+2.wind .north          .       2.4917010E-8       100.0000       -48.6354      
+2.wind .south          .       1.7576187E-8       100.0000       -70.0000      
+2.solar.north          .       2.4651934E-8       100.0000       -48.6354      
+2.solar.south          .       1.7358815E-8       100.0000       -70.0000      
+3.base .north          .             0.6829       100.0000   -1.897301E-6      
+3.base .south          .       3.1772226E-8       100.0000       -38.0410      
+3.peak .north          .             3.8193       100.0000   -3.232557E-7      
+3.peak .south          .       1.2964447E-7       100.0000        -8.0410      
+3.wind .north          .       3.0815410E-8       100.0000       -40.0000      
+3.wind .south          .       1.5625012E-8       100.0000       -78.0410      
+3.solar.north          .       3.0741031E-8       100.0000       -40.0000      
+3.solar.south          .       1.5642465E-8       100.0000       -78.0410      
+4.base .north          .       4.0189312E-8       100.0000       -30.0000      
+4.base .south          .       4.0254231E-8       100.0000       -30.0000      
+4.peak .north          .             0.7717       100.0000   -1.590083E-6      
+4.peak .south          .             0.6901       100.0000   -1.780362E-6      
+4.wind .north          .       1.7356723E-8       100.0000       -70.0000      
+4.wind .south          .       1.7421583E-8       100.0000       -70.0000      
+4.solar.north          .       1.6798347E-8       100.0000       -70.0000      
+4.solar.south          .       1.7069629E-8       100.0000       -70.0000      
+5.base .north          .       1.0989918E-8       100.0000      -115.5398      
+5.base .south          .       1.0281049E-8       100.0000      -126.0145      
+5.peak .north          .       1.5246801E-8       100.0000       -85.5398      
+5.peak .south          .       1.3932503E-8       100.0000       -96.0145      
+5.wind .north          .              .           100.0000      -155.5398      
+5.wind .south          .              .           100.0000      -166.0145      
+5.solar.north          .              .           100.0000      -155.5398      
+5.solar.south          .              .           100.0000      -166.0145      
+6.base .north          .       2.1945366E-8       100.0000       -55.2650      
+6.base .south          .       3.9691404E-8       100.0000       -30.0000      
+6.peak .north          .       4.6896207E-8       100.0000       -25.2650      
+6.peak .south          .             0.9079       100.0000   -1.392534E-6      
+6.wind .north          .       1.2803524E-8       100.0000       -95.2650      
+6.wind .south          .       1.7292253E-8       100.0000       -70.0000      
+6.solar.north          .       1.1955231E-8       100.0000       -95.2650      
+6.solar.south          .       1.6650527E-8       100.0000       -70.0000      
+7.base .north          .       4.0614587E-8       100.0000       -30.0000      
+7.base .south          .             3.1167       100.0000   -8.634865E-7      
+7.peak .north          .             1.8975       100.0000   -6.069737E-7      
+7.peak .south          .             2.9006       100.0000   -4.118530E-7      
+7.wind .north          .       1.7546233E-8       100.0000       -70.0000      
+7.wind .south          .       2.9915905E-8       100.0000       -40.0000      
+7.solar.north          .       1.7479752E-8       100.0000       -70.0000      
+7.solar.south          .       2.9729742E-8       100.0000       -40.0000      
+8.base .north          .       4.3101213E-8       100.0000       -30.0000      
+8.base .south          .       4.1585116E-8       100.0000       -30.0000      
+8.peak .north          .             2.9658       100.0000   -4.233876E-7      
+8.peak .south          .             0.8593       100.0000   -1.477239E-6      
+8.wind .north          .       1.8110036E-8       100.0000       -70.0000      
+8.wind .south          .       1.7794262E-8       100.0000       -70.0000      
+8.solar.north          .       1.7948383E-8       100.0000       -70.0000      
+8.solar.south          .       1.7789576E-8       100.0000       -70.0000      
 
 
 **** REPORT SUMMARY :        0     NONOPT
                              0 INFEASIBLE
                              0  UNBOUNDED
                              0     ERRORS
-                            36  PROJECTED
-GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 02/15/22 15:48:41 Page 8
+                            34  PROJECTED
+GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 02/15/22 16:00:52 Page 8
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
 E x e c u t i o n
 
 
-----    299 VARIABLE WF.L                  =   401177.956  
-            PARAMETER consumer_surplus     =   435426.292  
-            PARAMETER generation_costs     =    33164.695  
-            PARAMETER network_cost         =     1083.641  
-            PARAMETER network_cost_1       =      793.875  
-            PARAMETER network_cost_2       =      291.161  
-            PARAMETER network_cost_3       =       -1.395  
+----    299 VARIABLE WF.L                  =   400679.068  
+            PARAMETER consumer_surplus     =   435433.289  
+            PARAMETER generation_costs     =    33827.395  
+            PARAMETER network_cost         =      926.826  
+            PARAMETER network_cost_1       =      797.662  
+            PARAMETER network_cost_2       =      111.860  
+            PARAMETER network_cost_3       =       17.304  
 
 ----    299 VARIABLE CAP.L  
 
             north       south
 
-base        0.606      31.085
-peak       18.615       6.157
-wind       27.829       5.322
-solar       9.822      41.469
+base        1.827      30.551
+peak       17.765       6.668
+wind       23.566       6.756
+solar       9.096      26.684
 
 
 ----    299 VARIABLE GEN.L  
 
               north       south
 
-1.base        0.425      30.762
-1.wind       11.966       1.650
-2.base        0.606      31.085
-2.peak                    0.268
-2.wind        6.679       0.852
-2.solar       1.964       3.318
-3.base        0.606      31.085
-3.peak        1.068       1.272
-3.wind        5.844       0.639
-3.solar       3.241       9.953
-4.base        0.606      31.085
-4.peak       16.980       4.793
-4.wind        4.453       0.692
-4.solar       0.393       1.659
-5.base        0.606      31.085
-5.peak       18.615       6.157
-5.wind        2.226       0.532
-6.base        0.606      31.085
-6.peak       18.258       5.692
-6.wind        3.061       0.426
-6.solar       0.196       0.829
-7.base        0.606      31.085
-7.peak        3.013       1.628
-7.wind        5.288       0.958
-7.solar       2.259      14.514
-8.base        0.606      31.085
-8.wind        7.236       1.597
-8.solar       2.357      17.002
+1.base        1.827      30.551
+1.wind       10.133       2.095
+2.base        1.827      30.551
+2.peak        1.702
+2.wind        5.656       1.081
+2.solar       1.819       2.135
+3.base        1.827      30.551
+3.peak        3.819       2.344
+3.wind        4.949       0.811
+3.solar       3.002       6.404
+4.base        1.827      30.551
+4.peak       16.585       5.617
+4.wind        3.771       0.878
+4.solar       0.364       1.067
+5.base        1.827      30.551
+5.peak       17.765       6.668
+5.wind        1.885       0.676
+6.base        1.827      30.551
+6.peak       17.260       6.668
+6.wind        2.592       0.541
+6.solar       0.182       0.534
+7.base        1.827      30.551
+7.peak        6.947       2.901
+7.wind        4.478       1.216
+7.solar       2.092       9.339
+8.base        1.827      30.551
+8.peak        3.656       2.436
+8.wind        6.127       2.027
+8.solar       2.183      10.941
 
 
 ----    299 VARIABLE UP.L  
 
               north       south
 
-1.base  4.647361E-7       0.322
-1.peak  6.084341E-8 8.845204E-8
-2.peak  3.362474E-7       0.185
-3.peak  4.847932E-8       2.372
-4.peak        1.084       0.875
-6.peak        0.357       0.254
-7.peak       11.984 7.620239E-8
-8.peak  5.437877E-7 5.923833E-7
+1.peak  3.924601E-8 4.248121E-8
+2.peak  5.941076E-8       1.738
+3.peak  4.066753E-8       4.324
+4.peak        0.780       0.681
+6.peak        0.505
+7.peak        8.430 4.638656E-8
+8.peak        0.918       2.907
 
 
 ----    299 VARIABLE DOWN.L  
 
               north       south
 
-1.base        0.425 4.694398E-7
-1.wind  6.254267E-8 4.840049E-8
-2.base  1.363381E-7 6.892513E-8
-2.peak                    0.173
-2.wind  3.524049E-8 3.029371E-8
-2.solar 3.456820E-8 3.000395E-8
-3.base        0.606 7.062826E-8
-3.peak        1.068       0.631
-3.wind  8.633662E-8 3.058403E-8
-3.solar 8.557581E-8 3.057792E-8
-4.base  7.025618E-8 6.984039E-8
-4.peak        1.077       0.883
-4.wind  3.034849E-8 3.039431E-8
-4.solar 2.913069E-8 2.989379E-8
-5.base  1.885940E-8 1.713812E-8
-5.peak  2.564748E-8 2.274707E-8
-5.wind  1.391048E-8 1.290612E-8
-6.base  4.188008E-8 6.838815E-8
-6.peak  1.006309E-7       0.930
-6.wind  2.348052E-8 2.995636E-8
-6.solar 2.235136E-8 2.928322E-8
-7.base  7.200015E-8       8.597
-7.peak        1.244       1.628
-7.wind  3.082929E-8 5.213327E-8
-7.solar 3.058944E-8 5.199599E-8
-8.base  8.450708E-8 8.215027E-8
-8.wind  3.302220E-8 3.248239E-8
-8.solar 3.260463E-8 3.246548E-8
+1.base  2.843335E-7 1.899137E-7
+1.wind  2.896811E-8 2.760660E-8
+2.base  1.256961E-7 4.076398E-8
+2.peak        1.702
+2.wind  2.491701E-8 1.757619E-8
+2.solar 2.465193E-8 1.735881E-8
+3.base        0.683 3.177223E-8
+3.peak        3.819 1.296445E-7
+3.wind  3.081541E-8 1.562501E-8
+3.solar 3.074103E-8 1.564247E-8
+4.base  4.018931E-8 4.025423E-8
+4.peak        0.772       0.690
+4.wind  1.735672E-8 1.742158E-8
+4.solar 1.679835E-8 1.706963E-8
+5.base  1.098992E-8 1.028105E-8
+5.peak  1.524680E-8 1.393250E-8
+6.base  2.194537E-8 3.969140E-8
+6.peak  4.689621E-8       0.908
+6.wind  1.280352E-8 1.729225E-8
+6.solar 1.195523E-8 1.665053E-8
+7.base  4.061459E-8       3.117
+7.peak        1.897       2.901
+7.wind  1.754623E-8 2.991590E-8
+7.solar 1.747975E-8 2.972974E-8
+8.base  4.310121E-8 4.158512E-8
+8.peak        2.966       0.859
+8.wind  1.811004E-8 1.779426E-8
+8.solar 1.794838E-8 1.778958E-8
 
 
 ----    299 PARAMETER redispatch  
 
               north       south
 
-1.base       -0.425       0.322
-1.peak  6.084341E-8 8.845204E-8
-1.wind  -6.25427E-8 -4.84005E-8
-2.base  -1.36338E-7 -6.89251E-8
-2.peak  3.362474E-7       0.012
-2.wind  -3.52405E-8 -3.02937E-8
-2.solar -3.45682E-8 -3.00040E-8
-3.base       -0.606 -7.06283E-8
-3.peak       -1.068       1.741
-3.wind  -8.63366E-8 -3.05840E-8
-3.solar -8.55758E-8 -3.05779E-8
-4.base  -7.02562E-8 -6.98404E-8
-4.peak        0.008      -0.008
-4.wind  -3.03485E-8 -3.03943E-8
-4.solar -2.91307E-8 -2.98938E-8
-5.base  -1.88594E-8 -1.71381E-8
-5.peak  -2.56475E-8 -2.27471E-8
-5.wind  -1.39105E-8 -1.29061E-8
-6.base  -4.18801E-8 -6.83881E-8
-6.peak        0.357      -0.677
-6.wind  -2.34805E-8 -2.99564E-8
-6.solar -2.23514E-8 -2.92832E-8
-7.base  -7.20002E-8      -8.597
-7.peak       10.741      -1.628
-7.wind  -3.08293E-8 -5.21333E-8
-7.solar -3.05894E-8 -5.19960E-8
-8.base  -8.45071E-8 -8.21503E-8
-8.peak  5.437877E-7 5.923833E-7
-8.wind  -3.30222E-8 -3.24824E-8
-8.solar -3.26046E-8 -3.24655E-8
+1.base  -2.84334E-7 -1.89914E-7
+1.peak  3.924601E-8 4.248121E-8
+1.wind  -2.89681E-8 -2.76066E-8
+2.base  -1.25696E-7 -4.07640E-8
+2.peak       -1.702       1.738
+2.wind  -2.49170E-8 -1.75762E-8
+2.solar -2.46519E-8 -1.73588E-8
+3.base       -0.683 -3.17722E-8
+3.peak       -3.819       4.324
+3.wind  -3.08154E-8 -1.56250E-8
+3.solar -3.07410E-8 -1.56425E-8
+4.base  -4.01893E-8 -4.02542E-8
+4.peak        0.009      -0.009
+4.wind  -1.73567E-8 -1.74216E-8
+4.solar -1.67983E-8 -1.70696E-8
+5.base  -1.09899E-8 -1.02810E-8
+5.peak  -1.52468E-8 -1.39325E-8
+6.base  -2.19454E-8 -3.96914E-8
+6.peak        0.505      -0.908
+6.wind  -1.28035E-8 -1.72923E-8
+6.solar -1.19552E-8 -1.66505E-8
+7.base  -4.06146E-8      -3.117
+7.peak        6.533      -2.901
+7.wind  -1.75462E-8 -2.99159E-8
+7.solar -1.74798E-8 -2.97297E-8
+8.base  -4.31012E-8 -4.15851E-8
+8.peak       -2.048       2.048
+8.wind  -1.81100E-8 -1.77943E-8
+8.solar -1.79484E-8 -1.77896E-8
 
 
 ----    299 VARIABLE FLOW.L  
 
               north       south
 
-1.north                   6.202
-1.south      -6.202
-2.north                   6.202
-2.south      -6.202
-3.north                   6.202
-3.south      -6.202
-4.north                   0.361
-4.south      -0.361
-5.north                   6.202
-5.south      -6.202
-6.north                  -6.202
-6.south       6.202
-7.north                  -6.202
-7.south       6.202
-8.north                   4.065
-8.south      -4.065
+1.north                   6.232
+1.south      -6.232
+2.north                   6.232
+2.south      -6.232
+3.north                   6.232
+3.south      -6.232
+4.north                   0.477
+4.south      -0.477
+5.north                   6.232
+5.south      -6.232
+6.north                  -6.232
+6.south       6.232
+7.north                  -6.232
+7.south       6.232
+8.north                   5.626
+8.south      -5.626
 
 
 ----    299 PARAMETER price  
 
-1  40.000,    2  70.000,    3  70.000,    4  70.000,    5 167.710,    6  70.000,    7  70.000,    8  65.881
+1  48.160,    2  70.000,    3  70.000,    4  70.000,    5 163.337,    6  70.000,    7  70.000,    8  70.000
 
 
 ----    299 PARAMETER load_deviation  
 
         north       south
 
-1      39.104       6.064
+1      38.906       5.866
 2      41.711       2.691
 3      50.867       2.397
 4      38.400      21.760
-5      43.091      12.251
+5      43.241      12.401
 6      30.914      28.744
 7      31.010      27.850
-8      53.712       5.812
+8      53.577       5.677
 
 
 ----    299 PARAMETER load_shedding  
 
         north       south
 
-1      39.039       5.867
-2      41.723       3.035
-3      50.824       2.817
+1      38.877       5.729
+2      41.700       3.035
+3      50.844       3.042
 4      38.582      22.078
-5      43.976      15.245
-6      31.473      29.001
+5      44.126      15.245
+6      31.556      29.001
 7      31.242      27.593
-8      53.749       6.133
+8      53.628       6.120
 
 
 ----    299 VARIABLE GRID_CAP.L  
 
             north       south
 
-north                   6.202
-south       6.202
+north                   6.232
+south       6.232
 
 
 ----    299 VARIABLE LOAD_redi.L  
 
         north       south
 
-1       5.764      38.937
-2       3.047      41.736
-3       2.883      50.890
+1       5.729      38.877
+2       3.071      41.736
+3       2.863      50.665
 4      22.078      38.582
-5      15.245      43.976
-6      28.681      31.153
+5      15.245      44.126
+6      28.598      31.153
 7      28.108      31.758
-8       6.133      53.749
+8       6.120      53.628
 
 
 ----    299 VARIABLE LOAD_spot.L  
 
-1 44.804,    2 44.771,    3 53.707,    4 60.660,    5 59.221,    6 60.154,    7 59.350,    8 59.882
+1 44.606,    2 44.771,    3 53.707,    4 60.660,    5 59.371,    6 60.154,    7 59.350,    8 59.747
 
 
 ----    299 VARIABLE INSTRUMENT.L  
 
             north       south
 
-base       29.406      20.138
-peak       -7.951      -4.163
-wind       11.983       3.217
-solar      15.225      10.500
+base       36.385      18.915
+peak      -17.468     -10.719
+wind       10.342       4.054
+solar      13.668       8.570
 
 
 ----    299 PARAMETER o_instrument  
 
             north       south
 
-base       32.200      22.051
-peak       -8.707      -4.558
-wind       13.121       3.522
-solar      16.671      11.498
+base       39.842      20.712
+peak      -19.127     -11.737
+wind       11.325       4.439
+solar      14.966       9.384
 
 
-----    299 PARAMETER sum_instrument       =     1405.700  
+----    299 PARAMETER sum_instrument       =      886.700  
 
 
-EXECUTION TIME       =        0.000 SECONDS      3 MB  30.3.0 rc5da09e WEX-WEI
+EXECUTION TIME       =        0.016 SECONDS      3 MB  30.3.0 rc5da09e WEX-WEI
 
 
 USER: Small MUD - 5 User License                     S190305:0326AO-WIN
