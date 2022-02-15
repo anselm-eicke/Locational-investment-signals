@@ -1,6 +1,6 @@
 Sets
-all_t       all hours               /1*12/
-t(all_t)    hours                   /1*12/
+all_t       all hours               /1*10/
+t(all_t)    hours                   /1*10/
 tec         generators              /base, peak, wind, solar/
 con(tec)    conventional generation /base, peak/
 all_n       all buses               /north, south/
@@ -141,7 +141,7 @@ grid_eq4
 * Set starting point
 LOAD_real.L(t,n) =load_ref(t,n);
 
-Option optcr = 0.0001;
+Option optcr = 0.00001;
 Solve nodal using QCP max WF;
 
 price(t,n) = p_ref * (1-1/elasticity + (LOAD_real.L(t,n)) / (elasticity * load_ref(t,n)));

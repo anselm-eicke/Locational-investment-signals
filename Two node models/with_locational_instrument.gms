@@ -1,6 +1,6 @@
 Sets
-all_t       all hours               /1*12/
-t(all_t)    hours                   /1*12/
+all_t       all hours               /1*10/
+t(all_t)    hours                   /1*10/
 tec         generators              /base, peak, wind, solar/
 con(tec)    conventional generation /base, peak/
 all_n       all buses               /north, south/
@@ -261,8 +261,7 @@ UP.lo(t,tec,n) = 0;
 LOCI.nodlim = 65000000;
 LOCI.resLim = 150000;
 
-* default value is too large (tested by comparing results to a nodal model with network costs = 0)
-Option optcr = 0.0001;
+Option optcr = 0.000001;
 
 Option MIQCP = Cplex;
 

@@ -25,9 +25,9 @@ south      700       1
 ;
 
 Parameters
-o_instrument(tec,n);
+o_instrument;
 
-$GDXIN "Output/with_instrument.gdx"
+$GDXIN "Output/without_instrument.gdx"
 $LOADdc o_instrument
 
 Parameters
@@ -37,7 +37,7 @@ sc          scaling factor
 
 sc = card(t) / 8760;
 *load instrument
-INSTRUMENT(tec,n)           = o_instrument(tec,n) * sc * 1000;
+INSTRUMENT(tec,n)           = o_instrument * sc * 1000;
 
 
 Parameters
