@@ -15,7 +15,7 @@ alias (all_n,all_m);
 Parameter elasticity / -0.03 /; 
 Parameter p_ref / 55 /;
 Parameter specific_network_costs /200/;
-Parameter capacity_slope / 333 /;
+Parameter capacity_slope / 666 /;
 *Source for network costs: EMMA (3400 EUR/MW/km discontiert mit i = 0.07 ueber 40 Jahre)
 
 Table B(all_n,all_m)        Susceptance of transmission lines
@@ -23,6 +23,7 @@ Table B(all_n,all_m)        Susceptance of transmission lines
 north        1     700  
 south      700       1
 ;
+
 
 Parameters
 * Input Parameters
@@ -45,11 +46,9 @@ A_zonal(t)                  intercept of inverse zonal demand function
 S_zonal(t)                  slope of inverse zonal demand function
     
 * Output Parameters
-welfare,
+welfare
 consumer_surplus
 generation_costs
-load_deviation(t,n)
-load_shedding(t,n)
 network_cost
 network_cost_1
 network_cost_2
@@ -57,15 +56,16 @@ network_cost_3
 
 res_share
 real_generation(t,tec,n)
+load_deviation(t,n)
+load_shedding(t,n)
 
 o_RES_share
 o_load(t,n)
 o_cap(tec,n)
 o_gen(t,tec,n)
 price(t)
-o_instrument(tec,n)
+o_instrument
 sum_instrument
-redispatch(t,tec,n) 
 ;
 
 * Load data
@@ -114,7 +114,7 @@ GEN(t,tec,n)
 CAP(tec,n)
 WF
 FLOW(t,n,m)
-INSTRUMENT(tec,n)
+INSTRUMENT
 THETA(t,n)
 SPOT_PRICE(t)
 ;
@@ -163,7 +163,7 @@ complementarity6b
 objective..                     WF =e= sum((t,n), a_nodal(t,n) * LOAD_redi(t,n) + 1/2 * s_nodal(t,n) * LOAD_redi(t,n) * LOAD_redi(t,n))
                                     - sum((tec,n), CAP(tec,n) * c_fix(tec,n) + 0.5 * CAP(tec,n) * CAP(tec,n) * capacity_slope)
                                     - sum((t,tec,n), GEN(t,tec,n) * c_var(tec,n))
-                                    - sum((t,tec,n), UP(t,tec,n) * (c_var(tec,n) + 5) - DOWN(t,tec,n) * (c_var(tec,n) - 5))
+                                    - sum((t,tec,n), (UP(t,tec,n) - DOWN(t,tec,n)) * (c_var(tec,n)))
                                     - sum((n,m),(GRID_CAP(n,m) * grid_cost(n,m)) / 2)
                                     ;          
 
@@ -189,7 +189,7 @@ demand_min(t)..                 0 =g= -LOAD_spot(t);
 energy_balance(t)..             0 =e= sum((tec,n),GEN(t,tec,n)) - LOAD_spot(t);
            
 KKT_GEN(t,tec,n)..              c_var(tec,n) + mu_G_max(t,tec,n) - mu_G_min(t,tec,n) - SPOT_PRICE(t) =e= 0;
-KKT_CAP(tec,n)..                c_fix(tec,n) + capacity_slope * CAP(tec,n) + INSTRUMENT(tec,n) - sum(t,avail(t,tec,n) * mu_G_max(t,tec,n)) + mu_C_max(tec,n) - mu_C_min(tec,n) =e= 0;
+KKT_CAP(tec,n)..                c_fix(tec,n) + capacity_slope * CAP(tec,n) + INSTRUMENT - sum(t,avail(t,tec,n) * mu_G_max(t,tec,n)) + mu_C_max(tec,n) - mu_C_min(tec,n) =e= 0;
 KKT_load(t)..                   -(A_zonal(t) + S_zonal(t) * LOAD_spot(t)) - mu_D_min(t) + SPOT_PRICE(t) =e= 0;              
 
 complementarity1a(t,tec,n)..    GEN(t,tec,n)        =L= y1(t,tec,n) * M1;
@@ -245,9 +245,9 @@ complementarity6a
 complementarity6b
 /;
 
-
-INSTRUMENT.lo(tec,n) = -200;
-INSTRUMENT.up(tec,n) = 200;
+INSTRUMENT.L = 5;
+INSTRUMENT.lo = -20;
+INSTRUMENT.up = 40;
 
 GEN.up(t,tec,n) = 100;
 GEN.lo(t,tec,n) = 0;
@@ -258,10 +258,10 @@ DOWN.lo(t,tec,n) = 0;
 UP.up(t,tec,n) = 100;
 UP.lo(t,tec,n) = 0;
 
-LOCI.nodlim = 65000000;
-LOCI.resLim = 150000;
+LOCI.nodlim = 80000000;
+LOCI.resLim = 200000;
 
-Option optcr = 0.0000001;
+Option optcr = 0.0005;
 
 Option MIQCP = Cplex;
 
@@ -270,8 +270,8 @@ Solve LOCI maximizing WF using MIQCP;
 
 price(t) = SPOT_PRICE.L(t);
 
-o_instrument(tec,n) = INSTRUMENT.L(tec,n) / sc / 1000;
-                                    
+o_instrument = INSTRUMENT.L / sc / 1000;
+
 network_cost_1 = sum((n,m),(GRID_CAP.L(n,m) / 2 * grid_cost(n,m)));
 network_cost_2 = sum((t,tec,n), (UP.L(t,tec,n) - DOWN.L(t,tec,n)) * c_var(tec,n));
 network_cost_3 = sum((t), A_zonal(t) * LOAD_spot.L(t) + 1/2 * S_zonal(t) * LOAD_spot.L(t) * LOAD_spot.L(t))
@@ -284,9 +284,9 @@ consumer_surplus = sum((t), A_zonal(t) * LOAD_spot.L(t) + 1/2 * S_zonal(t) * LOA
 
 generation_costs = (sum((tec,n), CAP.L(tec,n) * c_fix(tec,n) + 0.5 * CAP.L(tec,n) * CAP.L(tec,n) * capacity_slope) + sum((t,tec,n), GEN.L(t,tec,n) * c_var(tec,n)));
                                                                     
-sum_instrument = sum((tec,n), INSTRUMENT.L(tec,n) * CAP.L(tec,n));
+sum_instrument = sum((tec,n), INSTRUMENT.L * CAP.L(tec,n));
 
-load_deviation(t,n) = LOAD_spot.L(t) - load_ref(t,n);
+load_deviation(t,n) = ((SPOT_PRICE.L(t) - a_nodal(t,n)) / s_nodal(t,n)) - load_ref(t,n);
 load_shedding(t,n) = LOAD_spot.L(t) - LOAD_redi.L(t,n);
 res_share = 1 - sum((t,con,n), GEN.L(t,con,n)) / sum((t,tec,n), GEN.L(t,tec,n));
 o_cap(tec,n) = CAP.L(tec,n);
@@ -294,8 +294,6 @@ o_gen(t,tec,n) = GEN.L(t,tec,n);
 real_generation(t,tec,n) = GEN.L(t,tec,n) + UP.L(t,tec,n) - DOWN.L(t,tec,n);
 welfare = WF.L;
 
-redispatch(t,tec,n) = UP.L(t,tec,n) - DOWN.L(t,tec,n);
+Display WF.L, consumer_surplus, generation_costs, network_cost, network_cost_1, network_cost_2, network_cost_3, CAP.L, GEN.L, UP.L, DOWN.L, FLOW.L, price, load_deviation, load_shedding, GRID_CAP.L, LOAD_redi.L, LOAD_spot.L, o_instrument, sum_instrument;
 
-Display WF.L, consumer_surplus, generation_costs, network_cost, network_cost_1, network_cost_2, network_cost_3, CAP.L, GEN.L, UP.L, DOWN.L, redispatch, FLOW.L, price, load_deviation, load_shedding, GRID_CAP.L, LOAD_redi.L, LOAD_spot.L, INSTRUMENT.L, o_instrument, sum_instrument;
-
-execute_UNLOAD 'Output/with_instrument_redispatch.gdx' welfare, consumer_surplus, generation_costs, network_cost, res_share, o_instrument, sum_instrument, o_cap, o_gen, price, c_fix;
+execute_UNLOAD 'Output/without_instrument_testing.gdx' welfare, consumer_surplus, generation_costs, network_cost, res_share, o_instrument, sum_instrument, o_cap, o_gen, price, c_fix;

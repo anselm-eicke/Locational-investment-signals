@@ -1,6 +1,6 @@
 Sets
 all_t       all hours               /1*10/
-t(all_t)    hours                   /1*10/
+t(all_t)    hours                   /1*8/
 tec         generators              /base, peak, wind, solar/
 con(tec)    conventional generation /base, peak/
 all_n       all buses               /north, south/
@@ -12,7 +12,7 @@ alias (n,m);
 alias (all_n,all_m);
 
 * parameters for supply and demand functions
-Parameter elasticity / -0.05 /; 
+Parameter elasticity / -0.03 /; 
 Parameter p_ref / 55 /;
 Parameter specific_network_costs /200/;
 Parameter capacity_slope / 666 /;
