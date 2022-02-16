@@ -15,7 +15,7 @@ alias (all_n,all_m);
 Parameter elasticity / -0.03 /; 
 Parameter p_ref / 55 /;
 Parameter specific_network_costs /200/;
-Parameter capacity_slope / 666 /;
+Parameter capacity_slope / 333 /;
 *Source for network costs: EMMA (3400 EUR/MW/km discontiert mit i = 0.07 ueber 40 Jahre)
 
 Table B(all_n,all_m)        Susceptance of transmission lines

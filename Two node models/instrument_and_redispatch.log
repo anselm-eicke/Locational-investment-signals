@@ -1,8 +1,8 @@
---- Job instrument_and_redispatch.gms Start 02/15/22 14:46:09 30.3.0 rc5da09e WEX-WEI x86 64bit/MS Windows
+--- Job instrument_and_redispatch.gms Start 02/16/22 08:32:40 30.3.0 rc5da09e WEX-WEI x86 64bit/MS Windows
 --- GAMS Parameters defined
     Input C:\Users\a.eicke\Documents\Locational-investment-signals\Two node models\instrument_and_redispatch.gms
     PageSize 0
-    ScrDir C:\Users\a.eicke\Documents\Locational-investment-signals\Two node models\225c\
+    ScrDir C:\Users\a.eicke\Documents\Locational-investment-signals\Two node models\225b\
     SysDir C:\GAMS\win64\30.3\
     LogOption 3
     ErrMsg 1
@@ -20,7 +20,7 @@ Licensee: Small MUD - 5 User License                     S190305:0326AO-WIN
 --- instrument_and_redispatch.gms(78) 3 Mb
 --- GDXin=C:\Users\a.eicke\Documents\Locational-investment-signals\Two node models\avail.gdx
 --- instrument_and_redispatch.gms(301) 3 Mb
---- Starting execution: elapsed 0:00:00.008
+--- Starting execution: elapsed 0:00:00.016
 --- instrument_and_redispatch.gms(266) 4 Mb
 --- Generating MIQCP model LOCI
 --- instrument_and_redispatch.gms(269) 6 Mb
@@ -28,7 +28,7 @@ Licensee: Small MUD - 5 User License                     S190305:0326AO-WIN
 ---   178 nl-code  28 nl-non-zeroes
 ---   196 discrete-columns
 --- instrument_and_redispatch.gms(269) 4 Mb
---- Executing CPLEX: elapsed 0:00:00.022
+--- Executing CPLEX: elapsed 0:00:00.045
 
 IBM ILOG CPLEX   30.3.0 rc5da09e Released Mar 06, 2020 WEI x86 64bit/MS Window
 --- GAMS/Cplex licensed for continuous and discrete problems.
@@ -50,7 +50,7 @@ CPXPARAM_TimeLimit                               150000
 CPXPARAM_Tune_TimeLimit                          30000
 CPXPARAM_MIP_Tolerances_AbsMIPGap                0
 CPXPARAM_MIP_Tolerances_MIPGap                   9.9999999999999995e-08
-CPXPARAM_WorkDir                                 "C:\Users\a.eicke\Documents\Locational-investment-signals\Two node models\225c\"
+CPXPARAM_WorkDir                                 "C:\Users\a.eicke\Documents\Locational-investment-signals\Two node models\225b\"
 Tried aggregator 2 times.
 MIQP Presolve eliminated 310 rows and 82 columns.
 MIQP Presolve modified 268 coefficients.
@@ -58,9 +58,9 @@ Aggregator did 21 substitutions.
 Reduced MIQP has 638 rows, 637 columns, and 1884 nonzeros.
 Reduced MIQP has 174 binaries, 0 generals, 0 SOSs, and 0 indicators.
 Reduced MIQP objective Q matrix has 28 nonzeros.
-Presolve time = 0.00 sec. (1.65 ticks)
+Presolve time = 0.02 sec. (1.65 ticks)
 Probing fixed 11 vars, tightened 240 bounds.
-Probing time = 0.02 sec. (0.93 ticks)
+Probing time = 0.00 sec. (0.93 ticks)
 Cover probing fixed 0 vars, tightened 12 bounds.
 Tried aggregator 2 times.
 MIQP Presolve eliminated 21 rows and 21 columns.
@@ -69,10 +69,10 @@ Aggregator did 10 substitutions.
 Reduced MIQP has 607 rows, 606 columns, and 1811 nonzeros.
 Reduced MIQP has 163 binaries, 0 generals, 0 SOSs, and 0 indicators.
 Reduced MIQP objective Q matrix has 28 nonzeros.
-Presolve time = 0.00 sec. (1.09 ticks)
+Presolve time = 0.02 sec. (1.09 ticks)
 Classifier predicts products in MIQP should be linearized.
 Probing fixed 5 vars, tightened 251 bounds.
-Probing time = 0.00 sec. (1.10 ticks)
+Probing time = 0.02 sec. (1.10 ticks)
 Clique table members: 149.
 MIP emphasis: balance optimality and feasibility.
 MIP search method: dynamic search.
@@ -115,7 +115,7 @@ Summary statistics for Cholesky factor:
   16   4.9126561e+05   4.9126563e+05  4.74e-07  3.75e-07  2.03e-06
   17   4.9126562e+05   4.9126562e+05  2.78e-09  2.19e-09  1.02e-08
   18   4.9126562e+05   4.9126562e+05  9.87e-10  2.79e-10  6.32e-11
-Barrier time = 0.03 sec. (6.75 ticks)
+Barrier time = 0.02 sec. (6.75 ticks)
 
 QP crossover.
   Primal and Dual:  Fixing 182 variables.
@@ -126,8 +126,8 @@ Iteration log . . .
 Iteration:     1    Objective     =        491265.617384
 Total crossover time = 0.00 sec. (4.63 ticks)
 
-Total time on 1 threads = 0.03 sec. (11.91 ticks)
-Root relaxation solution time = 0.03 sec. (11.91 ticks)
+Total time on 1 threads = 0.02 sec. (11.91 ticks)
+Root relaxation solution time = 0.02 sec. (11.91 ticks)
 
         Nodes                                         Cuts/
    Node  Left     Objective  IInf  Best Integer    Best Bound    ItCnt     Gap
@@ -139,16 +139,16 @@ Root relaxation solution time = 0.03 sec. (11.91 ticks)
       0     0   491265.6174    94                    Cuts: 20      681         
       0     0   491265.6174    94                     Cuts: 7      691         
 *     0+    0                       486667.8550   491265.6174             0.94%
-Found incumbent of value 486667.855008 after 0.28 sec. (131.03 ticks)
+Found incumbent of value 486667.855008 after 0.31 sec. (131.03 ticks)
       0     2   491265.6174    45   486667.8550   491265.6174      691    0.94%
-Elapsed time = 0.31 sec. (134.91 ticks, tree = 0.01 MB, solutions = 1)
+Elapsed time = 0.33 sec. (134.91 ticks, tree = 0.01 MB, solutions = 1)
 *    30+   16                       491184.1214   491265.6174             0.02%
-Found incumbent of value 491184.121377 after 0.39 sec. (180.75 ticks)
+Found incumbent of value 491184.121377 after 0.41 sec. (180.75 ticks)
 *    33    11      integral     0   491221.6331   491265.6174     1694    0.01%
-Found incumbent of value 491221.633136 after 0.39 sec. (184.16 ticks)
+Found incumbent of value 491221.633136 after 0.41 sec. (184.16 ticks)
 *   133+   43                       491223.3772   491260.3967             0.01%
                                                   Impl Bds: 3                  
-Found incumbent of value 491223.377198 after 0.67 sec. (306.92 ticks)
+Found incumbent of value 491223.377198 after 0.69 sec. (306.92 ticks)
     269     3        cutoff         491223.3772   491223.5989     3101    0.00%
 
 Clique cuts applied:  51
@@ -158,13 +158,13 @@ Mixed integer rounding cuts applied:  52
 Gomory fractional cuts applied:  5
 
 Root node processing (before b&c):
-  Real time             =    0.31 sec. (134.92 ticks)
+  Real time             =    0.33 sec. (134.92 ticks)
 Sequential b&c:
-  Real time             =    0.70 sec. (292.91 ticks)
+  Real time             =    0.74 sec. (292.91 ticks)
                           ------------
-Total (root+branch&cut) =    1.02 sec. (427.83 ticks)
+Total (root+branch&cut) =    1.06 sec. (427.83 ticks)
 MIQP status(101): integer optimal solution
-Cplex Time: 1.02sec (det. 427.84 ticks)
+Cplex Time: 1.06sec (det. 427.84 ticks)
 Fixing integer variables, and solving final QP..
 Version identifier: 12.10.0.0 | 2019-11-26 | 843d4de2ae
 CPXPARAM_Advance                                 2
@@ -177,13 +177,13 @@ CPXPARAM_TimeLimit                               150000
 CPXPARAM_Tune_TimeLimit                          30000
 CPXPARAM_MIP_Tolerances_AbsMIPGap                0
 CPXPARAM_MIP_Tolerances_MIPGap                   9.9999999999999995e-08
-CPXPARAM_WorkDir                                 "C:\Users\a.eicke\Documents\Locational-investment-signals\Two node models\225c\"
+CPXPARAM_WorkDir                                 "C:\Users\a.eicke\Documents\Locational-investment-signals\Two node models\225b\"
 Tried aggregator 1 time.
 QP Presolve eliminated 718 rows and 505 columns.
 Aggregator did 91 substitutions.
 Reduced QP has 160 rows, 147 columns, and 552 nonzeros.
 Reduced QP objective Q matrix has 28 nonzeros.
-Presolve time = 0.02 sec. (0.73 ticks)
+Presolve time = 0.00 sec. (0.73 ticks)
 Parallel mode: none, using 1 thread for barrier
 
 ***NOTE: Found 8 dense columns.
@@ -212,11 +212,11 @@ Summary statistics for Cholesky factor:
   12   4.9122305e+05   4.9122431e+05  1.13e-06  3.62e-13  4.16e-04
   13   4.9122337e+05   4.9122338e+05  6.76e-09  3.55e-13  1.77e-06
   14   4.9122338e+05   4.9122338e+05  8.59e-10  3.55e-13  8.36e-09
-Barrier time = 0.02 sec. (2.66 ticks)
+Barrier time = 0.00 sec. (2.66 ticks)
 
-Total time on 1 threads = 0.02 sec. (2.66 ticks)
+Total time on 1 threads = 0.00 sec. (2.66 ticks)
 QP status(1): optimal
-Cplex Time: 0.02sec (det. 2.66 ticks)
+Cplex Time: 0.01sec (det. 2.66 ticks)
 
 Proven optimal solution.
 
@@ -230,8 +230,8 @@ Relative gap:            0.000000
 --- Restarting execution
 --- instrument_and_redispatch.gms(269) 2 Mb
 --- Reading solution for model LOCI
---- Executing after solve: elapsed 0:00:01.196
+--- Executing after solve: elapsed 0:00:01.297
 --- instrument_and_redispatch.gms(301) 3 Mb
 --- GDX File C:\Users\a.eicke\Documents\Locational-investment-signals\Two node models\Output/with_instrument_redispatch.gdx
 *** Status: Normal completion
---- Job instrument_and_redispatch.gms Stop 02/15/22 14:46:10 elapsed 0:00:01.196
+--- Job instrument_and_redispatch.gms Stop 02/16/22 08:32:41 elapsed 0:00:01.297

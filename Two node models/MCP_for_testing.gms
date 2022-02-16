@@ -213,10 +213,30 @@ price(t) = A_zonal(t) + S_zonal(t) * LOAD_zonal.L(t);
 maximum = smax(t,price(t));
 threshold = smin((t,n),a_nodal(t,n));
 
+network_cost_1 = sum((n,m),(GRID_CAP.L(n,m) / 2 * grid_cost(n,m)));
+network_cost_2 = sum((t,tec,n), (UP.L(t,tec,n) - DOWN.L(t,tec,n)) * c_var(tec,n));
+network_cost_3 = sum((t), A_zonal(t) * LOAD_spot.L(t) + 1/2 * S_zonal(t) * LOAD_spot.L(t) * LOAD_spot.L(t))
+                - sum((t,n), a_nodal(t,n) * LOAD_redi.L(t,n) + 1/2 * s_nodal(t,n) * LOAD_redi.L(t,n) * LOAD_redi.L(t,n))
+                ;
+         
+network_cost = network_cost_1 + network_cost_2 + network_cost_3;
+       
+consumer_surplus = sum((t), A_zonal(t) * LOAD_spot.L(t) + 1/2 * S_zonal(t) * LOAD_spot.L(t) * LOAD_spot.L(t));
+
+generation_costs = (sum((tec,n), CAP.L(tec,n) * c_fix(tec,n) + 0.5 * CAP.L(tec,n) * CAP.L(tec,n) * capacity_slope) + sum((t,tec,n), GEN.L(t,tec,n) * c_var(tec,n)));
+                                                                    
+sum_instrument = sum((tec,n), INSTRUMENT.L * CAP.L(tec,n));
+
+load_deviation(t,n) = ((SPOT_PRICE.L(t) - a_nodal(t,n)) / s_nodal(t,n)) - load_ref(t,n);
+load_shedding(t,n) = LOAD_spot.L(t) - LOAD_redi.L(t,n);
+res_share = 1 - sum((t,con,n), GEN.L(t,con,n)) / sum((t,tec,n), GEN.L(t,tec,n));
+o_cap(tec,n) = CAP.L(tec,n);
+o_gen(t,tec,n) = GEN.L(t,tec,n);
+real_generation(t,tec,n) = GEN.L(t,tec,n) + UP.L(t,tec,n) - DOWN.L(t,tec,n);
+welfare = WF.L;
+
 display maximum, threshold;
     
-    
-load_deviation(t) = LOAD_zonal.L(t) / sum(n,load_ref(t,n));
+Display WF.L, consumer_surplus, generation_costs, network_cost, network_cost_1, network_cost_2, network_cost_3, CAP.L, GEN.L, UP.L, DOWN.L, FLOW.L, price, load_deviation, load_shedding, GRID_CAP.L, LOAD_redi.L, LOAD_spot.L, o_instrument, sum_instrument;
 
-Display GEN.L, CAP.L, LOAD_zonal.L, LAMBDA.L, price, load_deviation;
-*,WF.L,  GRID.L, LAMBDA.L, LOAD_real.L, CAP_INSTR.L, UP.L, DOWN.L, RESERVE_CAP.L, FLOW.L;
+execute_UNLOAD 'Output/without_instrument_MCP.gdx' welfare, consumer_surplus, generation_costs, network_cost, res_share, o_instrument, sum_instrument, o_cap, o_gen, price, c_fix;

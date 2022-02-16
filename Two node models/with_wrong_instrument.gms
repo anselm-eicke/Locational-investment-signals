@@ -25,6 +25,23 @@ south      700       1
 ;
 
 Parameters
+o_instrument(tec,n);
+
+$GDXIN "Output/with_instrument.gdx"
+$LOADdc o_instrument
+
+Parameters
+INSTRUMENT(tec,n)
+sc          scaling factor
+;
+
+sc = card(t) / 8760;
+*load instrument
+INSTRUMENT(tec,n)           = o_instrument(tec,n) * sc * 1000 * 0.9;
+
+
+
+Parameters
 * Input Parameters
 i_cost(*,*)                 cost data to be loaded from sheet "cost"
 i_load(all_t,all_n)         load data to be loaded from sheet "time series" in MWh
@@ -114,7 +131,6 @@ GEN(t,tec,n)
 CAP(tec,n)
 WF
 FLOW(t,n,m)
-INSTRUMENT(tec,n)
 THETA(t,n)
 SPOT_PRICE(t)
 ;
@@ -246,9 +262,6 @@ complementarity6b
 /;
 
 
-INSTRUMENT.lo(tec,n) = -200;
-INSTRUMENT.up(tec,n) = 200;
-
 GEN.up(t,tec,n) = 100;
 GEN.lo(t,tec,n) = 0;
 
@@ -261,7 +274,7 @@ UP.lo(t,tec,n) = 0;
 LOCI.nodlim = 65000000;
 LOCI.resLim = 150000;
 
-Option optcr = 0.0000001;
+Option optcr = 0.000001;
 
 Option MIQCP = Cplex;
 
@@ -269,8 +282,6 @@ Option MIQCP = Cplex;
 Solve LOCI maximizing WF using MIQCP;
 
 price(t) = SPOT_PRICE.L(t);
-
-o_instrument(tec,n) = INSTRUMENT.L(tec,n) / sc / 1000;
                                     
 network_cost_1 = sum((n,m),(GRID_CAP.L(n,m) / 2 * grid_cost(n,m)));
 network_cost_2 = sum((t,tec,n), (UP.L(t,tec,n) - DOWN.L(t,tec,n)) * c_var(tec,n));
@@ -283,8 +294,6 @@ network_cost = network_cost_1 + network_cost_2 + network_cost_3;
 consumer_surplus = sum((t), A_zonal(t) * LOAD_spot.L(t) + 1/2 * S_zonal(t) * LOAD_spot.L(t) * LOAD_spot.L(t));
 
 generation_costs = (sum((tec,n), CAP.L(tec,n) * c_fix(tec,n) + 0.5 * CAP.L(tec,n) * CAP.L(tec,n) * capacity_slope) + sum((t,tec,n), GEN.L(t,tec,n) * c_var(tec,n)));
-                                                                    
-sum_instrument = sum((tec,n), INSTRUMENT.L(tec,n) * CAP.L(tec,n));
 
 load_deviation(t,n) = LOAD_spot.L(t) - load_ref(t,n);
 load_shedding(t,n) = LOAD_spot.L(t) - LOAD_redi.L(t,n);
@@ -296,6 +305,6 @@ welfare = WF.L;
 
 redispatch(t,tec,n) = UP.L(t,tec,n) - DOWN.L(t,tec,n);
 
-Display WF.L, consumer_surplus, generation_costs, network_cost, network_cost_1, network_cost_2, network_cost_3, CAP.L, GEN.L, UP.L, DOWN.L, redispatch, FLOW.L, price, load_deviation, load_shedding, GRID_CAP.L, LOAD_redi.L, LOAD_spot.L, INSTRUMENT.L, o_instrument, sum_instrument;
+Display WF.L, consumer_surplus, generation_costs, network_cost, network_cost_1, network_cost_2, network_cost_3, CAP.L, GEN.L, UP.L, DOWN.L, redispatch, FLOW.L, price, load_deviation, load_shedding, GRID_CAP.L, LOAD_redi.L, LOAD_spot.L;
 
-execute_UNLOAD 'Output/with_instrument.gdx' welfare, consumer_surplus, generation_costs, network_cost, res_share, o_instrument, sum_instrument, o_cap, o_gen, price, c_fix;
+execute_UNLOAD 'Output/small_instrument.gdx' welfare, consumer_surplus, generation_costs, network_cost, res_share, o_cap, o_gen, price, c_fix;
