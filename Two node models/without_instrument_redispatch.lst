@@ -1,0 +1,1461 @@
+GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 02/16/22 09:46:19 Page 1
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+C o m p i l a t i o n
+
+
+   1  Sets
+   2  all_t       all hours               /1*10/
+   3  t(all_t)    hours                   /1*10/
+   4  tec         generators              /base, peak, wind, solar/
+   5  con(tec)    conventional generation /base, peak/
+   6  all_n       all buses               /north, south/
+   7  n(all_n)    selected buses          /north, south/
+   8  ;
+   9   
+  10   
+  11  alias (n,m);
+  12  alias (all_n,all_m);
+  13   
+  14  * parameters for supply and demand functions
+  15  Parameter elasticity / -0.05 /;
+  16  Parameter p_ref / 55 /;
+  17  Parameter specific_network_costs /200/;
+  18  Parameter capacity_slope / 333 /;
+  19  *Source for network costs: EMMA (3400 EUR/MW/km discontiert mit i = 0.07 ueber 40 Jahre)
+  20   
+  21  Table B(all_n,all_m)        Susceptance of transmission lines
+  22           north  south
+  23  north        1     700
+  24  south      700       1
+  25  ;
+  26   
+  27   
+  28  Parameters
+  29  * Input Parameters
+  30  i_cost(*,*)                 cost data to be loaded from sheet "cost"
+  31  i_load(all_t,all_n)         load data to be loaded from sheet "time series" in MWh
+  32  i_avail(all_t,tec,all_n)    availability data
+  33   
+  34  * Model Parameters
+  35  load_ref(t,n)               hourly load in GWh
+  36  avail(t,tec,n)              availability of wind and solar generation (1)
+  37  c_var(tec,n)                variable costs (EUR per MWh)
+  38  c_fix(tec,n)                annualized fixed costs (EUR per MW p.a.)
+  39  cap_lim(tec,n)              capacity limit of generation in each node
+  40  grid_cost(n,m)
+  41  sc                          scaling factor
+  42  a_nodal(t,n)                intercept of inverse nodal demand function
+  43  s_nodal(t,n)                slope of inverse nodal demand function
+  44   
+  45  A_zonal(t)                  intercept of inverse zonal demand function
+  46  S_zonal(t)                  slope of inverse zonal demand function
+  47   
+  48  * Output Parameters
+  49  welfare
+  50  consumer_surplus
+  51  generation_costs
+  52  network_cost
+  53  network_cost_1
+  54  network_cost_2
+  55  network_cost_3
+  56   
+  57  res_share
+  58  real_generation(t,tec,n)
+  59  load_deviation(t,n)
+  60  load_shedding(t,n)
+  61   
+  62  o_RES_share
+  63  o_load(t,n)
+  64  o_cap(tec,n)
+  65  o_gen(t,tec,n)
+  66  price(t)
+  67  o_instrument
+  68  sum_instrument
+  69  ;
+  70   
+  71  * Load data
+GDXIN   C:\Users\a.eicke\Documents\Locational-investment-signals\Two node models\in.gdx
+--- LOAD  i_cost = 1:i_cost
+  74   
+GDXIN   C:\Users\a.eicke\Documents\Locational-investment-signals\Two node models\load.gdx
+--- LOAD  i_load = 1:i_load
+  77   
+GDXIN   C:\Users\a.eicke\Documents\Locational-investment-signals\Two node models\avail.gdx
+--- LOAD  i_avail = 1:i_avail
+  80   
+  81   
+  82  * Data assignment
+  83  sc = card(t) / 8760;
+  84  load_ref(t,n)               = i_load(t,n) / 1000;
+  85  avail(t,tec,n)              = i_avail(t,tec,n);
+  86  avail(t,con,n)              = 1;
+  87  c_var(tec, n)               = i_cost(tec,"cost_var");
+  88  c_fix(tec, n)               = round(i_cost(tec,"cost_fix") * 1000 * sc);
+  89  cap_lim(tec,n)              = 100;
+  90  grid_cost(n,m)              = round(B(n,m) * specific_network_costs * sc);
+  91  capacity_slope              = capacity_slope * sc;
+  92   
+  93  *Inverse demand function at each node
+  94  a_nodal(t,n)                = p_ref *(1-1/elasticity);
+  95  s_nodal(t,n)                = p_ref *(1/(elasticity*load_ref(t,n)));
+  96   
+  97  * Inverse demand function of the zonal market (only holds if P(t) < a_nodal(t,n) for all t,n)
+  98  A_zonal(t)                  = sum(n, a_nodal(t,n) / s_nodal(t,n)) / sum(n, 1/ s_nodal(t,n));
+  99  S_zonal(t)                  = 1 / sum(n, 1/ s_nodal(t,n));
+ 100   
+ 101  display c_var, load_ref, avail, c_fix, a_nodal, s_nodal, A_zonal, S_zonal;
+ 102   
+ 103  Binary variables y1(t,tec,n),y2(t,tec,n),y3(tec,n),y4(tec,n),y5(t),y6(t);
+ 104   
+ 105  Parameter M1 / 100000/;
+ 106  Parameter M2 / 100000/;
+ 107  Parameter M3 / 100000/;
+ 108  Parameter M4 / 100000/;
+ 109  Parameter M5 / 100000/;
+ 110  Parameter M6 / 100000/;
+ 111   
+ 112  Free Variables
+ 113  GEN(t,tec,n)
+ 114  CAP(tec,n)
+ 115  WF
+ 116  FLOW(t,n,m)
+ 117  INSTRUMENT
+ 118  THETA(t,n)
+ 119  SPOT_PRICE(t)
+ 120  ;
+ 121   
+ 122  Positive variables
+ 123  mu_G_min(t,tec,n)
+ 124  mu_G_max(t,tec,n)
+ 125  mu_C_min(tec,n)
+ 126  mu_C_max(tec,n)
+ 127  mu_D_min(t)
+ 128   
+ 129  GRID_CAP(n,m)
+ 130  LOAD_redi(t,n)
+ 131  LOAD_spot(t)
+ 132  UP(t,tec,n)
+ 133  DOWN(t,tec,n)
+ 134  ;
+ 135   
+ 136  Equations
+ 137  objective, instr_const,
+ 138  nodal_energy_balance,
+ 139  grid_eq1, grid_eq2, grid_eq3, grid_eq4,
+ 140  redispatch1, redispatch2,
+ 141   
+ 142  gen_min, gen_max,
+ 143  cap_min, cap_max,
+ 144  demand_min,
+ 145  energy_balance,
+ 146   
+ 147  KKT_GEN, KKT_CAP, KKT_load,
+ 148   
+ 149  complementarity1a,
+ 150  complementarity1b,
+ 151  complementarity2a,
+ 152  complementarity2b,
+ 153  complementarity3a,
+ 154  complementarity3b,
+ 155  complementarity4a,
+ 156  complementarity4b,
+ 157  complementarity5a,
+ 158  complementarity5b,
+ 159  complementarity6a,
+ 160  complementarity6b
+ 161  ;
+ 162   
+ 163  objective..                     WF =e= sum((t,n), a_nodal(t,n) * LOAD_redi(t,n) + 1/2 * s_nodal(t,n) * LOAD_redi(t,n) * LOAD_redi(t,n))
+ 164                                      - sum((tec,n), CAP(tec,n) * c_fix(tec,n) + 0.5 * CAP(tec,n) * CAP(tec,n) * capacity_slope)
+ 165                                      - sum((t,tec,n), GEN(t,tec,n) * c_var(tec,n))
+ 166                                      - sum((t,tec,n), UP(t,tec,n) * (c_var(tec,n) + 25) - DOWN(t,tec,n) * (c_var(tec,n) - 25))
+ 167                                      - sum((n,m),(GRID_CAP(n,m) * grid_cost(n,m)) / 2)
+ 168                                      ;
+ 169   
+ 170  nodal_energy_balance(t,n)..     sum(tec,GEN(t,tec,n) - DOWN(t,tec,n) + UP(t,tec,n)) - LOAD_redi(t,n) =E= sum(m,FLOW(t,n,m));
+ 171   
+ 172  *network constraints
+ 173  grid_eq1(t,n,m)..               FLOW(t,n,m) =l= GRID_CAP(n,m);
+ 174  grid_eq2(n,m)..                 GRID_CAP(n,m) =e= GRID_CAP(m,n);
+ 175  grid_eq3(t,n,m)..               FLOW(t,n,m) =e= B(n,m) *(THETA(t,n) - THETA(t,m));
+ 176  grid_eq4(t,n)..                 THETA(t,'south') =e= 0;
+ 177   
+ 178  redispatch1(t,tec,n)..          DOWN(t,tec,n) =L= GEN(t,tec,n);
+ 179  redispatch2(t,tec,n)..          UP(t,tec,n) =L= CAP(tec,n) * avail(t,tec,n) - GEN(t,tec,n);
+ 180   
+ 181  ** INNER PROBLEM
+ 182  gen_min(t,tec,n)..              0 =g= -GEN(t,tec,n);
+ 183  gen_max(t,tec,n)..              0 =g= GEN(t,tec,n) - CAP(tec,n) * avail(t,tec,n);
+ 184   
+ 185  cap_min(tec,n)..                0 =g= -CAP(tec,n);
+ 186  cap_max(tec,n)..                0 =g= CAP(tec,n) - cap_lim(tec,n);
+ 187   
+ 188  demand_min(t)..                 0 =g= -LOAD_spot(t);
+ 189  energy_balance(t)..             0 =e= sum((tec,n),GEN(t,tec,n)) - LOAD_spot(t);
+ 190   
+ 191  KKT_GEN(t,tec,n)..              c_var(tec,n) + mu_G_max(t,tec,n) - mu_G_min(t,tec,n) - SPOT_PRICE(t) =e= 0;
+ 192  KKT_CAP(tec,n)..                c_fix(tec,n) + capacity_slope * CAP(tec,n) + INSTRUMENT - sum(t,avail(t,tec,n) * mu_G_max(t,tec,n)) + mu_C_max(tec,n) - mu_C_min(tec,n) =e= 0;
+ 193  KKT_load(t)..                   -(A_zonal(t) + S_zonal(t) * LOAD_spot(t)) - mu_D_min(t) + SPOT_PRICE(t) =e= 0;
+ 194   
+ 195  complementarity1a(t,tec,n)..    GEN(t,tec,n)        =L= y1(t,tec,n) * M1;
+ 196  complementarity1b(t,tec,n)..    mu_G_min(t,tec,n)   =L= (1-y1(t,tec,n)) * M1;
+ 197  complementarity2a(t,tec,n)..    CAP(tec,n) * avail(t,tec,n) - GEN(t,tec,n) =L= y2(t,tec,n) * M2;
+ 198  complementarity2b(t,tec,n)..    mu_G_max(t,tec,n)   =L= (1-y2(t,tec,n)) * M2;
+ 199  complementarity3a(tec,n)..      CAP(tec,n)          =L= y3(tec,n) * M3;
+ 200  complementarity3b(tec,n)..      mu_C_min(tec,n)     =L= (1-y3(tec,n)) * M3;
+ 201  complementarity4a(tec,n)..      cap_lim(tec,n) - CAP(tec,n) =L= y4(tec,n) * M4;
+ 202  complementarity4b(tec,n)..      mu_C_max(tec,n)     =L= (1-y4(tec,n)) * M4;
+ 203  complementarity5a(t)..          LOAD_spot(t)        =L= y5(t) * M5;
+ 204  complementarity5b(t)..          mu_D_min(t)       =L= (1-y5(t)) * M5;
+ 205  complementarity6a(t)..          LOAD_spot(t) - sum((tec,n),GEN(t,tec,n)) =L= y6(t) * M6;
+ 206  complementarity6b(t)..          SPOT_PRICE(t)           =L= (1-y6(t)) * M6;
+ 207   
+ 208   
+ 209  Model LOCI /
+ 210   
+ 211  objective
+ 212  nodal_energy_balance
+ 213   
+ 214  grid_eq1
+ 215  grid_eq2
+ 216  grid_eq3
+ 217  grid_eq4
+ 218   
+ 219  redispatch1
+ 220  redispatch2
+ 221   
+ 222  gen_min
+ 223  gen_max
+ 224  cap_min
+ 225  cap_max
+ 226   
+ 227  demand_min
+ 228  energy_balance
+ 229   
+ 230  KKT_GEN
+ 231  KKT_CAP
+ 232  KKT_load
+ 233   
+ 234  complementarity1a
+ 235  complementarity1b
+ 236  complementarity2a
+ 237  complementarity2b
+ 238  complementarity3a
+ 239  complementarity3b
+ 240  complementarity4a
+ 241  complementarity4b
+ 242  complementarity5a
+ 243  complementarity5b
+ 244  complementarity6a
+ 245  complementarity6b
+ 246  /;
+ 247   
+ 248  INSTRUMENT.L = 8;
+ 249  INSTRUMENT.lo = -5;
+ 250  INSTRUMENT.up = 25;
+ 251   
+ 252  GEN.up(t,tec,n) = 100;
+ 253  GEN.lo(t,tec,n) = 0;
+ 254   
+ 255  DOWN.up(t,tec,n) = 30;
+ 256  DOWN.lo(t,tec,n) = 0;
+ 257   
+ 258  UP.up(t,tec,n) = 30;
+ 259  UP.lo(t,tec,n) = 0;
+ 260   
+ 261  LOCI.nodlim = 800000000;
+ 262  LOCI.resLim = 2000000;
+ 263   
+ 264  Option optcr = 0.0001;
+ 265   
+ 266  Option MIQCP = Cplex;
+ 267   
+ 268   
+ 269  Solve LOCI maximizing WF using MIQCP;
+ 270   
+ 271  price(t) = SPOT_PRICE.L(t);
+ 272   
+ 273  o_instrument = INSTRUMENT.L / sc / 1000;
+ 274   
+ 275  network_cost_1 = sum((n,m),(GRID_CAP.L(n,m) / 2 * grid_cost(n,m)));
+ 276  network_cost_2 = sum((t,tec,n), (UP.L(t,tec,n) - DOWN.L(t,tec,n)) * c_var(tec,n));
+ 277  network_cost_3 = sum((t), A_zonal(t) * LOAD_spot.L(t) + 1/2 * S_zonal(t) * LOAD_spot.L(t) * LOAD_spot.L(t))
+ 278                  - sum((t,n), a_nodal(t,n) * LOAD_redi.L(t,n) + 1/2 * s_nodal(t,n) * LOAD_redi.L(t,n) * LOAD_redi.L(t,n))
+ 279                  ;
+ 280   
+ 281  network_cost = network_cost_1 + network_cost_2 + network_cost_3;
+ 282   
+ 283  consumer_surplus = sum((t), A_zonal(t) * LOAD_spot.L(t) + 1/2 * S_zonal(t) * LOAD_spot.L(t) * LOAD_spot.L(t));
+ 284   
+ 285  generation_costs = (sum((tec,n), CAP.L(tec,n) * c_fix(tec,n) + 0.5 * CAP.L(tec,n) * CAP.L(tec,n) * capacity_slope) + sum((t,tec,n), GEN.L(t,tec,n) * c_var(tec,n)));
+ 286   
+ 287  sum_instrument = sum((tec,n), INSTRUMENT.L * CAP.L(tec,n));
+ 288   
+ 289  load_deviation(t,n) = ((SPOT_PRICE.L(t) - a_nodal(t,n)) / s_nodal(t,n)) - load_ref(t,n);
+ 290  load_shedding(t,n) = LOAD_spot.L(t) - LOAD_redi.L(t,n);
+ 291  res_share = 1 - sum((t,con,n), GEN.L(t,con,n)) / sum((t,tec,n), GEN.L(t,tec,n));
+ 292  o_cap(tec,n) = CAP.L(tec,n);
+ 293  o_gen(t,tec,n) = GEN.L(t,tec,n);
+ 294  real_generation(t,tec,n) = GEN.L(t,tec,n) + UP.L(t,tec,n) - DOWN.L(t,tec,n);
+ 295  welfare = WF.L;
+ 296   
+ 297  Display WF.L, consumer_surplus, generation_costs, network_cost, network_cost_1, network_cost_2, network_cost_3, CAP.L, GEN.L, UP.L, DOWN.L, FLOW.L, price, load_deviation, load_shedding, GRID_CAP.L, LOAD_redi.L, LOAD_spot.L, o_instrument, sum_instrum
+      ent;
+ 298   
+ 299  execute_UNLOAD 'Output/without_instrument_new.gdx' welfare, consumer_surplus, generation_costs, network_cost, res_share, o_instrument, sum_instrument, o_cap, o_gen, price, c_fix;
+
+**** LIST OF STRAY NAMES - CHECK DECLARATIONS FOR SPURIOUS COMMAS
+**** STRAY NAME instr_const OF TYPE EQU  
+GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 02/16/22 09:46:19 Page 2
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Include File Summary
+
+
+   SEQ   GLOBAL TYPE      PARENT   LOCAL  FILENAME
+
+     1        1 INPUT          0       0  C:\Users\a.eicke\Documents\Locational-investment-signals\Two node models\without_instrument_redispatch.gms
+     2       72 GDXIN          1      72  C:\Users\a.eicke\Documents\Locational-investment-signals\Two node models\in.gdx
+     3       75 GDXIN          1      75  C:\Users\a.eicke\Documents\Locational-investment-signals\Two node models\load.gdx
+     4       78 GDXIN          1      78  C:\Users\a.eicke\Documents\Locational-investment-signals\Two node models\avail.gdx
+
+
+COMPILATION TIME     =        0.000 SECONDS      3 MB  30.3.0 rc5da09e WEX-WEI
+GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 02/16/22 09:46:19 Page 3
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+E x e c u t i o n
+
+
+----    101 PARAMETER c_var  variable costs (EUR per MWh)
+
+           north       south
+
+base      40.000      40.000
+peak      70.000      70.000
+
+
+----    101 PARAMETER load_ref  hourly load in GWh
+
+         north       south
+
+1        5.700      38.740
+2        3.060      42.080
+3        2.840      51.310
+4       22.260      38.900
+5       16.130      46.970
+6       29.240      31.410
+7       28.340      31.500
+8        6.170      54.070
+9       21.310      32.410
+10      10.260      37.370
+
+
+----    101 PARAMETER avail  availability of wind and solar generation (1)
+
+               north       south
+
+1 .base        1.000       1.000
+1 .peak        1.000       1.000
+1 .wind        0.430       0.310
+2 .base        1.000       1.000
+2 .peak        1.000       1.000
+2 .wind        0.240       0.160
+2 .solar       0.200       0.080
+3 .base        1.000       1.000
+3 .peak        1.000       1.000
+3 .wind        0.210       0.120
+3 .solar       0.330       0.240
+4 .base        1.000       1.000
+4 .peak        1.000       1.000
+4 .wind        0.160       0.130
+4 .solar       0.040       0.040
+5 .base        1.000       1.000
+5 .peak        1.000       1.000
+5 .wind        0.080       0.100
+6 .base        1.000       1.000
+6 .peak        1.000       1.000
+6 .wind        0.110       0.080
+6 .solar       0.020       0.020
+7 .base        1.000       1.000
+7 .peak        1.000       1.000
+7 .wind        0.190       0.180
+7 .solar       0.230       0.350
+8 .base        1.000       1.000
+8 .peak        1.000       1.000
+8 .wind        0.260       0.300
+8 .solar       0.240       0.410
+9 .base        1.000       1.000
+9 .peak        1.000       1.000
+9 .wind        0.240       0.250
+9 .solar       0.010       0.050
+10.base        1.000       1.000
+10.peak        1.000       1.000
+10.wind        0.180       0.130
+
+
+----    101 PARAMETER c_fix  annualized fixed costs (EUR per MW p.a.)
+
+            north       south
+
+base      342.000     342.000
+peak      126.000     126.000
+wind      114.000     114.000
+solar      68.000      68.000
+
+
+----    101 PARAMETER a_nodal  intercept of inverse nodal demand function
+
+         north       south
+
+1     1155.000    1155.000
+2     1155.000    1155.000
+3     1155.000    1155.000
+4     1155.000    1155.000
+5     1155.000    1155.000
+6     1155.000    1155.000
+7     1155.000    1155.000
+8     1155.000    1155.000
+9     1155.000    1155.000
+10    1155.000    1155.000
+
+
+----    101 PARAMETER s_nodal  slope of inverse nodal demand function
+
+         north       south
+
+1     -192.982     -28.394
+2     -359.477     -26.141
+3     -387.324     -21.438
+4      -49.416     -28.278
+5      -68.196     -23.419
+6      -37.620     -35.021
+7      -38.814     -34.921
+8     -178.282     -20.344
+9      -51.619     -33.940
+10    -107.212     -29.435
+
+
+----    101 PARAMETER A_zonal  intercept of inverse zonal demand function
+
+1  1155.000,    2  1155.000,    3  1155.000,    4  1155.000,    5  1155.000,    6  1155.000,    7  1155.000,    8  1155.000,    9  1155.000,    10 1155.000
+
+
+----    101 PARAMETER S_zonal  slope of inverse zonal demand function
+
+1  -24.752,    2  -24.369,    3  -20.314,    4  -17.986,    5  -17.433,    6  -18.137,    7  -18.382,    8  -18.260,    9  -20.477,    10 -23.095
+
+GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 02/16/22 09:46:19 Page 4
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Equation Listing    SOLVE LOCI Using MIQCP From line 269
+
+
+---- objective  =E=  
+
+objective..  40*GEN(1,base,north) + 40*GEN(1,base,south) + 70*GEN(1,peak,north) + 70*GEN(1,peak,south) + 40*GEN(2,base,north) + 40*GEN(2,base,south) + 70*GEN(2,peak,north) + 70*GEN(2,peak,south) + 40*GEN(3,base,north) + 40*GEN(3,base,south)
+     
+      + 70*GEN(3,peak,north) + 70*GEN(3,peak,south) + 40*GEN(4,base,north) + 40*GEN(4,base,south) + 70*GEN(4,peak,north) + 70*GEN(4,peak,south) + 40*GEN(5,base,north) + 40*GEN(5,base,south) + 70*GEN(5,peak,north) + 70*GEN(5,peak,south)
+     
+      + 40*GEN(6,base,north) + 40*GEN(6,base,south) + 70*GEN(6,peak,north) + 70*GEN(6,peak,south) + 40*GEN(7,base,north) + 40*GEN(7,base,south) + 70*GEN(7,peak,north) + 70*GEN(7,peak,south) + 40*GEN(8,base,north) + 40*GEN(8,base,south)
+     
+      + 70*GEN(8,peak,north) + 70*GEN(8,peak,south) + 40*GEN(9,base,north) + 40*GEN(9,base,south) + 70*GEN(9,peak,north) + 70*GEN(9,peak,south) + 40*GEN(10,base,north) + 40*GEN(10,base,south) + 70*GEN(10,peak,north) + 70*GEN(10,peak,south)
+     
+      + (342)*CAP(base,north) + (342)*CAP(base,south) + (126)*CAP(peak,north) + (126)*CAP(peak,south) + (114)*CAP(wind,north) + (114)*CAP(wind,south) + (68)*CAP(solar,north) + (68)*CAP(solar,south) + WF + 80*GRID_CAP(north,south)
+     
+      + 80*GRID_CAP(south,north) - (1155)*LOAD_redi(1,north) - (1155)*LOAD_redi(1,south) - (1155)*LOAD_redi(2,north) - (1155)*LOAD_redi(2,south) - (1155)*LOAD_redi(3,north) - (1155)*LOAD_redi(3,south) - (1155)*LOAD_redi(4,north)
+     
+      - (1155)*LOAD_redi(4,south) - (1155)*LOAD_redi(5,north) - (1155)*LOAD_redi(5,south) - (1155)*LOAD_redi(6,north) - (1155)*LOAD_redi(6,south) - (1155)*LOAD_redi(7,north) - (1155)*LOAD_redi(7,south) - (1155)*LOAD_redi(8,north)
+     
+      - (1155)*LOAD_redi(8,south) - (1155)*LOAD_redi(9,north) - (1155)*LOAD_redi(9,south) - (1155)*LOAD_redi(10,north) - (1155)*LOAD_redi(10,south) + 65*UP(1,base,north) + 65*UP(1,base,south) + 95*UP(1,peak,north) + 95*UP(1,peak,south)
+     
+      + 25*UP(1,wind,north) + 25*UP(1,wind,south) + 25*UP(1,solar,north) + 25*UP(1,solar,south) + 65*UP(2,base,north) + 65*UP(2,base,south) + 95*UP(2,peak,north) + 95*UP(2,peak,south) + 25*UP(2,wind,north) + 25*UP(2,wind,south) + 25*UP(2,solar,north)
+     
+      + 25*UP(2,solar,south) + 65*UP(3,base,north) + 65*UP(3,base,south) + 95*UP(3,peak,north) + 95*UP(3,peak,south) + 25*UP(3,wind,north) + 25*UP(3,wind,south) + 25*UP(3,solar,north) + 25*UP(3,solar,south) + 65*UP(4,base,north) + 65*UP(4,base,south)
+     
+      + 95*UP(4,peak,north) + 95*UP(4,peak,south) + 25*UP(4,wind,north) + 25*UP(4,wind,south) + 25*UP(4,solar,north) + 25*UP(4,solar,south) + 65*UP(5,base,north) + 65*UP(5,base,south) + 95*UP(5,peak,north) + 95*UP(5,peak,south) + 25*UP(5,wind,north)
+     
+      + 25*UP(5,wind,south) + 25*UP(5,solar,north) + 25*UP(5,solar,south) + 65*UP(6,base,north) + 65*UP(6,base,south) + 95*UP(6,peak,north) + 95*UP(6,peak,south) + 25*UP(6,wind,north) + 25*UP(6,wind,south) + 25*UP(6,solar,north) + 25*UP(6,solar,south)
+     
+      + 65*UP(7,base,north) + 65*UP(7,base,south) + 95*UP(7,peak,north) + 95*UP(7,peak,south) + 25*UP(7,wind,north) + 25*UP(7,wind,south) + 25*UP(7,solar,north) + 25*UP(7,solar,south) + 65*UP(8,base,north) + 65*UP(8,base,south) + 95*UP(8,peak,north)
+     
+      + 95*UP(8,peak,south) + 25*UP(8,wind,north) + 25*UP(8,wind,south) + 25*UP(8,solar,north) + 25*UP(8,solar,south) + 65*UP(9,base,north) + 65*UP(9,base,south) + 95*UP(9,peak,north) + 95*UP(9,peak,south) + 25*UP(9,wind,north) + 25*UP(9,wind,south)
+     
+      + 25*UP(9,solar,north) + 25*UP(9,solar,south) + 65*UP(10,base,north) + 65*UP(10,base,south) + 95*UP(10,peak,north) + 95*UP(10,peak,south) + 25*UP(10,wind,north) + 25*UP(10,wind,south) + 25*UP(10,solar,north) + 25*UP(10,solar,south)
+     
+      - 15*DOWN(1,base,north) - 15*DOWN(1,base,south) - 45*DOWN(1,peak,north) - 45*DOWN(1,peak,south) + 25*DOWN(1,wind,north) + 25*DOWN(1,wind,south) + 25*DOWN(1,solar,north) + 25*DOWN(1,solar,south) - 15*DOWN(2,base,north) - 15*DOWN(2,base,south)
+     
+      - 45*DOWN(2,peak,north) - 45*DOWN(2,peak,south) + 25*DOWN(2,wind,north) + 25*DOWN(2,wind,south) + 25*DOWN(2,solar,north) + 25*DOWN(2,solar,south) - 15*DOWN(3,base,north) - 15*DOWN(3,base,south) - 45*DOWN(3,peak,north) - 45*DOWN(3,peak,south)
+     
+      + 25*DOWN(3,wind,north) + 25*DOWN(3,wind,south) + 25*DOWN(3,solar,north) + 25*DOWN(3,solar,south) - 15*DOWN(4,base,north) - 15*DOWN(4,base,south) - 45*DOWN(4,peak,north) - 45*DOWN(4,peak,south) + 25*DOWN(4,wind,north) + 25*DOWN(4,wind,south)
+     
+      + 25*DOWN(4,solar,north) + 25*DOWN(4,solar,south) - 15*DOWN(5,base,north) - 15*DOWN(5,base,south) - 45*DOWN(5,peak,north) - 45*DOWN(5,peak,south) + 25*DOWN(5,wind,north) + 25*DOWN(5,wind,south) + 25*DOWN(5,solar,north) + 25*DOWN(5,solar,south)
+     
+      - 15*DOWN(6,base,north) - 15*DOWN(6,base,south) - 45*DOWN(6,peak,north) - 45*DOWN(6,peak,south) + 25*DOWN(6,wind,north) + 25*DOWN(6,wind,south) + 25*DOWN(6,solar,north) + 25*DOWN(6,solar,south) - 15*DOWN(7,base,north) - 15*DOWN(7,base,south)
+     
+      - 45*DOWN(7,peak,north) - 45*DOWN(7,peak,south) + 25*DOWN(7,wind,north) + 25*DOWN(7,wind,south) + 25*DOWN(7,solar,north) + 25*DOWN(7,solar,south) - 15*DOWN(8,base,north) - 15*DOWN(8,base,south) - 45*DOWN(8,peak,north) - 45*DOWN(8,peak,south)
+     
+      + 25*DOWN(8,wind,north) + 25*DOWN(8,wind,south) + 25*DOWN(8,solar,north) + 25*DOWN(8,solar,south) - 15*DOWN(9,base,north) - 15*DOWN(9,base,south) - 45*DOWN(9,peak,north) - 45*DOWN(9,peak,south) + 25*DOWN(9,wind,north) + 25*DOWN(9,wind,south)
+     
+      + 25*DOWN(9,solar,north) + 25*DOWN(9,solar,south) - 15*DOWN(10,base,north) - 15*DOWN(10,base,south) - 45*DOWN(10,peak,north) - 45*DOWN(10,peak,south) + 25*DOWN(10,wind,north) + 25*DOWN(10,wind,south) + 25*DOWN(10,solar,north)
+     
+      + 25*DOWN(10,solar,south) =E= 0 ; (LHS = 0)
+     
+
+---- nodal_energy_balance  =E=  
+
+nodal_energy_balance(1,north)..  GEN(1,base,north) + GEN(1,peak,north) + GEN(1,wind,north) + GEN(1,solar,north) - FLOW(1,north,north) - FLOW(1,north,south) - LOAD_redi(1,north) + UP(1,base,north) + UP(1,peak,north) + UP(1,wind,north) + UP(1,solar,north)
+     
+      - DOWN(1,base,north) - DOWN(1,peak,north) - DOWN(1,wind,north) - DOWN(1,solar,north) =E= 0 ; (LHS = 0)
+     
+nodal_energy_balance(1,south)..  GEN(1,base,south) + GEN(1,peak,south) + GEN(1,wind,south) + GEN(1,solar,south) - FLOW(1,south,north) - FLOW(1,south,south) - LOAD_redi(1,south) + UP(1,base,south) + UP(1,peak,south) + UP(1,wind,south) + UP(1,solar,south)
+     
+      - DOWN(1,base,south) - DOWN(1,peak,south) - DOWN(1,wind,south) - DOWN(1,solar,south) =E= 0 ; (LHS = 0)
+     
+nodal_energy_balance(2,north)..  GEN(2,base,north) + GEN(2,peak,north) + GEN(2,wind,north) + GEN(2,solar,north) - FLOW(2,north,north) - FLOW(2,north,south) - LOAD_redi(2,north) + UP(2,base,north) + UP(2,peak,north) + UP(2,wind,north) + UP(2,solar,north)
+     
+      - DOWN(2,base,north) - DOWN(2,peak,north) - DOWN(2,wind,north) - DOWN(2,solar,north) =E= 0 ; (LHS = 0)
+     
+REMAINING 17 ENTRIES SKIPPED
+
+
+---- grid_eq1  =L=  
+
+grid_eq1(1,north,north)..  FLOW(1,north,north) - GRID_CAP(north,north) =L= 0 ; (LHS = 0)
+     
+grid_eq1(1,north,south)..  FLOW(1,north,south) - GRID_CAP(north,south) =L= 0 ; (LHS = 0)
+     
+grid_eq1(1,south,north)..  FLOW(1,south,north) - GRID_CAP(south,north) =L= 0 ; (LHS = 0)
+     
+REMAINING 37 ENTRIES SKIPPED
+
+
+---- grid_eq2  =E=  
+
+grid_eq2(north,south)..  GRID_CAP(north,south) - GRID_CAP(south,north) =E= 0 ; (LHS = 0)
+     
+grid_eq2(south,north)..  - GRID_CAP(north,south) + GRID_CAP(south,north) =E= 0 ; (LHS = 0)
+     
+
+---- grid_eq3  =E=  
+
+grid_eq3(1,north,north)..  FLOW(1,north,north) =E= 0 ; (LHS = 0)
+     
+grid_eq3(1,north,south)..  FLOW(1,north,south) - 700*THETA(1,north) + 700*THETA(1,south) =E= 0 ; (LHS = 0)
+     
+grid_eq3(1,south,north)..  FLOW(1,south,north) + 700*THETA(1,north) - 700*THETA(1,south) =E= 0 ; (LHS = 0)
+     
+REMAINING 37 ENTRIES SKIPPED
+
+
+---- grid_eq4  =E=  
+
+grid_eq4(1,north)..  THETA(1,south) =E= 0 ; (LHS = 0)
+     
+grid_eq4(1,south)..  THETA(1,south) =E= 0 ; (LHS = 0)
+     
+grid_eq4(2,north)..  THETA(2,south) =E= 0 ; (LHS = 0)
+     
+REMAINING 17 ENTRIES SKIPPED
+
+
+---- redispatch1  =L=  
+
+redispatch1(1,base,north)..  - GEN(1,base,north) + DOWN(1,base,north) =L= 0 ; (LHS = 0)
+     
+redispatch1(1,base,south)..  - GEN(1,base,south) + DOWN(1,base,south) =L= 0 ; (LHS = 0)
+     
+redispatch1(1,peak,north)..  - GEN(1,peak,north) + DOWN(1,peak,north) =L= 0 ; (LHS = 0)
+     
+REMAINING 77 ENTRIES SKIPPED
+
+
+---- redispatch2  =L=  
+
+redispatch2(1,base,north)..  GEN(1,base,north) - CAP(base,north) + UP(1,base,north) =L= 0 ; (LHS = 0)
+     
+redispatch2(1,base,south)..  GEN(1,base,south) - CAP(base,south) + UP(1,base,south) =L= 0 ; (LHS = 0)
+     
+redispatch2(1,peak,north)..  GEN(1,peak,north) - CAP(peak,north) + UP(1,peak,north) =L= 0 ; (LHS = 0)
+     
+REMAINING 77 ENTRIES SKIPPED
+
+
+---- gen_min  =G=  
+
+gen_min(1,base,north)..  GEN(1,base,north) =G= 0 ; (LHS = 0)
+     
+gen_min(1,base,south)..  GEN(1,base,south) =G= 0 ; (LHS = 0)
+     
+gen_min(1,peak,north)..  GEN(1,peak,north) =G= 0 ; (LHS = 0)
+     
+REMAINING 77 ENTRIES SKIPPED
+
+
+---- gen_max  =G=  
+
+gen_max(1,base,north)..  - GEN(1,base,north) + CAP(base,north) =G= 0 ; (LHS = 0)
+     
+gen_max(1,base,south)..  - GEN(1,base,south) + CAP(base,south) =G= 0 ; (LHS = 0)
+     
+gen_max(1,peak,north)..  - GEN(1,peak,north) + CAP(peak,north) =G= 0 ; (LHS = 0)
+     
+REMAINING 77 ENTRIES SKIPPED
+
+
+---- cap_min  =G=  
+
+cap_min(base,north)..  CAP(base,north) =G= 0 ; (LHS = 0)
+     
+cap_min(base,south)..  CAP(base,south) =G= 0 ; (LHS = 0)
+     
+cap_min(peak,north)..  CAP(peak,north) =G= 0 ; (LHS = 0)
+     
+REMAINING 5 ENTRIES SKIPPED
+
+
+---- cap_max  =G=  
+
+cap_max(base,north)..  - CAP(base,north) =G= -100 ; (LHS = 0)
+     
+cap_max(base,south)..  - CAP(base,south) =G= -100 ; (LHS = 0)
+     
+cap_max(peak,north)..  - CAP(peak,north) =G= -100 ; (LHS = 0)
+     
+REMAINING 5 ENTRIES SKIPPED
+
+
+---- demand_min  =G=  
+
+demand_min(1)..  LOAD_spot(1) =G= 0 ; (LHS = 0)
+     
+demand_min(2)..  LOAD_spot(2) =G= 0 ; (LHS = 0)
+     
+demand_min(3)..  LOAD_spot(3) =G= 0 ; (LHS = 0)
+     
+REMAINING 7 ENTRIES SKIPPED
+
+
+---- energy_balance  =E=  
+
+energy_balance(1)..  - GEN(1,base,north) - GEN(1,base,south) - GEN(1,peak,north) - GEN(1,peak,south) - GEN(1,wind,north) - GEN(1,wind,south) - GEN(1,solar,north) - GEN(1,solar,south) + LOAD_spot(1) =E= 0 ; (LHS = 0)
+     
+energy_balance(2)..  - GEN(2,base,north) - GEN(2,base,south) - GEN(2,peak,north) - GEN(2,peak,south) - GEN(2,wind,north) - GEN(2,wind,south) - GEN(2,solar,north) - GEN(2,solar,south) + LOAD_spot(2) =E= 0 ; (LHS = 0)
+     
+energy_balance(3)..  - GEN(3,base,north) - GEN(3,base,south) - GEN(3,peak,north) - GEN(3,peak,south) - GEN(3,wind,north) - GEN(3,wind,south) - GEN(3,solar,north) - GEN(3,solar,south) + LOAD_spot(3) =E= 0 ; (LHS = 0)
+     
+REMAINING 7 ENTRIES SKIPPED
+
+
+---- KKT_GEN  =E=  
+
+KKT_GEN(1,base,north)..  - SPOT_PRICE(1) - mu_G_min(1,base,north) + mu_G_max(1,base,north) =E= -40 ; (LHS = 0, INFES = 40 ****)
+     
+KKT_GEN(1,base,south)..  - SPOT_PRICE(1) - mu_G_min(1,base,south) + mu_G_max(1,base,south) =E= -40 ; (LHS = 0, INFES = 40 ****)
+     
+KKT_GEN(1,peak,north)..  - SPOT_PRICE(1) - mu_G_min(1,peak,north) + mu_G_max(1,peak,north) =E= -70 ; (LHS = 0, INFES = 70 ****)
+     
+REMAINING 77 ENTRIES SKIPPED
+
+
+---- KKT_CAP  =E=  
+
+KKT_CAP(base,north)..  0.38013698630137*CAP(base,north) + INSTRUMENT - mu_G_max(1,base,north) - mu_G_max(2,base,north) - mu_G_max(3,base,north) - mu_G_max(4,base,north) - mu_G_max(5,base,north) - mu_G_max(6,base,north) - mu_G_max(7,base,north)
+     
+      - mu_G_max(8,base,north) - mu_G_max(9,base,north) - mu_G_max(10,base,north) - mu_C_min(base,north) + mu_C_max(base,north) =E= -342 ; (LHS = 8, INFES = 350 ****)
+     
+KKT_CAP(base,south)..  0.38013698630137*CAP(base,south) + INSTRUMENT - mu_G_max(1,base,south) - mu_G_max(2,base,south) - mu_G_max(3,base,south) - mu_G_max(4,base,south) - mu_G_max(5,base,south) - mu_G_max(6,base,south) - mu_G_max(7,base,south)
+     
+      - mu_G_max(8,base,south) - mu_G_max(9,base,south) - mu_G_max(10,base,south) - mu_C_min(base,south) + mu_C_max(base,south) =E= -342 ; (LHS = 8, INFES = 350 ****)
+     
+KKT_CAP(peak,north)..  0.38013698630137*CAP(peak,north) + INSTRUMENT - mu_G_max(1,peak,north) - mu_G_max(2,peak,north) - mu_G_max(3,peak,north) - mu_G_max(4,peak,north) - mu_G_max(5,peak,north) - mu_G_max(6,peak,north) - mu_G_max(7,peak,north)
+     
+      - mu_G_max(8,peak,north) - mu_G_max(9,peak,north) - mu_G_max(10,peak,north) - mu_C_min(peak,north) + mu_C_max(peak,north) =E= -126 ; (LHS = 8, INFES = 134 ****)
+     
+REMAINING 5 ENTRIES SKIPPED
+
+
+---- KKT_load  =E=  
+
+KKT_load(1)..  SPOT_PRICE(1) - mu_D_min(1) + 24.7524752475247*LOAD_spot(1) =E= 1155 ; (LHS = 0, INFES = 1155 ****)
+     
+KKT_load(2)..  SPOT_PRICE(2) - mu_D_min(2) + 24.368630926008*LOAD_spot(2) =E= 1155 ; (LHS = 0, INFES = 1155 ****)
+     
+KKT_load(3)..  SPOT_PRICE(3) - mu_D_min(3) + 20.3139427516159*LOAD_spot(3) =E= 1155 ; (LHS = 0, INFES = 1155 ****)
+     
+REMAINING 7 ENTRIES SKIPPED
+
+
+---- complementarity1a  =L=  
+
+complementarity1a(1,base,north)..  - 100000*y1(1,base,north) + GEN(1,base,north) =L= 0 ; (LHS = 0)
+     
+complementarity1a(1,base,south)..  - 100000*y1(1,base,south) + GEN(1,base,south) =L= 0 ; (LHS = 0)
+     
+complementarity1a(1,peak,north)..  - 100000*y1(1,peak,north) + GEN(1,peak,north) =L= 0 ; (LHS = 0)
+     
+REMAINING 77 ENTRIES SKIPPED
+
+
+---- complementarity1b  =L=  
+
+complementarity1b(1,base,north)..  100000*y1(1,base,north) + mu_G_min(1,base,north) =L= 100000 ; (LHS = 0)
+     
+complementarity1b(1,base,south)..  100000*y1(1,base,south) + mu_G_min(1,base,south) =L= 100000 ; (LHS = 0)
+     
+complementarity1b(1,peak,north)..  100000*y1(1,peak,north) + mu_G_min(1,peak,north) =L= 100000 ; (LHS = 0)
+     
+REMAINING 77 ENTRIES SKIPPED
+
+
+---- complementarity2a  =L=  
+
+complementarity2a(1,base,north)..  - 100000*y2(1,base,north) - GEN(1,base,north) + CAP(base,north) =L= 0 ; (LHS = 0)
+     
+complementarity2a(1,base,south)..  - 100000*y2(1,base,south) - GEN(1,base,south) + CAP(base,south) =L= 0 ; (LHS = 0)
+     
+complementarity2a(1,peak,north)..  - 100000*y2(1,peak,north) - GEN(1,peak,north) + CAP(peak,north) =L= 0 ; (LHS = 0)
+     
+REMAINING 77 ENTRIES SKIPPED
+
+
+---- complementarity2b  =L=  
+
+complementarity2b(1,base,north)..  100000*y2(1,base,north) + mu_G_max(1,base,north) =L= 100000 ; (LHS = 0)
+     
+complementarity2b(1,base,south)..  100000*y2(1,base,south) + mu_G_max(1,base,south) =L= 100000 ; (LHS = 0)
+     
+complementarity2b(1,peak,north)..  100000*y2(1,peak,north) + mu_G_max(1,peak,north) =L= 100000 ; (LHS = 0)
+     
+REMAINING 77 ENTRIES SKIPPED
+
+
+---- complementarity3a  =L=  
+
+complementarity3a(base,north)..  - 100000*y3(base,north) + CAP(base,north) =L= 0 ; (LHS = 0)
+     
+complementarity3a(base,south)..  - 100000*y3(base,south) + CAP(base,south) =L= 0 ; (LHS = 0)
+     
+complementarity3a(peak,north)..  - 100000*y3(peak,north) + CAP(peak,north) =L= 0 ; (LHS = 0)
+     
+REMAINING 5 ENTRIES SKIPPED
+
+
+---- complementarity3b  =L=  
+
+complementarity3b(base,north)..  100000*y3(base,north) + mu_C_min(base,north) =L= 100000 ; (LHS = 0)
+     
+complementarity3b(base,south)..  100000*y3(base,south) + mu_C_min(base,south) =L= 100000 ; (LHS = 0)
+     
+complementarity3b(peak,north)..  100000*y3(peak,north) + mu_C_min(peak,north) =L= 100000 ; (LHS = 0)
+     
+REMAINING 5 ENTRIES SKIPPED
+
+
+---- complementarity4a  =L=  
+
+complementarity4a(base,north)..  - 100000*y4(base,north) - CAP(base,north) =L= -100 ; (LHS = 0, INFES = 100 ****)
+     
+complementarity4a(base,south)..  - 100000*y4(base,south) - CAP(base,south) =L= -100 ; (LHS = 0, INFES = 100 ****)
+     
+complementarity4a(peak,north)..  - 100000*y4(peak,north) - CAP(peak,north) =L= -100 ; (LHS = 0, INFES = 100 ****)
+     
+REMAINING 5 ENTRIES SKIPPED
+
+
+---- complementarity4b  =L=  
+
+complementarity4b(base,north)..  100000*y4(base,north) + mu_C_max(base,north) =L= 100000 ; (LHS = 0)
+     
+complementarity4b(base,south)..  100000*y4(base,south) + mu_C_max(base,south) =L= 100000 ; (LHS = 0)
+     
+complementarity4b(peak,north)..  100000*y4(peak,north) + mu_C_max(peak,north) =L= 100000 ; (LHS = 0)
+     
+REMAINING 5 ENTRIES SKIPPED
+
+
+---- complementarity5a  =L=  
+
+complementarity5a(1)..  - 100000*y5(1) + LOAD_spot(1) =L= 0 ; (LHS = 0)
+     
+complementarity5a(2)..  - 100000*y5(2) + LOAD_spot(2) =L= 0 ; (LHS = 0)
+     
+complementarity5a(3)..  - 100000*y5(3) + LOAD_spot(3) =L= 0 ; (LHS = 0)
+     
+REMAINING 7 ENTRIES SKIPPED
+
+
+---- complementarity5b  =L=  
+
+complementarity5b(1)..  100000*y5(1) + mu_D_min(1) =L= 100000 ; (LHS = 0)
+     
+complementarity5b(2)..  100000*y5(2) + mu_D_min(2) =L= 100000 ; (LHS = 0)
+     
+complementarity5b(3)..  100000*y5(3) + mu_D_min(3) =L= 100000 ; (LHS = 0)
+     
+REMAINING 7 ENTRIES SKIPPED
+
+
+---- complementarity6a  =L=  
+
+complementarity6a(1)..  - 100000*y6(1) - GEN(1,base,north) - GEN(1,base,south) - GEN(1,peak,north) - GEN(1,peak,south) - GEN(1,wind,north) - GEN(1,wind,south) - GEN(1,solar,north) - GEN(1,solar,south) + LOAD_spot(1) =L= 0 ; (LHS = 0)
+     
+complementarity6a(2)..  - 100000*y6(2) - GEN(2,base,north) - GEN(2,base,south) - GEN(2,peak,north) - GEN(2,peak,south) - GEN(2,wind,north) - GEN(2,wind,south) - GEN(2,solar,north) - GEN(2,solar,south) + LOAD_spot(2) =L= 0 ; (LHS = 0)
+     
+complementarity6a(3)..  - 100000*y6(3) - GEN(3,base,north) - GEN(3,base,south) - GEN(3,peak,north) - GEN(3,peak,south) - GEN(3,wind,north) - GEN(3,wind,south) - GEN(3,solar,north) - GEN(3,solar,south) + LOAD_spot(3) =L= 0 ; (LHS = 0)
+     
+REMAINING 7 ENTRIES SKIPPED
+
+
+---- complementarity6b  =L=  
+
+complementarity6b(1)..  100000*y6(1) + SPOT_PRICE(1) =L= 100000 ; (LHS = 0)
+     
+complementarity6b(2)..  100000*y6(2) + SPOT_PRICE(2) =L= 100000 ; (LHS = 0)
+     
+complementarity6b(3)..  100000*y6(3) + SPOT_PRICE(3) =L= 100000 ; (LHS = 0)
+     
+REMAINING 7 ENTRIES SKIPPED
+
+GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 02/16/22 09:46:19 Page 5
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Column Listing      SOLVE LOCI Using MIQCP From line 269
+
+
+---- y1  
+
+y1(1,base,north)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+  -100000       complementarity1a(1,base,north)
+   100000       complementarity1b(1,base,north)
+
+y1(1,base,south)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+  -100000       complementarity1a(1,base,south)
+   100000       complementarity1b(1,base,south)
+
+y1(1,peak,north)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+  -100000       complementarity1a(1,peak,north)
+   100000       complementarity1b(1,peak,north)
+
+REMAINING 77 ENTRIES SKIPPED
+
+---- y2  
+
+y2(1,base,north)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+  -100000       complementarity2a(1,base,north)
+   100000       complementarity2b(1,base,north)
+
+y2(1,base,south)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+  -100000       complementarity2a(1,base,south)
+   100000       complementarity2b(1,base,south)
+
+y2(1,peak,north)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+  -100000       complementarity2a(1,peak,north)
+   100000       complementarity2b(1,peak,north)
+
+REMAINING 77 ENTRIES SKIPPED
+
+---- y3  
+
+y3(base,north)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+  -100000       complementarity3a(base,north)
+   100000       complementarity3b(base,north)
+
+y3(base,south)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+  -100000       complementarity3a(base,south)
+   100000       complementarity3b(base,south)
+
+y3(peak,north)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+  -100000       complementarity3a(peak,north)
+   100000       complementarity3b(peak,north)
+
+REMAINING 5 ENTRIES SKIPPED
+
+---- y4  
+
+y4(base,north)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+  -100000       complementarity4a(base,north)
+   100000       complementarity4b(base,north)
+
+y4(base,south)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+  -100000       complementarity4a(base,south)
+   100000       complementarity4b(base,south)
+
+y4(peak,north)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+  -100000       complementarity4a(peak,north)
+   100000       complementarity4b(peak,north)
+
+REMAINING 5 ENTRIES SKIPPED
+
+---- y5  
+
+y5(1)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+  -100000       complementarity5a(1)
+   100000       complementarity5b(1)
+
+y5(2)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+  -100000       complementarity5a(2)
+   100000       complementarity5b(2)
+
+y5(3)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+  -100000       complementarity5a(3)
+   100000       complementarity5b(3)
+
+REMAINING 7 ENTRIES SKIPPED
+
+---- y6  
+
+y6(1)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+  -100000       complementarity6a(1)
+   100000       complementarity6b(1)
+
+y6(2)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+  -100000       complementarity6a(2)
+   100000       complementarity6b(2)
+
+y6(3)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+  -100000       complementarity6a(3)
+   100000       complementarity6b(3)
+
+REMAINING 7 ENTRIES SKIPPED
+
+---- GEN  
+
+GEN(1,base,north)
+                (.LO, .L, .UP, .M = 0, 0, 100, 0)
+       40       objective
+        1       nodal_energy_balance(1,north)
+       -1       redispatch1(1,base,north)
+        1       redispatch2(1,base,north)
+        1       gen_min(1,base,north)
+       -1       gen_max(1,base,north)
+       -1       energy_balance(1)
+        1       complementarity1a(1,base,north)
+       -1       complementarity2a(1,base,north)
+       -1       complementarity6a(1)
+
+GEN(1,base,south)
+                (.LO, .L, .UP, .M = 0, 0, 100, 0)
+       40       objective
+        1       nodal_energy_balance(1,south)
+       -1       redispatch1(1,base,south)
+        1       redispatch2(1,base,south)
+        1       gen_min(1,base,south)
+       -1       gen_max(1,base,south)
+       -1       energy_balance(1)
+        1       complementarity1a(1,base,south)
+       -1       complementarity2a(1,base,south)
+       -1       complementarity6a(1)
+
+GEN(1,peak,north)
+                (.LO, .L, .UP, .M = 0, 0, 100, 0)
+       70       objective
+        1       nodal_energy_balance(1,north)
+       -1       redispatch1(1,peak,north)
+        1       redispatch2(1,peak,north)
+        1       gen_min(1,peak,north)
+       -1       gen_max(1,peak,north)
+       -1       energy_balance(1)
+        1       complementarity1a(1,peak,north)
+       -1       complementarity2a(1,peak,north)
+       -1       complementarity6a(1)
+
+REMAINING 77 ENTRIES SKIPPED
+
+---- CAP  
+
+CAP(base,north)
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+     (342)      objective
+       -1       redispatch2(1,base,north)
+       -1       redispatch2(2,base,north)
+       -1       redispatch2(3,base,north)
+       -1       redispatch2(4,base,north)
+       -1       redispatch2(5,base,north)
+       -1       redispatch2(6,base,north)
+       -1       redispatch2(7,base,north)
+       -1       redispatch2(8,base,north)
+       -1       redispatch2(9,base,north)
+       -1       redispatch2(10,base,north)
+        1       gen_max(1,base,north)
+        1       gen_max(2,base,north)
+        1       gen_max(3,base,north)
+        1       gen_max(4,base,north)
+        1       gen_max(5,base,north)
+        1       gen_max(6,base,north)
+        1       gen_max(7,base,north)
+        1       gen_max(8,base,north)
+        1       gen_max(9,base,north)
+        1       gen_max(10,base,north)
+        1       cap_min(base,north)
+       -1       cap_max(base,north)
+        0.3801  KKT_CAP(base,north)
+        1       complementarity2a(1,base,north)
+        1       complementarity2a(2,base,north)
+        1       complementarity2a(3,base,north)
+        1       complementarity2a(4,base,north)
+        1       complementarity2a(5,base,north)
+        1       complementarity2a(6,base,north)
+        1       complementarity2a(7,base,north)
+        1       complementarity2a(8,base,north)
+        1       complementarity2a(9,base,north)
+        1       complementarity2a(10,base,north)
+        1       complementarity3a(base,north)
+       -1       complementarity4a(base,north)
+
+CAP(base,south)
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+     (342)      objective
+       -1       redispatch2(1,base,south)
+       -1       redispatch2(2,base,south)
+       -1       redispatch2(3,base,south)
+       -1       redispatch2(4,base,south)
+       -1       redispatch2(5,base,south)
+       -1       redispatch2(6,base,south)
+       -1       redispatch2(7,base,south)
+       -1       redispatch2(8,base,south)
+       -1       redispatch2(9,base,south)
+       -1       redispatch2(10,base,south)
+        1       gen_max(1,base,south)
+        1       gen_max(2,base,south)
+        1       gen_max(3,base,south)
+        1       gen_max(4,base,south)
+        1       gen_max(5,base,south)
+        1       gen_max(6,base,south)
+        1       gen_max(7,base,south)
+        1       gen_max(8,base,south)
+        1       gen_max(9,base,south)
+        1       gen_max(10,base,south)
+        1       cap_min(base,south)
+       -1       cap_max(base,south)
+        0.3801  KKT_CAP(base,south)
+        1       complementarity2a(1,base,south)
+        1       complementarity2a(2,base,south)
+        1       complementarity2a(3,base,south)
+        1       complementarity2a(4,base,south)
+        1       complementarity2a(5,base,south)
+        1       complementarity2a(6,base,south)
+        1       complementarity2a(7,base,south)
+        1       complementarity2a(8,base,south)
+        1       complementarity2a(9,base,south)
+        1       complementarity2a(10,base,south)
+        1       complementarity3a(base,south)
+       -1       complementarity4a(base,south)
+
+CAP(peak,north)
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+     (126)      objective
+       -1       redispatch2(1,peak,north)
+       -1       redispatch2(2,peak,north)
+       -1       redispatch2(3,peak,north)
+       -1       redispatch2(4,peak,north)
+       -1       redispatch2(5,peak,north)
+       -1       redispatch2(6,peak,north)
+       -1       redispatch2(7,peak,north)
+       -1       redispatch2(8,peak,north)
+       -1       redispatch2(9,peak,north)
+       -1       redispatch2(10,peak,north)
+        1       gen_max(1,peak,north)
+        1       gen_max(2,peak,north)
+        1       gen_max(3,peak,north)
+        1       gen_max(4,peak,north)
+        1       gen_max(5,peak,north)
+        1       gen_max(6,peak,north)
+        1       gen_max(7,peak,north)
+        1       gen_max(8,peak,north)
+        1       gen_max(9,peak,north)
+        1       gen_max(10,peak,north)
+        1       cap_min(peak,north)
+       -1       cap_max(peak,north)
+        0.3801  KKT_CAP(peak,north)
+        1       complementarity2a(1,peak,north)
+        1       complementarity2a(2,peak,north)
+        1       complementarity2a(3,peak,north)
+        1       complementarity2a(4,peak,north)
+        1       complementarity2a(5,peak,north)
+        1       complementarity2a(6,peak,north)
+        1       complementarity2a(7,peak,north)
+        1       complementarity2a(8,peak,north)
+        1       complementarity2a(9,peak,north)
+        1       complementarity2a(10,peak,north)
+        1       complementarity3a(peak,north)
+       -1       complementarity4a(peak,north)
+
+REMAINING 5 ENTRIES SKIPPED
+
+---- WF  
+
+WF
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+        1       objective
+
+
+---- FLOW  
+
+FLOW(1,north,north)
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+       -1       nodal_energy_balance(1,north)
+        1       grid_eq1(1,north,north)
+        1       grid_eq3(1,north,north)
+
+FLOW(1,north,south)
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+       -1       nodal_energy_balance(1,north)
+        1       grid_eq1(1,north,south)
+        1       grid_eq3(1,north,south)
+
+FLOW(1,south,north)
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+       -1       nodal_energy_balance(1,south)
+        1       grid_eq1(1,south,north)
+        1       grid_eq3(1,south,north)
+
+REMAINING 37 ENTRIES SKIPPED
+
+---- INSTRUMENT  
+
+INSTRUMENT
+                (.LO, .L, .UP, .M = -5, 8, 25, 0)
+        1       KKT_CAP(base,north)
+        1       KKT_CAP(base,south)
+        1       KKT_CAP(peak,north)
+        1       KKT_CAP(peak,south)
+        1       KKT_CAP(wind,north)
+        1       KKT_CAP(wind,south)
+        1       KKT_CAP(solar,north)
+        1       KKT_CAP(solar,south)
+
+
+---- THETA  
+
+THETA(1,north)
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+     -700       grid_eq3(1,north,south)
+      700       grid_eq3(1,south,north)
+
+THETA(1,south)
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+      700       grid_eq3(1,north,south)
+     -700       grid_eq3(1,south,north)
+        1       grid_eq4(1,north)
+        1       grid_eq4(1,south)
+
+THETA(2,north)
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+     -700       grid_eq3(2,north,south)
+      700       grid_eq3(2,south,north)
+
+REMAINING 17 ENTRIES SKIPPED
+
+---- SPOT_PRICE  
+
+SPOT_PRICE(1)
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+       -1       KKT_GEN(1,base,north)
+       -1       KKT_GEN(1,base,south)
+       -1       KKT_GEN(1,peak,north)
+       -1       KKT_GEN(1,peak,south)
+       -1       KKT_GEN(1,wind,north)
+       -1       KKT_GEN(1,wind,south)
+       -1       KKT_GEN(1,solar,north)
+       -1       KKT_GEN(1,solar,south)
+        1       KKT_load(1)
+        1       complementarity6b(1)
+
+SPOT_PRICE(2)
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+       -1       KKT_GEN(2,base,north)
+       -1       KKT_GEN(2,base,south)
+       -1       KKT_GEN(2,peak,north)
+       -1       KKT_GEN(2,peak,south)
+       -1       KKT_GEN(2,wind,north)
+       -1       KKT_GEN(2,wind,south)
+       -1       KKT_GEN(2,solar,north)
+       -1       KKT_GEN(2,solar,south)
+        1       KKT_load(2)
+        1       complementarity6b(2)
+
+SPOT_PRICE(3)
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+       -1       KKT_GEN(3,base,north)
+       -1       KKT_GEN(3,base,south)
+       -1       KKT_GEN(3,peak,north)
+       -1       KKT_GEN(3,peak,south)
+       -1       KKT_GEN(3,wind,north)
+       -1       KKT_GEN(3,wind,south)
+       -1       KKT_GEN(3,solar,north)
+       -1       KKT_GEN(3,solar,south)
+        1       KKT_load(3)
+        1       complementarity6b(3)
+
+REMAINING 7 ENTRIES SKIPPED
+
+---- mu_G_min  
+
+mu_G_min(1,base,north)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -1       KKT_GEN(1,base,north)
+        1       complementarity1b(1,base,north)
+
+mu_G_min(1,base,south)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -1       KKT_GEN(1,base,south)
+        1       complementarity1b(1,base,south)
+
+mu_G_min(1,peak,north)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -1       KKT_GEN(1,peak,north)
+        1       complementarity1b(1,peak,north)
+
+REMAINING 77 ENTRIES SKIPPED
+
+---- mu_G_max  
+
+mu_G_max(1,base,north)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       KKT_GEN(1,base,north)
+       -1       KKT_CAP(base,north)
+        1       complementarity2b(1,base,north)
+
+mu_G_max(1,base,south)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       KKT_GEN(1,base,south)
+       -1       KKT_CAP(base,south)
+        1       complementarity2b(1,base,south)
+
+mu_G_max(1,peak,north)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       KKT_GEN(1,peak,north)
+       -1       KKT_CAP(peak,north)
+        1       complementarity2b(1,peak,north)
+
+REMAINING 77 ENTRIES SKIPPED
+
+---- mu_C_min  
+
+mu_C_min(base,north)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -1       KKT_CAP(base,north)
+        1       complementarity3b(base,north)
+
+mu_C_min(base,south)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -1       KKT_CAP(base,south)
+        1       complementarity3b(base,south)
+
+mu_C_min(peak,north)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -1       KKT_CAP(peak,north)
+        1       complementarity3b(peak,north)
+
+REMAINING 5 ENTRIES SKIPPED
+
+---- mu_C_max  
+
+mu_C_max(base,north)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       KKT_CAP(base,north)
+        1       complementarity4b(base,north)
+
+mu_C_max(base,south)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       KKT_CAP(base,south)
+        1       complementarity4b(base,south)
+
+mu_C_max(peak,north)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       KKT_CAP(peak,north)
+        1       complementarity4b(peak,north)
+
+REMAINING 5 ENTRIES SKIPPED
+
+---- mu_D_min  
+
+mu_D_min(1)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -1       KKT_load(1)
+        1       complementarity5b(1)
+
+mu_D_min(2)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -1       KKT_load(2)
+        1       complementarity5b(2)
+
+mu_D_min(3)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -1       KKT_load(3)
+        1       complementarity5b(3)
+
+REMAINING 7 ENTRIES SKIPPED
+
+---- GRID_CAP  
+
+GRID_CAP(north,north)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -1       grid_eq1(1,north,north)
+       -1       grid_eq1(2,north,north)
+       -1       grid_eq1(3,north,north)
+       -1       grid_eq1(4,north,north)
+       -1       grid_eq1(5,north,north)
+       -1       grid_eq1(6,north,north)
+       -1       grid_eq1(7,north,north)
+       -1       grid_eq1(8,north,north)
+       -1       grid_eq1(9,north,north)
+       -1       grid_eq1(10,north,north)
+
+GRID_CAP(north,south)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       80       objective
+       -1       grid_eq1(1,north,south)
+       -1       grid_eq1(2,north,south)
+       -1       grid_eq1(3,north,south)
+       -1       grid_eq1(4,north,south)
+       -1       grid_eq1(5,north,south)
+       -1       grid_eq1(6,north,south)
+       -1       grid_eq1(7,north,south)
+       -1       grid_eq1(8,north,south)
+       -1       grid_eq1(9,north,south)
+       -1       grid_eq1(10,north,south)
+        1       grid_eq2(north,south)
+       -1       grid_eq2(south,north)
+
+GRID_CAP(south,north)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       80       objective
+       -1       grid_eq1(1,south,north)
+       -1       grid_eq1(2,south,north)
+       -1       grid_eq1(3,south,north)
+       -1       grid_eq1(4,south,north)
+       -1       grid_eq1(5,south,north)
+       -1       grid_eq1(6,south,north)
+       -1       grid_eq1(7,south,north)
+       -1       grid_eq1(8,south,north)
+       -1       grid_eq1(9,south,north)
+       -1       grid_eq1(10,south,north)
+       -1       grid_eq2(north,south)
+        1       grid_eq2(south,north)
+
+REMAINING ENTRY SKIPPED
+
+---- LOAD_redi  
+
+LOAD_redi(1,north)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+   (-1155)      objective
+       -1       nodal_energy_balance(1,north)
+
+LOAD_redi(1,south)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+   (-1155)      objective
+       -1       nodal_energy_balance(1,south)
+
+LOAD_redi(2,north)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+   (-1155)      objective
+       -1       nodal_energy_balance(2,north)
+
+REMAINING 17 ENTRIES SKIPPED
+
+---- LOAD_spot  
+
+LOAD_spot(1)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       demand_min(1)
+        1       energy_balance(1)
+       24.7525  KKT_load(1)
+        1       complementarity5a(1)
+        1       complementarity6a(1)
+
+LOAD_spot(2)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       demand_min(2)
+        1       energy_balance(2)
+       24.3686  KKT_load(2)
+        1       complementarity5a(2)
+        1       complementarity6a(2)
+
+LOAD_spot(3)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       demand_min(3)
+        1       energy_balance(3)
+       20.3139  KKT_load(3)
+        1       complementarity5a(3)
+        1       complementarity6a(3)
+
+REMAINING 7 ENTRIES SKIPPED
+
+---- UP  
+
+UP(1,base,north)
+                (.LO, .L, .UP, .M = 0, 0, 30, 0)
+       65       objective
+        1       nodal_energy_balance(1,north)
+        1       redispatch2(1,base,north)
+
+UP(1,base,south)
+                (.LO, .L, .UP, .M = 0, 0, 30, 0)
+       65       objective
+        1       nodal_energy_balance(1,south)
+        1       redispatch2(1,base,south)
+
+UP(1,peak,north)
+                (.LO, .L, .UP, .M = 0, 0, 30, 0)
+       95       objective
+        1       nodal_energy_balance(1,north)
+        1       redispatch2(1,peak,north)
+
+REMAINING 77 ENTRIES SKIPPED
+
+---- DOWN  
+
+DOWN(1,base,north)
+                (.LO, .L, .UP, .M = 0, 0, 30, 0)
+      -15       objective
+       -1       nodal_energy_balance(1,north)
+        1       redispatch1(1,base,north)
+
+DOWN(1,base,south)
+                (.LO, .L, .UP, .M = 0, 0, 30, 0)
+      -15       objective
+       -1       nodal_energy_balance(1,south)
+        1       redispatch1(1,base,south)
+
+DOWN(1,peak,north)
+                (.LO, .L, .UP, .M = 0, 0, 30, 0)
+      -45       objective
+       -1       nodal_energy_balance(1,north)
+        1       redispatch1(1,peak,north)
+
+REMAINING 77 ENTRIES SKIPPED
+GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 02/16/22 09:46:19 Page 6
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Model Statistics    SOLVE LOCI Using MIQCP From line 269
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          29     SINGLE EQUATIONS          969
+BLOCKS OF VARIABLES          23     SINGLE VARIABLES          736
+NON ZERO ELEMENTS         2,773     NON LINEAR N-Z             28
+DERIVATIVE POOL              20     CONSTANT POOL              42
+CODE LENGTH                 178     DISCRETE VARIABLES        196
+
+
+GENERATION TIME      =        0.015 SECONDS      4 MB  30.3.0 rc5da09e WEX-WEI
+
+
+EXECUTION TIME       =        0.015 SECONDS      4 MB  30.3.0 rc5da09e WEX-WEI
