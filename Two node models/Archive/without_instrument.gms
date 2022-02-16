@@ -15,7 +15,7 @@ alias (all_n,all_m);
 Parameter elasticity / -0.05 /; 
 Parameter p_ref / 55 /;
 Parameter specific_network_costs /200/;
-Parameter capacity_slope / 333 /;
+Parameter capacity_slope / 666 /;
 *Source for network costs: EMMA (3400 EUR/MW/km discontiert mit i = 0.07 ueber 40 Jahre)
 
 Table B(all_n,all_m)        Susceptance of transmission lines
@@ -245,21 +245,21 @@ complementarity6a
 complementarity6b
 /;
 
-INSTRUMENT.L = 8;
-INSTRUMENT.lo = -5;
-INSTRUMENT.up = 25;
+INSTRUMENT.L = 5;
+INSTRUMENT.lo = -20;
+INSTRUMENT.up = 40;
 
 GEN.up(t,tec,n) = 100;
 GEN.lo(t,tec,n) = 0;
 
-DOWN.up(t,tec,n) = 30;
+DOWN.up(t,tec,n) = 100;
 DOWN.lo(t,tec,n) = 0;
 
-UP.up(t,tec,n) = 30;
+UP.up(t,tec,n) = 100;
 UP.lo(t,tec,n) = 0;
 
-LOCI.nodlim = 800000000;
-LOCI.resLim = 2000000;
+LOCI.nodlim = 80000000;
+LOCI.resLim = 200000;
 
 Option optcr = 0.0001;
 
@@ -296,4 +296,4 @@ welfare = WF.L;
 
 Display WF.L, consumer_surplus, generation_costs, network_cost, network_cost_1, network_cost_2, network_cost_3, CAP.L, GEN.L, UP.L, DOWN.L, FLOW.L, price, load_deviation, load_shedding, GRID_CAP.L, LOAD_redi.L, LOAD_spot.L, o_instrument, sum_instrument;
 
-execute_UNLOAD 'Output/without_instrument_new.gdx' welfare, consumer_surplus, generation_costs, network_cost, res_share, o_instrument, sum_instrument, o_cap, o_gen, price, c_fix;
+execute_UNLOAD 'Output/without_instrument.gdx' welfare, consumer_surplus, generation_costs, network_cost, res_share, o_instrument, sum_instrument, o_cap, o_gen, price, c_fix;

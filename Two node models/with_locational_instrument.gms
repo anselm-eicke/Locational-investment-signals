@@ -102,12 +102,12 @@ display c_var, load_ref, avail, c_fix, a_nodal, s_nodal, A_zonal, S_zonal;
 
 Binary variables y1(t,tec,n),y2(t,tec,n),y3(tec,n),y4(tec,n),y5(t),y6(t);
 
-Parameter M1 / 100000/;
-Parameter M2 / 100000/;
-Parameter M3 / 100000/;
-Parameter M4 / 100000/;
-Parameter M5 / 100000/;
-Parameter M6 / 100000/;
+Parameter M1 / 1000000/;
+Parameter M2 / 1000000/;
+Parameter M3 / 1000000/;
+Parameter M4 / 1000000/;
+Parameter M5 / 1000000/;
+Parameter M6 / 1000000/;
 
 Free Variables
 GEN(t,tec,n)
@@ -261,7 +261,7 @@ UP.lo(t,tec,n) = 0;
 LOCI.nodlim = 65000000;
 LOCI.resLim = 150000;
 
-Option optcr = 0.0000001;
+Option optcr = 0.00000001;
 
 Option MIQCP = Cplex;
 

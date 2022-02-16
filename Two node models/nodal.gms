@@ -141,7 +141,7 @@ grid_eq4
 * Set starting point
 LOAD_real.L(t,n) =load_ref(t,n);
 
-Option optcr = 0.0000001;
+Option optcr = 0.00000001;
 Solve nodal using QCP max WF;
 
 price(t,n) = p_ref * (1-1/elasticity + (LOAD_real.L(t,n)) / (elasticity * load_ref(t,n)));
