@@ -261,7 +261,7 @@ UP.lo(t,tec,n) = 0;
 LOCI.nodlim = 800000000;
 LOCI.resLim = 2000000;
 
-Option optcr = 0.0001;
+Option optcr = 0.00001;
 
 Option MIQCP = Cplex;
 
@@ -296,4 +296,4 @@ welfare = WF.L;
 
 Display WF.L, consumer_surplus, generation_costs, network_cost, network_cost_1, network_cost_2, network_cost_3, CAP.L, GEN.L, UP.L, DOWN.L, FLOW.L, price, load_deviation, load_shedding, GRID_CAP.L, LOAD_redi.L, LOAD_spot.L, o_instrument, sum_instrument;
 
-execute_UNLOAD 'Output/without_instrument_new.gdx' welfare, consumer_surplus, generation_costs, network_cost, res_share, o_instrument, sum_instrument, o_cap, o_gen, price, c_fix;
+execute_UNLOAD 'Output/without_instrument_redispatch.gdx' welfare, consumer_surplus, generation_costs, network_cost, res_share, o_instrument, sum_instrument, o_cap, o_gen, price, c_fix;
