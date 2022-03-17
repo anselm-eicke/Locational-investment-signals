@@ -37,7 +37,7 @@ sc          scaling factor
 
 sc = card(t) / 8760;
 *load instrument
-INSTRUMENT(tec,n)           = o_instrument(tec,n) * sc * 1000 * 1.2;
+INSTRUMENT(tec,n)           = o_instrument(tec,n) * sc * 1000 * 0.8;
 
 
 
@@ -307,4 +307,4 @@ redispatch(t,tec,n) = UP.L(t,tec,n) - DOWN.L(t,tec,n);
 
 Display WF.L, consumer_surplus, generation_costs, network_cost, network_cost_1, network_cost_2, network_cost_3, CAP.L, GEN.L, UP.L, DOWN.L, redispatch, FLOW.L, price, load_deviation, load_shedding, GRID_CAP.L, LOAD_redi.L, LOAD_spot.L;
 
-execute_UNLOAD 'Output/large_instrument.gdx' welfare, consumer_surplus, generation_costs, network_cost, res_share, o_cap, o_gen, price, c_fix;
+execute_UNLOAD 'Output/large_instrument.gdx' welfare, consumer_surplus, generation_costs, network_cost, network_cost_1, network_cost_2, network_cost_3, res_share, o_cap, o_gen, price, c_fix;

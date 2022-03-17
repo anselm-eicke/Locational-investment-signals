@@ -1,8 +1,8 @@
---- Job with_wrong_instrument.gms Start 02/16/22 08:47:16 30.3.0 rc5da09e WEX-WEI x86 64bit/MS Windows
+--- Job with_wrong_instrument.gms Start 02/16/22 15:29:41 30.3.0 rc5da09e WEX-WEI x86 64bit/MS Windows
 --- GAMS Parameters defined
     Input C:\Users\a.eicke\Documents\Locational-investment-signals\Two node models\with_wrong_instrument.gms
     PageSize 0
-    ScrDir C:\Users\a.eicke\Documents\Locational-investment-signals\Two node models\225a\
+    ScrDir C:\Users\a.eicke\Documents\Locational-investment-signals\Two node models\225b\
     SysDir C:\GAMS\win64\30.3\
     LogOption 3
     ErrMsg 1
@@ -22,7 +22,7 @@ Licensee: Small MUD - 5 User License                     S190305:0326AO-WIN
 --- with_wrong_instrument.gms(95) 3 Mb
 --- GDXin=C:\Users\a.eicke\Documents\Locational-investment-signals\Two node models\avail.gdx
 --- with_wrong_instrument.gms(310) 3 Mb
---- Starting execution: elapsed 0:00:00.015
+--- Starting execution: elapsed 0:00:00.011
 --- with_wrong_instrument.gms(279) 4 Mb
 --- Generating MIQCP model LOCI
 --- with_wrong_instrument.gms(282) 6 Mb
@@ -30,7 +30,7 @@ Licensee: Small MUD - 5 User License                     S190305:0326AO-WIN
 ---   178 nl-code  28 nl-non-zeroes
 ---   196 discrete-columns
 --- with_wrong_instrument.gms(282) 4 Mb
---- Executing CPLEX: elapsed 0:00:00.035
+--- Executing CPLEX: elapsed 0:00:00.041
 
 IBM ILOG CPLEX   30.3.0 rc5da09e Released Mar 06, 2020 WEI x86 64bit/MS Window
 --- GAMS/Cplex licensed for continuous and discrete problems.
@@ -51,8 +51,8 @@ CPXPARAM_MIP_Limits_Nodes                        65000000
 CPXPARAM_TimeLimit                               150000
 CPXPARAM_Tune_TimeLimit                          30000
 CPXPARAM_MIP_Tolerances_AbsMIPGap                0
-CPXPARAM_MIP_Tolerances_MIPGap                   9.9999999999999995e-07
-CPXPARAM_WorkDir                                 "C:\Users\a.eicke\Documents\Locational-investment-signals\Two node models\225a\"
+CPXPARAM_MIP_Tolerances_MIPGap                   1.0000000000000001e-05
+CPXPARAM_WorkDir                                 "C:\Users\a.eicke\Documents\Locational-investment-signals\Two node models\225b\"
 Tried aggregator 2 times.
 MIQP Presolve eliminated 310 rows and 82 columns.
 MIQP Presolve modified 268 coefficients.
@@ -60,9 +60,9 @@ Aggregator did 26 substitutions.
 Reduced MIQP has 633 rows, 624 columns, and 1899 nonzeros.
 Reduced MIQP has 174 binaries, 0 generals, 0 SOSs, and 0 indicators.
 Reduced MIQP objective Q matrix has 28 nonzeros.
-Presolve time = 0.00 sec. (1.70 ticks)
+Presolve time = 0.02 sec. (1.70 ticks)
 Probing fixed 11 vars, tightened 145 bounds.
-Probing time = 0.02 sec. (0.80 ticks)
+Probing time = 0.00 sec. (0.80 ticks)
 Tried aggregator 1 time.
 MIQP Presolve eliminated 21 rows and 11 columns.
 MIQP Presolve modified 61 coefficients.
@@ -96,27 +96,27 @@ Summary statistics for Cholesky factor:
   Total non-zeros in factor = 5885
   Total FP ops to factor    = 123329
  Itn      Primal Obj        Dual Obj  Prim Inf Upper Inf  Dual Inf          
-   0  -1.5887056e+08   4.4265895e+08  2.85e+05  2.35e+05  7.79e+05
-   1  -2.8423350e+07   1.5611845e+08  1.21e+05  9.98e+04  3.30e+05
-   2  -3.2077904e+06   4.7467543e+07  4.05e+04  3.34e+04  1.11e+05
-   3   5.9638354e+04   8.6297941e+06  6.15e+03  5.07e+03  1.68e+04
-   4   1.2940219e+05   6.0164337e+06  3.62e+03  2.98e+03  9.88e+03
-   5   2.3427939e+05   1.1075747e+06  3.58e+02  2.94e+02  9.74e+02
-   6   2.6630179e+05   4.9480418e+05  7.44e+01  6.12e+01  2.03e+02
-   7   2.8038381e+05   3.5967780e+05  1.71e+01  1.41e+01  4.67e+01
-   8   2.8580213e+05   3.2163969e+05  6.56e+00  5.39e+00  1.79e+01
-   9   2.8623516e+05   3.1058763e+05  2.54e+00  2.09e+00  6.91e+00
-  10   2.8841082e+05   2.9856622e+05  9.77e-01  8.03e-01  2.66e+00
-  11   2.8911222e+05   2.9390439e+05  3.11e-01  2.56e-01  8.47e-01
-  12   2.8952788e+05   2.9117279e+05  8.08e-02  6.64e-02  2.20e-01
-  13   2.8971244e+05   2.9006122e+05  1.05e-02  8.66e-03  2.87e-02
-  14   2.8975178e+05   2.8983419e+05  2.48e-03  2.04e-03  6.76e-03
-  15   2.8976254e+05   2.8976925e+05  2.00e-04  1.64e-04  5.45e-04
-  16   2.8976318e+05   2.8976479e+05  4.79e-05  3.94e-05  1.30e-04
-  17   2.8976339e+05   2.8976340e+05  2.54e-07  2.09e-07  6.92e-07
-  18   2.8976339e+05   2.8976339e+05  2.74e-09  1.37e-09  3.48e-09
-  19   2.8976339e+05   2.8976339e+05  1.29e-09  2.55e-10  3.38e-11
-Barrier time = 0.03 sec. (6.98 ticks)
+   0  -1.5919005e+08   4.4323682e+08  2.85e+05  2.35e+05  7.79e+05
+   1  -2.8317350e+07   1.5576373e+08  1.21e+05  9.96e+04  3.30e+05
+   2  -3.0193895e+06   4.6043470e+07  3.93e+04  3.24e+04  1.07e+05
+   3   6.0025739e+04   8.6364828e+06  6.12e+03  5.05e+03  1.67e+04
+   4   1.3638632e+05   5.8019088e+06  3.45e+03  2.84e+03  9.41e+03
+   5   2.3673974e+05   1.0105928e+06  3.20e+02  2.63e+02  8.70e+02
+   6   2.6668026e+05   4.9793056e+05  7.26e+01  5.97e+01  1.98e+02
+   7   2.8043412e+05   3.6310105e+05  2.17e+01  1.78e+01  5.89e+01
+   8   2.8584628e+05   3.2261767e+05  7.99e+00  6.56e+00  2.17e+01
+   9   2.8611757e+05   3.1181350e+05  3.28e+00  2.69e+00  8.91e+00
+  10   2.8837684e+05   2.9903098e+05  1.27e+00  1.04e+00  3.44e+00
+  11   2.8909355e+05   2.9405531e+05  3.75e-01  3.08e-01  1.02e+00
+  12   2.8952098e+05   2.9121347e+05  9.38e-02  7.71e-02  2.55e-01
+  13   2.8970921e+05   2.9008047e+05  1.26e-02  1.04e-02  3.43e-02
+  14   2.8975190e+05   2.8983336e+05  2.76e-03  2.27e-03  7.50e-03
+  15   2.8976252e+05   2.8976935e+05  2.29e-04  1.88e-04  6.23e-04
+  16   2.8976316e+05   2.8976490e+05  5.83e-05  4.79e-05  1.58e-04
+  17   2.8976339e+05   2.8976340e+05  3.05e-07  2.49e-07  8.22e-07
+  18   2.8976339e+05   2.8976339e+05  3.16e-09  1.57e-09  4.15e-09
+  19   2.8976339e+05   2.8976339e+05  1.38e-09  2.70e-10  3.89e-11
+Barrier time = 0.02 sec. (6.98 ticks)
 
 QP crossover.
   Primal and Dual:  Fixing 240 variables.
@@ -127,52 +127,400 @@ Iteration log . . .
 Iteration:     1    Objective     =        289763.387771
 Total crossover time = 0.02 sec. (5.28 ticks)
 
-Total time on 1 threads = 0.05 sec. (12.80 ticks)
-Root relaxation solution time = 0.05 sec. (12.81 ticks)
+Total time on 1 threads = 0.03 sec. (12.80 ticks)
+Root relaxation solution time = 0.03 sec. (12.81 ticks)
 
         Nodes                                         Cuts/
    Node  Left     Objective  IInf  Best Integer    Best Bound    ItCnt     Gap
 
       0     0   289763.3878   108                 289763.3878       21         
-      0     0   289763.3878   108                   Cuts: 253      517         
-      0     0   289763.3878   108                   Cuts: 239      789         
-      0     0   289763.3878   108                   Cuts: 129      960         
-      0     0   289763.3878   108                    Cuts: 62     1065         
-      0     0   289763.3878   108                    Cuts: 51     1099         
-      0     0   289763.3878   108                    Cuts: 18     1169         
-      0     0   289763.3878   108                    Cuts: 18     1185         
-      0     2   289763.3878    56                 289763.3878     1185         
-Elapsed time = 0.31 sec. (130.23 ticks, tree = 0.01 MB, solutions = 0)
-     70    64   289527.4158    14                 289763.3878     6230         
-    110   104   289758.3611     1                 289763.3878    10400         
-*   114    32      integral     0   289757.3757   289763.3878    10647    0.00%
-Found incumbent of value 289757.375693 after 1.28 sec. (642.74 ticks)
-    240    96   289763.3878    12   289757.3757   289763.3878    15104    0.00%
+      0     0   289763.3878   108                   Cuts: 253      503         
+      0     0   289763.2451   108                   Cuts: 243      781         
+      0     0   289763.2451   108                   Cuts: 123      931         
+      0     0   289763.2451   108                    Cuts: 50     1009         
+      0     0   289763.2451   108                    Cuts: 57     1041         
+      0     0   289763.2451   108                    Cuts: 24     1121         
+      0     2   289763.2451    61                 289763.2451     1121         
+Elapsed time = 0.30 sec. (116.99 ticks, tree = 0.01 MB, solutions = 0)
+    114    88   289517.9851    16                 289763.2451     5873         
+                                                  Impl Bds: 9                  
+    206   160   289502.8135    12                 289763.2451    13095         
+    324   230    infeasible                       289763.2451    19727         
+    416   284   289724.6701    25                 289763.2451    26020         
                                                   Impl Bds: 4                  
-    358    45        cutoff         289757.3757   289763.3878    23365    0.00%
+    510   346   289635.0150    17                 289763.2451    31730         
+    594   424    infeasible                       289763.2451    36677         
+                                                  Impl Bds: 1                  
+    680   490   288949.1227    23                 289763.2451    44355         
+                                                  Impl Bds: 8                  
+    765   553   285927.7550    19                 289763.2451    50479         
+                                                  Impl Bds: 8                  
+    838   606   288742.6305    15                 289763.2451    58032         
                                                       Cuts: 4                  
-    533    58        cutoff         289757.3757   289759.1556    29049    0.00%
-                                                  Impl Bds: 1                  
-*   540    49      integral     0   289758.8638   289759.1556    30047    0.00%
-                                                  Impl Bds: 1                  
-Found incumbent of value 289758.863783 after 2.55 sec. (1396.91 ticks)
-    652    26        cutoff         289758.8638   289759.1556    38845    0.00%
 
-Clique cuts applied:  28
-Implied bound cuts applied:  53
-Flow cuts applied:  72
-Mixed integer rounding cuts applied:  41
-Zero-half cuts applied:  1
-Gomory fractional cuts applied:  2
+Performing restart 1
+
+Repeating presolve.
+Tried aggregator 2 times.
+MIQP Presolve eliminated 14 rows and 14 columns.
+MIQP Presolve modified 183 coefficients.
+Aggregator did 12 substitutions.
+Reduced MIQP has 586 rows, 587 columns, and 1740 nonzeros.
+Reduced MIQP has 156 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Reduced MIQP objective Q matrix has 28 nonzeros.
+Presolve time = 0.00 sec. (1.27 ticks)
+Tried aggregator 1 time.
+MIQP Presolve eliminated 16 rows and 16 columns.
+MIQP Presolve modified 82 coefficients.
+Reduced MIQP has 570 rows, 571 columns, and 1696 nonzeros.
+Reduced MIQP has 144 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Reduced MIQP objective Q matrix has 28 nonzeros.
+Presolve time = 0.02 sec. (0.72 ticks)
+Tried aggregator 1 time.
+MIQP Presolve modified 98 coefficients.
+Reduced MIQP has 570 rows, 571 columns, and 1696 nonzeros.
+Reduced MIQP has 144 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Reduced MIQP objective Q matrix has 28 nonzeros.
+Presolve time = 0.00 sec. (0.70 ticks)
+Represolve time = 0.03 sec. (6.34 ticks)
+Tried aggregator 1 time.
+QP Presolve eliminated 27 rows and 0 columns.
+Aggregator did 94 substitutions.
+Reduced QP has 641 rows, 477 columns, and 2013 nonzeros.
+Reduced QP objective Q matrix has 28 nonzeros.
+Presolve time = 0.02 sec. (0.55 ticks)
+Parallel mode: none, using 1 thread for barrier
+
+***NOTE: Found 5 dense columns.
+
+Number of nonzeros in lower triangle of A*A' = 4362
+Using Approximate Minimum Degree ordering
+Total time for automatic ordering = 0.00 sec. (0.36 ticks)
+Summary statistics for Cholesky factor:
+  Rows in Factor            = 646
+  Integer space required    = 2458
+  Total non-zeros in factor = 14232
+  Total FP ops to factor    = 443324
+ Itn      Primal Obj        Dual Obj  Prim Inf Upper Inf  Dual Inf          
+   0  -8.9168397e+10   8.9512452e+10  3.06e+05  1.99e+05  5.89e+08
+   1  -1.9839098e+10   2.0010282e+10  1.44e+05  9.38e+04  2.78e+08
+   2  -5.2493301e+09   5.3838529e+09  7.44e+04  4.83e+04  1.43e+08
+   3  -2.3565286e+08   2.6777862e+08  1.58e+04  1.03e+04  3.05e+07
+   4  -8.7739675e+06   1.6441553e+07  3.10e+03  2.02e+03  5.98e+06
+   5  -1.4970939e+06   5.9003981e+06  1.34e+03  8.68e+02  2.57e+06
+   6   1.6314885e+05   9.5690346e+05  1.84e+02  1.19e+02  3.54e+05
+   7   1.8968284e+05   7.6254630e+05  1.15e+02  7.49e+01  2.22e+05
+   8   2.0314458e+05   6.0597991e+05  7.46e+01  4.84e+01  1.44e+05
+   9   2.6373650e+05   6.0934589e+05  7.45e+01  4.84e+01  1.44e+05
+  10   2.7424890e+05   4.8438839e+05  3.35e+01  2.17e+01  6.45e+04
+  11   2.8228000e+05   3.5428315e+05  1.19e+00  7.76e-01  2.30e+03
+  12   2.8566706e+05   3.2440944e+05  6.09e-01  3.96e-01  1.18e+03
+  13   2.8659475e+05   3.1390938e+05  2.69e-01  1.75e-01  5.19e+02
+  14   2.8833453e+05   2.9952142e+05  9.11e-02  5.92e-02  1.76e+02
+  15   2.8899101e+05   2.9547064e+05  3.03e-02  1.97e-02  5.84e+01
+  16   2.8937219e+05   2.9225648e+05  4.41e-03  2.86e-03  8.51e+00
+  17   2.8966519e+05   2.9036022e+05  7.54e-04  4.89e-04  1.45e+00
+  18   2.8973261e+05   2.8995729e+05  2.43e-04  1.58e-04  4.69e-01
+  19   2.8975706e+05   2.8980098e+05  4.68e-05  3.04e-05  9.02e-02
+  20   2.8976242e+05   2.8976823e+05  5.99e-06  3.88e-06  1.15e-02
+  21   2.8976299e+05   2.8976474e+05  1.81e-06  1.17e-06  3.47e-03
+  22   2.8976323e+05   2.8976331e+05  9.00e-08  4.81e-08  1.42e-04
+  23   2.8976324e+05   2.8976325e+05  1.53e-08  4.63e-10  9.36e-07
+  24   2.8976325e+05   2.8976325e+05  2.78e-08  7.83e-11  6.13e-09
+Barrier time = 0.05 sec. (16.49 ticks)
+
+QP crossover.
+  Primal and Dual:  Fixing 247 variables.
+  Primal:  Pushed 78, exchanged 142.
+  Dual  :  Pushed 25, exchanged 123.
+
+Iteration log . . .
+Iteration:     1    Objective     =        289763.245078
+Removing shift (2).
+Total crossover time = 0.00 sec. (7.56 ticks)
+
+Total time on 1 threads = 0.06 sec. (24.66 ticks)
+    938     0   289763.2451    73                   Cuts: 191    68968         
+    938     0   289763.2451    73                    Cuts: 86    69044         
+    938     0   289763.2451    73                    Cuts: 81    69090         
+    938     0   289763.2451    73                    Cuts: 16    69116         
+    938     0   289763.2451    73                    Cuts: 13    69132         
+    938     0   289763.2451    73                    Cuts: 12    69146         
+*  1018+   66                       289418.3596   289763.2451             0.12%
+Found incumbent of value 289418.359596 after 5.67 sec. (3186.41 ticks)
+   1035    67   289763.2451    13   289418.3596   289763.2451    72740    0.12%
+Elapsed time = 5.80 sec. (3274.38 ticks, tree = 0.03 MB, solutions = 1)
+   1238   174   289661.2430    17   289418.3596   289763.2451    78021    0.12%
+   1738   522   289761.2484    14   289418.3596   289761.2484    87159    0.12%
+   1876   590   289759.0557    12   289418.3596   289761.0422    90175    0.12%
+
+Performing restart 2
+
+Repeating presolve.
+Tried aggregator 2 times.
+MIQP Presolve eliminated 24 rows and 24 columns.
+MIQP Presolve modified 199 coefficients.
+Aggregator did 10 substitutions.
+Reduced MIQP has 536 rows, 537 columns, and 1621 nonzeros.
+Reduced MIQP has 132 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Reduced MIQP objective Q matrix has 28 nonzeros.
+Presolve time = 0.00 sec. (1.33 ticks)
+Tried aggregator 1 time.
+MIQP Presolve modified 104 coefficients.
+Reduced MIQP has 536 rows, 537 columns, and 1621 nonzeros.
+Reduced MIQP has 132 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Reduced MIQP objective Q matrix has 28 nonzeros.
+Presolve time = 0.00 sec. (0.67 ticks)
+Represolve time = 0.02 sec. (4.51 ticks)
+Tried aggregator 1 time.
+QP Presolve eliminated 12 rows and 4 columns.
+Aggregator did 89 substitutions.
+Reduced QP has 513 rows, 444 columns, and 1715 nonzeros.
+Reduced QP objective Q matrix has 28 nonzeros.
+Presolve time = 0.00 sec. (0.46 ticks)
+Parallel mode: none, using 1 thread for barrier
+
+***NOTE: Found 7 dense columns.
+
+Number of nonzeros in lower triangle of A*A' = 2872
+Using Approximate Minimum Degree ordering
+Total time for automatic ordering = 0.00 sec. (0.28 ticks)
+Summary statistics for Cholesky factor:
+  Rows in Factor            = 520
+  Integer space required    = 1831
+  Total non-zeros in factor = 10142
+  Total FP ops to factor    = 279476
+ Itn      Primal Obj        Dual Obj  Prim Inf Upper Inf  Dual Inf          
+   0  -8.8415524e+06   4.3176892e+07  8.29e+04  5.07e+04  2.01e+05
+   1  -1.5051757e+06   1.7392396e+07  3.61e+04  2.21e+04  8.74e+04
+   2  -1.7658924e+05   8.3022619e+06  1.68e+04  1.03e+04  4.07e+04
+   3   2.5467768e+05   1.7644531e+06  2.94e+03  1.80e+03  7.11e+03
+   4   2.5746912e+05   1.3584651e+06  1.93e+03  1.18e+03  4.66e+03
+   5   2.7148378e+05   6.5045356e+05  4.23e+02  2.59e+02  1.02e+03
+   6   2.8323406e+05   3.7331528e+05  8.49e+01  5.20e+01  2.06e+02
+   7   2.8677123e+05   3.2827507e+05  3.38e+01  2.07e+01  8.18e+01
+   8   2.8742068e+05   3.0961529e+05  7.28e+00  4.46e+00  1.76e+01
+   9   2.8863193e+05   2.9867511e+05  2.43e+00  1.49e+00  5.89e+00
+  10   2.8934639e+05   2.9319618e+05  7.11e-01  4.35e-01  1.72e+00
+  11   2.8955360e+05   2.9140700e+05  3.04e-01  1.86e-01  7.35e-01
+  12   2.8968495e+05   2.9031162e+05  9.22e-03  5.64e-03  2.23e-02
+  13   2.8975196e+05   2.8983924e+05  1.26e-03  7.69e-04  3.04e-03
+  14   2.8976185e+05   2.8977174e+05  1.39e-04  8.49e-05  3.36e-04
+  15   2.8976311e+05   2.8976418e+05  1.46e-05  8.93e-06  3.53e-05
+  16   2.8976323e+05   2.8976333e+05  1.26e-06  7.68e-07  3.03e-06
+  17   2.8976324e+05   2.8976325e+05  2.07e-08  7.69e-09  3.02e-08
+  18   2.8976325e+05   2.8976325e+05  7.67e-09  1.33e-10  2.03e-10
+Barrier time = 0.02 sec. (9.61 ticks)
+
+QP crossover.
+  Primal and Dual:  Fixing 207 variables.
+  Primal:  Pushed 79, exchanged 116.
+  Dual  :  Pushed 10, exchanged 97.
+
+Iteration log . . .
+Iteration:     1    Objective     =        289763.245078
+Total crossover time = 0.02 sec. (5.97 ticks)
+
+Total time on 1 threads = 0.03 sec. (16.09 ticks)
+   1879     0   289763.2451    48   289418.3596     Cuts: 234    90466    0.12%
+   1879     0   289763.2451    48   289418.3596      Cuts: 72    90514    0.12%
+   1879     0   289763.2451    48   289418.3596      Cuts: 41    90546    0.12%
+   1879     0   289763.2451    48   289418.3596      Cuts: 28    90568    0.12%
+   1879     0   289763.2451    48   289418.3596      Cuts: 10    90576    0.12%
+   1879     0   289763.2451    48   289418.3596    MIRcuts: 2    90580    0.12%
+
+Repeating presolve.
+Tried aggregator 2 times.
+MIQP Presolve eliminated 12 rows and 12 columns.
+MIQP Presolve modified 36 coefficients.
+Aggregator did 7 substitutions.
+Reduced MIQP has 517 rows, 518 columns, and 1581 nonzeros.
+Reduced MIQP has 129 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Reduced MIQP objective Q matrix has 28 nonzeros.
+Presolve time = 0.00 sec. (1.32 ticks)
+Tried aggregator 1 time.
+MIQP Presolve modified 7 coefficients.
+Reduced MIQP has 517 rows, 518 columns, and 1581 nonzeros.
+Reduced MIQP has 129 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Reduced MIQP objective Q matrix has 28 nonzeros.
+Presolve time = 0.00 sec. (0.65 ticks)
+Represolve time = 0.03 sec. (4.44 ticks)
+Tried aggregator 1 time.
+QP Presolve eliminated 1 rows and 0 columns.
+Aggregator did 92 substitutions.
+Reduced QP has 489 rows, 426 columns, and 1751 nonzeros.
+Reduced QP objective Q matrix has 28 nonzeros.
+Presolve time = 0.00 sec. (0.44 ticks)
+Parallel mode: none, using 1 thread for barrier
+
+***NOTE: Found 5 dense columns.
+
+Number of nonzeros in lower triangle of A*A' = 3703
+Using Approximate Minimum Degree ordering
+Total time for automatic ordering = 0.00 sec. (0.37 ticks)
+Summary statistics for Cholesky factor:
+  Rows in Factor            = 494
+  Integer space required    = 2198
+  Total non-zeros in factor = 12829
+  Total FP ops to factor    = 503297
+ Itn      Primal Obj        Dual Obj  Prim Inf Upper Inf  Dual Inf          
+   0  -8.8887288e+08   9.3653751e+08  3.67e+04  2.06e+04  3.28e+07
+   1  -2.7257428e+08   3.0054469e+08  2.04e+04  1.14e+04  1.82e+07
+   2  -1.0455978e+06   4.4145438e+06  1.54e+03  8.62e+02  1.38e+06
+   3  -2.8806936e+05   3.0882019e+06  1.01e+03  5.67e+02  9.07e+05
+   4   2.6450191e+05   7.9311468e+05  1.30e+02  7.32e+01  1.17e+05
+   5   2.8009450e+05   4.2662580e+05  2.85e+01  1.60e+01  2.56e+04
+   6   2.8486940e+05   3.4879601e+05  9.55e+00  5.36e+00  8.57e+03
+   7   2.8706463e+05   3.2194426e+05  4.57e+00  2.56e+00  4.10e+03
+   8   2.8787459e+05   3.0373637e+05  3.27e-01  1.83e-01  2.93e+02
+   9   2.8842205e+05   3.0012838e+05  1.96e-01  1.10e-01  1.76e+02
+  10   2.8926349e+05   2.9381625e+05  6.86e-02  3.85e-02  6.15e+01
+  11   2.8955499e+05   2.9135345e+05  2.16e-02  1.21e-02  1.94e+01
+  12   2.8965401e+05   2.9060838e+05  4.24e-03  2.38e-03  3.80e+00
+  13   2.8973976e+05   2.8993104e+05  8.46e-04  4.75e-04  7.58e-01
+  14   2.8975778e+05   2.8980313e+05  1.99e-04  1.12e-04  1.79e-01
+  15   2.8976233e+05   2.8976974e+05  3.22e-05  1.81e-05  2.88e-02
+  16   2.8976315e+05   2.8976398e+05  3.54e-06  1.99e-06  3.17e-03
+  17   2.8976324e+05   2.8976325e+05  3.04e-08  1.68e-08  2.68e-05
+  18   2.8976325e+05   2.8976325e+05  1.35e-09  1.17e-10  1.60e-07
+  19   2.8976325e+05   2.8976325e+05  1.09e-09  1.80e-11  8.76e-10
+Barrier time = 0.05 sec. (12.21 ticks)
+
+QP crossover.
+  Primal and Dual:  Fixing 199 variables.
+  Primal:  Pushed 86, exchanged 104.
+  Dual  :  Pushed 7, exchanged 85.
+
+Iteration log . . .
+Iteration:     1    Objective     =        289763.245078
+Total crossover time = 0.00 sec. (5.24 ticks)
+
+Total time on 1 threads = 0.05 sec. (17.94 ticks)
+   1879     0   289763.2451    56   289418.3596     Cuts: 229    90714    0.12%
+   1879     0   289763.2451    56   289418.3596      Cuts: 59    90752    0.12%
+   1879     0   289763.2451    56   289418.3596      Cuts: 31    90774    0.12%
+   1879     0   289763.2451    56   289418.3596       Cuts: 5    90780    0.12%
+   1879     0   289763.2451    56   289418.3596    MIRcuts: 6    90782    0.12%
+   1879     2   289763.2451    47   289418.3596   289761.0422    90782    0.12%
+   2079    82   289716.1286    11   289418.3596   289753.3846    95144    0.12%
+   2231   155   289709.2114     4   289418.3596   289752.6366    97313    0.12%
+   2586   256   289678.8845     8   289418.3596   289748.1373   106487    0.11%
+   3033   359   289570.8382    20   289418.3596   289724.6701   114896    0.11%
+   3370   459   289641.9555    16   289418.3596   289723.4323   126958    0.11%
+   3866   600        cutoff         289418.3596   289723.4198   143752    0.11%
+Elapsed time = 22.45 sec. (14784.77 ticks, tree = 0.25 MB, solutions = 2)
+   4434   774   289722.2832    19   289418.3596   289722.2832   161805    0.11%
+   5079   928   289620.3953    17   289418.3596   289722.0286   182503    0.10%
+   5769  1106   289711.3426    24   289418.3596   289718.4492   199982    0.10%
+   6434  1317   288551.9408    20   289418.3596   289714.5701   217326    0.10%
+   7098  1433   289498.2192     4   289418.3596   289709.2114   235060    0.10%
+   7748  1633   289498.2192     4   289418.3596   289709.2114   246796    0.10%
+   8347  1839   289430.5440     1   289418.3596   289709.2114   259734    0.10%
+   8934  2024   289498.2192     3   289418.3596   289709.2114   272141    0.10%
+   9541  2238   289498.9014     2   289418.3596   289709.2114   285509    0.10%
+  10252  2510   289706.1062    22   289418.3596   289706.1062   296762    0.10%
+Elapsed time = 36.42 sec. (24339.34 ticks, tree = 1.04 MB, solutions = 2)
+  11041  2805        cutoff         289418.3596   289699.7467   320007    0.10%
+  11734  3032   289693.9653     3   289418.3596   289696.7863   340589    0.10%
+  12521  3373        cutoff         289418.3596   289696.1495   368545    0.10%
+  13431  3762   289695.0774    13   289418.3596   289695.0774   389391    0.10%
+  14086  3892   289694.0197     4   289418.3596   289694.0197   405825    0.10%
+  14599  3992   289498.9014     2   289418.3596   289694.0197   416706    0.10%
+  15124  4117   289498.2192     2   289418.3596   289694.0197   424983    0.10%
+  15633  4233   289498.2192     2   289418.3596   289694.0197   434806    0.10%
+  16196  4396   289592.0996     3   289418.3596   289694.0197   443516    0.10%
+  16749  4555        cutoff         289418.3596   289694.0197   454563    0.10%
+Elapsed time = 50.39 sec. (33890.98 ticks, tree = 1.90 MB, solutions = 2)
+  17305  4747        cutoff         289418.3596   289694.0197   467832    0.10%
+  17854  4924   289498.2192     1   289418.3596   289693.9653   482437    0.10%
+  18400  4918   289498.2192     2   289418.3596   289693.9653   495042    0.10%
+  18963  4926   289498.2192     2   289418.3596   289693.9653   508968    0.10%
+  19442  4857   289592.0996     3   289418.3596   289693.8844   528951    0.10%
+  19853  4909   289498.2192     1   289418.3596   289693.8844   540042    0.10%
+  20342  4983        cutoff         289418.3596   289693.4658   554533    0.10%
+  20957  5022   289498.2192     2   289418.3596   289692.5333   572332    0.09%
+  21479  5077   289498.2192     3   289418.3596   289692.4033   585446    0.09%
+  22018  5173   289498.2192     2   289418.3596   289691.1122   598899    0.09%
+Elapsed time = 64.05 sec. (43440.14 ticks, tree = 2.11 MB, solutions = 2)
+  22863  5136   289461.4714    17   289418.3596   289681.0747   615433    0.09%
+  23636  5275   289466.2991     2   289418.3596   289675.7959   630879    0.09%
+  24343  5575   289629.9128     8   289418.3596   289675.7959   645741    0.09%
+  25103  5911   289466.2991     2   289418.3596   289675.7959   660208    0.09%
+  26049  6306   289669.8128    18   289418.3596   289669.8128   674914    0.09%
+  26679  6447   289498.2192     1   289418.3596   289668.4146   685195    0.09%
+  27223  6590   289498.2192     2   289418.3596   289668.4146   694899    0.09%
+  27822  6739   289498.1996     1   289418.3596   289668.4146   705491    0.09%
+  28466  6889   289498.1996     2   289418.3596   289666.1935   717392    0.09%
+  29271  7165        cutoff         289418.3596   289661.9678   735351    0.08%
+Elapsed time = 77.53 sec. (52992.88 ticks, tree = 2.80 MB, solutions = 2)
+  29679  7169   289657.5287    13   289418.3596   289657.5287   744444    0.08%
+  30740  7329        cutoff         289418.3596   289657.2331   768640    0.08%
+  31432  7083        cutoff         289418.3596   289647.1957   792081    0.08%
+  32773  7644   289431.1561     7   289418.3596   289641.6993   807026    0.08%
+  34034  7857   289641.2629    11   289418.3596   289641.2629   826579    0.08%
+  35316  8175        cutoff         289418.3596   289641.2629   847002    0.08%
+  36554  8483   289641.2629     6   289418.3596   289641.2629   868360    0.08%
+  37486  8514   289517.5433     6   289418.3596   289641.1578   890250    0.08%
+  38064  8513   289466.2991     2   289418.3596   289637.5868   907329    0.08%
+  38682  8141        cutoff         289418.3596   289636.4137   930836    0.08%
+Elapsed time = 91.08 sec. (62537.18 ticks, tree = 3.47 MB, solutions = 2)
+  39368  7669        cutoff         289418.3596   289636.0934   954246    0.08%
+  40138  7713        cutoff         289418.3596   289634.2709   974858    0.07%
+  40779  7597   289620.0207     8   289418.3596   289631.6588  1000268    0.07%
+  41699  7871   289440.4351     2   289418.3596   289629.9248  1010577    0.07%
+  42597  8176   289440.4351     2   289418.3596   289629.9248  1018738    0.07%
+  43652  8039   289440.4351     2   289418.3596   289629.5579  1034136    0.07%
+  44402  8125   289440.4351     2   289418.3596   289625.0922  1048702    0.07%
+  45216  8249        cutoff         289418.3596   289620.3953  1071736    0.07%
+  46177  8215        cutoff         289418.3596   289618.0106  1092187    0.07%
+  46934  8237   289504.9127    14   289418.3596   289612.7761  1114463    0.07%
+                                                  Impl Bds: 5                  
+Elapsed time = 105.06 sec. (72288.57 ticks, tree = 3.50 MB, solutions = 2)
+  47653  8388   289607.2466    11   289418.3596   289607.2466  1134557    0.07%
+  48266  8411        cutoff         289418.3596   289605.0397  1144349    0.06%
+  49415  8437        cutoff         289418.3596   289602.4477  1162645    0.06%
+  50212  8360   289481.3707    17   289418.3596   289596.3159  1184923    0.06%
+  51106  8209        cutoff         289418.3596   289592.0996  1203722    0.06%
+  52056  7952        cutoff         289418.3596   289583.0206  1220585    0.06%
+  52804  7803   289451.7123    16   289418.3596   289565.0758  1238792    0.05%
+  53530  7723        cutoff         289418.3596   289557.2127  1252680    0.05%
+  54695  7716   289550.3915     5   289418.3596   289550.3915  1265445    0.05%
+  55753  7788        cutoff         289418.3596   289542.2594  1278265    0.04%
+Elapsed time = 118.86 sec. (81837.20 ticks, tree = 3.35 MB, solutions = 2)
+  56805  7564   289526.3668     7   289418.3596   289537.5307  1293224    0.04%
+  57682  7425   289524.9257    13   289418.3596   289524.9257  1314136    0.04%
+  58714  7703   289498.2192     1   289418.3596   289517.8914  1329171    0.03%
+  59779  8046   289498.2192     1   289418.3596   289516.9984  1340848    0.03%
+  61000  8850   289498.2192     3   289418.3596   289516.9984  1350279    0.03%
+  61983  8766        cutoff         289418.3596   289507.0427  1364843    0.03%
+  63059  8968   289498.2192     1   289418.3596   289498.9014  1374394    0.03%
+  64243  9141        cutoff         289418.3596   289498.2192  1381593    0.03%
+  65406  8824        cutoff         289418.3596   289498.2192  1391317    0.03%
+  70013  7507        cutoff         289418.3596   289498.2192  1431207    0.03%
+Elapsed time = 139.33 sec. (94592.50 ticks, tree = 3.25 MB, solutions = 2)
+  74788  6852   289498.2192     1   289418.3596   289498.2192  1468869    0.03%
+  79532  5825        cutoff         289418.3596   289498.2192  1509581    0.03%
+  84193  5180   289498.2192     1   289418.3596   289498.2192  1547519    0.03%
+  88985  3885   289484.6417    14   289418.3596   289484.6417  1585598    0.02%
+  92341  3121   289458.1908    26   289418.3596   289458.1908  1625726    0.01%
+  96679  2577   289440.4351     2   289418.3596   289440.4351  1690942    0.01%
+ 101603  1120        cutoff         289418.3596   289430.5440  1738561    0.00%
+
+Clique cuts applied:  7
+Cover cuts applied:  1
+Implied bound cuts applied:  16
+Flow cuts applied:  22
+Mixed integer rounding cuts applied:  19
+Gomory fractional cuts applied:  1
 
 Root node processing (before b&c):
-  Real time             =    0.31 sec. (130.24 ticks)
+  Real time             =    0.30 sec. (116.99 ticks)
 Sequential b&c:
-  Real time             =    2.73 sec. (1577.56 ticks)
+  Real time             =  183.42 sec. (123705.89 ticks)
                           ------------
-Total (root+branch&cut) =    3.05 sec. (1707.79 ticks)
+Total (root+branch&cut) =  183.72 sec. (123822.88 ticks)
 MIQP status(102): integer optimal, tolerance
-Cplex Time: 3.05sec (det. 1707.80 ticks)
+Cplex Time: 183.72sec (det. 123822.88 ticks)
 Fixing integer variables, and solving final QP..
 Version identifier: 12.10.0.0 | 2019-11-26 | 843d4de2ae
 CPXPARAM_Advance                                 2
@@ -184,62 +532,59 @@ CPXPARAM_MIP_Limits_Nodes                        65000000
 CPXPARAM_TimeLimit                               150000
 CPXPARAM_Tune_TimeLimit                          30000
 CPXPARAM_MIP_Tolerances_AbsMIPGap                0
-CPXPARAM_MIP_Tolerances_MIPGap                   9.9999999999999995e-07
-CPXPARAM_WorkDir                                 "C:\Users\a.eicke\Documents\Locational-investment-signals\Two node models\225a\"
+CPXPARAM_MIP_Tolerances_MIPGap                   1.0000000000000001e-05
+CPXPARAM_WorkDir                                 "C:\Users\a.eicke\Documents\Locational-investment-signals\Two node models\225b\"
 Tried aggregator 1 time.
-QP Presolve eliminated 711 rows and 488 columns.
-Aggregator did 103 substitutions.
-Reduced QP has 155 rows, 144 columns, and 546 nonzeros.
+QP Presolve eliminated 716 rows and 498 columns.
+Aggregator did 105 substitutions.
+Reduced QP has 148 rows, 132 columns, and 515 nonzeros.
 Reduced QP objective Q matrix has 28 nonzeros.
-Presolve time = 0.00 sec. (0.71 ticks)
+Presolve time = 0.02 sec. (0.71 ticks)
 Parallel mode: none, using 1 thread for barrier
 
-***NOTE: Found 9 dense columns.
+***NOTE: Found 7 dense columns.
 
-Number of nonzeros in lower triangle of A*A' = 293
+Number of nonzeros in lower triangle of A*A' = 598
 Using Approximate Minimum Degree ordering
-Total time for automatic ordering = 0.00 sec. (0.02 ticks)
+Total time for automatic ordering = 0.00 sec. (0.03 ticks)
 Summary statistics for Cholesky factor:
-  Rows in Factor            = 164
-  Integer space required    = 322
-  Total non-zeros in factor = 1639
-  Total FP ops to factor    = 20527
+  Rows in Factor            = 155
+  Integer space required    = 326
+  Total non-zeros in factor = 2194
+  Total FP ops to factor    = 39200
  Itn      Primal Obj        Dual Obj  Prim Inf Upper Inf  Dual Inf          
-   0   6.4032228e+04   1.2661586e+07  6.43e+02  9.01e+01  1.55e+05
-   1   1.4550852e+05   7.8482486e+06  3.71e+02  5.20e+01  8.97e+04
-   2   2.3196407e+05   3.9581402e+06  1.41e+02  2.01e+01  3.41e+04
-   3   2.6903959e+05   9.0265890e+05  1.48e+01  2.11e+00  3.56e+03
-   4   2.8229213e+05   3.4262813e+05  9.50e-01  1.36e-01  2.60e+02
-   5   2.8628113e+05   3.0927281e+05  2.70e-01  3.85e-02  9.04e+01
-   6   2.8851117e+05   2.9567504e+05  7.37e-02  1.05e-02  2.50e+01
-   7   2.8939699e+05   2.9133500e+05  1.65e-02  2.35e-03  5.59e+00
-   8   2.8965123e+05   2.9021367e+05  3.45e-03  4.94e-04  1.17e+00
-   9   2.8972147e+05   2.8987570e+05  8.87e-08  4.47e-13  2.58e-04
-  10   2.8975036e+05   2.8978446e+05  8.81e-08  4.16e-13  1.21e-04
-  11   2.8975822e+05   2.8976040e+05  1.82e-07  6.84e-13  1.25e-05
-  12   2.8975883e+05   2.8975890e+05  1.57e-06  4.15e-13  3.10e-07
-  13   2.8975886e+05   2.8975887e+05  1.27e-06  5.68e-13  4.45e-09
-  14   2.8975886e+05   2.8975886e+05  2.28e-06  5.47e-13  3.83e-11
-Barrier time = 0.02 sec. (2.63 ticks)
+   0  -9.6167209e+07   9.4640058e+07  7.29e+05  7.88e+04  3.82e+05
+   1  -1.2008237e+06   2.3421407e+09  4.21e+04  4.55e+03  1.89e+08
+   2   1.1504306e+05   1.9131009e+08  5.41e+03  5.85e+02  2.07e+07
+   3   2.6949311e+05  -7.1706819e+06  2.11e+02  2.28e+01  1.69e+06
+   4   2.8359313e+05  -9.8687531e+05  3.69e+01  3.99e+00  2.97e+05
+   5   2.8718359e+05  -3.0996430e+04  9.25e+00  1.00e+00  7.44e+04
+   6   2.8856405e+05   1.9189788e+05  2.84e+00  3.07e-01  2.29e+04
+   7   2.8922546e+05   2.9031561e+05  8.36e-04  4.44e-13  9.87e-01
+   8   2.8938588e+05   2.8956886e+05  2.16e-05  3.55e-13  1.21e-02
+   9   2.8941476e+05   2.8943406e+05  3.02e-05  2.84e-13  1.29e-03
+  10   2.8941832e+05   2.8941849e+05  2.86e-07  7.25e-13  7.60e-06
+  11   2.8941836e+05   2.8941836e+05  9.87e-08  4.30e-13  3.50e-08
+Barrier time = 0.02 sec. (2.38 ticks)
 
-Total time on 1 threads = 0.02 sec. (2.63 ticks)
+Total time on 1 threads = 0.02 sec. (2.38 ticks)
 QP status(1): optimal
-Cplex Time: 0.02sec (det. 2.63 ticks)
+Cplex Time: 0.02sec (det. 2.38 ticks)
 
 Solution satisfies tolerances.
 
-MIP Solution:       289758.863783    (40960 iterations, 694 nodes)
-Final Solve:        289758.863537    (0 iterations)
+MIP Solution:       289418.359596    (1767575 iterations, 104258 nodes)
+Final Solve:        289418.359325    (0 iterations)
 
-Best possible:      289759.115347
-Absolute gap:            0.251563
-Relative gap:            0.000001
+Best possible:      289420.760372
+Absolute gap:            2.400776
+Relative gap:            0.000008
 
 --- Restarting execution
 --- with_wrong_instrument.gms(282) 2 Mb
 --- Reading solution for model LOCI
---- Executing after solve: elapsed 0:00:03.265
+--- Executing after solve: elapsed 0:03:03.969
 --- with_wrong_instrument.gms(310) 3 Mb
---- GDX File C:\Users\a.eicke\Documents\Locational-investment-signals\Two node models\Output/small_instrument.gdx
+--- GDX File C:\Users\a.eicke\Documents\Locational-investment-signals\Two node models\Output/large_instrument.gdx
 *** Status: Normal completion
---- Job with_wrong_instrument.gms Stop 02/16/22 08:47:19 elapsed 0:00:03.281
+--- Job with_wrong_instrument.gms Stop 02/16/22 15:32:45 elapsed 0:03:03.969

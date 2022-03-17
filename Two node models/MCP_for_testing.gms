@@ -1,6 +1,6 @@
 Sets
-all_t       all hours               /1*16/
-t(all_t)    hours                   /1*12/
+all_t       all hours               /1*10/
+t(all_t)    hours                   /1*10/
 tec         generators              /base, peak, wind, solar/
 con(tec)    conventional generation /base, peak/
 all_n       all buses               /north, south/
@@ -12,10 +12,10 @@ alias (n,m);
 alias (all_n,all_m);
 
 * parameters for supply and demand functions
-Parameter elasticity / -0.15 /; 
-Parameter p_ref / 70 /;
+Parameter elasticity / -0.05 /; 
+Parameter p_ref / 55 /;
 Parameter specific_network_costs /200/;
-Parameter capacity_slope / 0.5 /;
+Parameter capacity_slope / 333 /;
 *Source for network costs: EMMA (3400 EUR/MW/km discontiert mit i = 0.07 ueber 40 Jahre)
 
 Table B(all_n,all_m)        Susceptance of transmission lines
@@ -81,6 +81,9 @@ price(t)
 o_cap_instr(tec,n)
 sum_instrument
 network_cost
+network_cost_1
+network_cost_2
+network_cost_3 
 
 
 maximum

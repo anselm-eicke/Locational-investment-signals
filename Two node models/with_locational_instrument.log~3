@@ -1,8 +1,8 @@
---- Job with_locational_instrument.gms Start 02/16/22 08:25:11 30.3.0 rc5da09e WEX-WEI x86 64bit/MS Windows
+--- Job with_locational_instrument.gms Start 02/16/22 09:58:40 30.3.0 rc5da09e WEX-WEI x86 64bit/MS Windows
 --- GAMS Parameters defined
     Input C:\Users\a.eicke\Documents\Locational-investment-signals\Two node models\with_locational_instrument.gms
     PageSize 0
-    ScrDir C:\Users\a.eicke\Documents\Locational-investment-signals\Two node models\225d\
+    ScrDir C:\Users\a.eicke\Documents\Locational-investment-signals\Two node models\225b\
     SysDir C:\GAMS\win64\30.3\
     LogOption 3
     ErrMsg 1
@@ -20,7 +20,7 @@ Licensee: Small MUD - 5 User License                     S190305:0326AO-WIN
 --- with_locational_instrument.gms(78) 3 Mb
 --- GDXin=C:\Users\a.eicke\Documents\Locational-investment-signals\Two node models\avail.gdx
 --- with_locational_instrument.gms(301) 3 Mb
---- Starting execution: elapsed 0:00:00.021
+--- Starting execution: elapsed 0:00:00.006
 --- with_locational_instrument.gms(266) 4 Mb
 --- Generating MIQCP model LOCI
 --- with_locational_instrument.gms(269) 6 Mb
@@ -28,7 +28,7 @@ Licensee: Small MUD - 5 User License                     S190305:0326AO-WIN
 ---   178 nl-code  28 nl-non-zeroes
 ---   196 discrete-columns
 --- with_locational_instrument.gms(269) 4 Mb
---- Executing CPLEX: elapsed 0:00:00.043
+--- Executing CPLEX: elapsed 0:00:00.032
 
 IBM ILOG CPLEX   30.3.0 rc5da09e Released Mar 06, 2020 WEI x86 64bit/MS Window
 --- GAMS/Cplex licensed for continuous and discrete problems.
@@ -49,8 +49,8 @@ CPXPARAM_MIP_Limits_Nodes                        65000000
 CPXPARAM_TimeLimit                               150000
 CPXPARAM_Tune_TimeLimit                          30000
 CPXPARAM_MIP_Tolerances_AbsMIPGap                0
-CPXPARAM_MIP_Tolerances_MIPGap                   9.9999999999999995e-08
-CPXPARAM_WorkDir                                 "C:\Users\a.eicke\Documents\Locational-investment-signals\Two node models\225d\"
+CPXPARAM_MIP_Tolerances_MIPGap                   1e-08
+CPXPARAM_WorkDir                                 "C:\Users\a.eicke\Documents\Locational-investment-signals\Two node models\225b\"
 Tried aggregator 2 times.
 MIQP Presolve eliminated 310 rows and 82 columns.
 MIQP Presolve modified 268 coefficients.
@@ -115,7 +115,7 @@ Summary statistics for Cholesky factor:
   16   2.8976339e+05   2.8976340e+05  1.77e-07  1.22e-07  4.49e-07
   17   2.8976339e+05   2.8976339e+05  1.78e-09  9.37e-10  2.60e-09
   18   2.8976339e+05   2.8976339e+05  1.50e-09  3.57e-10  2.99e-11
-Barrier time = 0.03 sec. (6.67 ticks)
+Barrier time = 0.02 sec. (6.67 ticks)
 
 QP crossover.
   Primal and Dual:  Fixing 253 variables.
@@ -124,7 +124,7 @@ QP crossover.
 
 Iteration log . . .
 Iteration:     1    Objective     =        289763.387771
-Total crossover time = 0.00 sec. (5.70 ticks)
+Total crossover time = 0.01 sec. (5.70 ticks)
 
 Total time on 1 threads = 0.03 sec. (12.91 ticks)
 Root relaxation solution time = 0.03 sec. (12.91 ticks)
@@ -140,21 +140,21 @@ Root relaxation solution time = 0.03 sec. (12.91 ticks)
       0     0   289763.3878   102                    Cuts: 40     1198         
       0     0   289763.3878   102                     Cuts: 9     1208         
 *     0+    0                       289287.8930   289763.3878             0.16%
-Found incumbent of value 289287.893017 after 0.30 sec. (146.93 ticks)
+Found incumbent of value 289287.893017 after 0.34 sec. (146.93 ticks)
       0     2   289763.3878    68   289287.8930   289763.3878     1208    0.16%
-Elapsed time = 0.30 sec. (148.20 ticks, tree = 0.01 MB, solutions = 1)
+Elapsed time = 0.36 sec. (148.20 ticks, tree = 0.01 MB, solutions = 1)
 *    49    25      integral     0   289660.3049   289763.3878     2594    0.04%
                                                   Impl Bds: 6                  
-Found incumbent of value 289660.304851 after 0.44 sec. (211.04 ticks)
+Found incumbent of value 289660.304851 after 0.50 sec. (211.04 ticks)
 *   114    28      integral     0   289664.9937   289763.3878     3378    0.03%
                                                       Cuts: 6                  
-Found incumbent of value 289664.993701 after 0.58 sec. (279.96 ticks)
+Found incumbent of value 289664.993701 after 0.67 sec. (279.96 ticks)
 *   176    39      integral     0   289750.4765   289763.3878     4193    0.00%
                                                   Impl Bds: 2                  
-Found incumbent of value 289750.476522 after 0.72 sec. (338.77 ticks)
+Found incumbent of value 289750.476522 after 0.81 sec. (338.77 ticks)
 *   180+    1                       289763.3878   289763.3878             0.00%
                                                   Impl Bds: 1                  
-Found incumbent of value 289763.387771 after 0.75 sec. (346.60 ticks)
+Found incumbent of value 289763.387771 after 0.84 sec. (346.60 ticks)
 
 Clique cuts applied:  32
 Implied bound cuts applied:  49
@@ -164,13 +164,13 @@ Zero-half cuts applied:  1
 Gomory fractional cuts applied:  1
 
 Root node processing (before b&c):
-  Real time             =    0.30 sec. (148.21 ticks)
+  Real time             =    0.36 sec. (148.21 ticks)
 Sequential b&c:
-  Real time             =    0.45 sec. (198.65 ticks)
+  Real time             =    0.48 sec. (198.65 ticks)
                           ------------
-Total (root+branch&cut) =    0.75 sec. (346.86 ticks)
+Total (root+branch&cut) =    0.84 sec. (346.86 ticks)
 MIQP status(101): integer optimal solution
-Cplex Time: 0.75sec (det. 346.87 ticks)
+Cplex Time: 0.84sec (det. 346.87 ticks)
 Fixing integer variables, and solving final QP..
 Version identifier: 12.10.0.0 | 2019-11-26 | 843d4de2ae
 CPXPARAM_Advance                                 2
@@ -182,8 +182,8 @@ CPXPARAM_MIP_Limits_Nodes                        65000000
 CPXPARAM_TimeLimit                               150000
 CPXPARAM_Tune_TimeLimit                          30000
 CPXPARAM_MIP_Tolerances_AbsMIPGap                0
-CPXPARAM_MIP_Tolerances_MIPGap                   9.9999999999999995e-08
-CPXPARAM_WorkDir                                 "C:\Users\a.eicke\Documents\Locational-investment-signals\Two node models\225d\"
+CPXPARAM_MIP_Tolerances_MIPGap                   1e-08
+CPXPARAM_WorkDir                                 "C:\Users\a.eicke\Documents\Locational-investment-signals\Two node models\225b\"
 Tried aggregator 1 time.
 QP Presolve eliminated 716 rows and 502 columns.
 Aggregator did 103 substitutions.
@@ -196,7 +196,7 @@ Parallel mode: none, using 1 thread for barrier
 
 Number of nonzeros in lower triangle of A*A' = 592
 Using Approximate Minimum Degree ordering
-Total time for automatic ordering = 0.00 sec. (0.03 ticks)
+Total time for automatic ordering = 0.02 sec. (0.03 ticks)
 Summary statistics for Cholesky factor:
   Rows in Factor            = 157
   Integer space required    = 336
@@ -218,11 +218,11 @@ Summary statistics for Cholesky factor:
   12   2.8976305e+05   2.8976469e+05  2.18e-07  5.58e-13  1.05e-04
   13   2.8976338e+05   2.8976341e+05  1.13e-08  3.62e-13  9.64e-07
   14   2.8976339e+05   2.8976339e+05  1.48e-08  4.01e-13  3.40e-09
-Barrier time = 0.00 sec. (2.74 ticks)
+Barrier time = 0.02 sec. (2.74 ticks)
 
-Total time on 1 threads = 0.00 sec. (2.74 ticks)
+Total time on 1 threads = 0.02 sec. (2.74 ticks)
 QP status(1): optimal
-Cplex Time: 0.00sec (det. 2.74 ticks)
+Cplex Time: 0.02sec (det. 2.74 ticks)
 
 Proven optimal solution.
 
@@ -236,8 +236,8 @@ Relative gap:            0.000000
 --- Restarting execution
 --- with_locational_instrument.gms(269) 2 Mb
 --- Reading solution for model LOCI
---- Executing after solve: elapsed 0:00:00.953
+--- Executing after solve: elapsed 0:00:01.037
 --- with_locational_instrument.gms(301) 3 Mb
 --- GDX File C:\Users\a.eicke\Documents\Locational-investment-signals\Two node models\Output/with_instrument.gdx
 *** Status: Normal completion
---- Job with_locational_instrument.gms Stop 02/16/22 08:25:12 elapsed 0:00:00.953
+--- Job with_locational_instrument.gms Stop 02/16/22 09:58:41 elapsed 0:00:01.052

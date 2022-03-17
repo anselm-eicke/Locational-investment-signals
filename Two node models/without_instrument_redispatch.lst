@@ -1,4 +1,4 @@
-GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 02/16/22 19:00:14 Page 1
+GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 03/14/22 16:22:55 Page 1
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
 C o m p i l a t i o n
 
@@ -302,11 +302,11 @@ GDXIN   C:\Users\a.eicke\Documents\Locational-investment-signals\Two node models
  297  Display WF.L, consumer_surplus, generation_costs, network_cost, network_cost_1, network_cost_2, network_cost_3, CAP.L, GEN.L, UP.L, DOWN.L, FLOW.L, price, load_deviation, load_shedding, GRID_CAP.L, LOAD_redi.L, LOAD_spot.L, o_instrument, sum_instrum
       ent;
  298   
- 299  execute_UNLOAD 'Output/without_instrument_new.gdx' welfare, consumer_surplus, generation_costs, network_cost, res_share, o_instrument, sum_instrument, o_cap, o_gen, price, c_fix;
+ 299  execute_UNLOAD 'Output/without_instrument_redispatch.gdx' welfare, consumer_surplus, generation_costs, network_cost, network_cost_1, network_cost_2, network_cost_3, res_share, o_instrument, sum_instrument, o_cap, o_gen, price, c_fix;
 
 **** LIST OF STRAY NAMES - CHECK DECLARATIONS FOR SPURIOUS COMMAS
 **** STRAY NAME instr_const OF TYPE EQU  
-GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 02/16/22 19:00:14 Page 2
+GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 03/14/22 16:22:55 Page 2
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
 Include File Summary
 
@@ -320,7 +320,7 @@ Include File Summary
 
 
 COMPILATION TIME     =        0.000 SECONDS      3 MB  30.3.0 rc5da09e WEX-WEI
-GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 02/16/22 19:00:14 Page 3
+GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 03/14/22 16:22:55 Page 3
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
 E x e c u t i o n
 
@@ -443,7 +443,7 @@ solar      68.000      68.000
 
 1  -24.752,    2  -24.369,    3  -20.314,    4  -17.986,    5  -17.433,    6  -18.137,    7  -18.382,    8  -18.260,    9  -20.477,    10 -23.095
 
-GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 02/16/22 19:00:14 Page 4
+GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 03/14/22 16:22:55 Page 4
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
 Equation Listing    SOLVE LOCI Using MIQCP From line 269
 
@@ -814,7 +814,7 @@ complementarity6b(3)..  100000*y6(3) + SPOT_PRICE(3) =L= 100000 ; (LHS = 0)
      
 REMAINING 7 ENTRIES SKIPPED
 
-GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 02/16/22 19:00:14 Page 5
+GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 03/14/22 16:22:55 Page 5
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
 Column Listing      SOLVE LOCI Using MIQCP From line 269
 
@@ -1441,7 +1441,7 @@ DOWN(1,peak,north)
         1       redispatch1(1,peak,north)
 
 REMAINING 77 ENTRIES SKIPPED
-GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 02/16/22 19:00:14 Page 6
+GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 03/14/22 16:22:55 Page 6
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
 Model Statistics    SOLVE LOCI Using MIQCP From line 269
 
@@ -1458,8 +1458,8 @@ CODE LENGTH                 178     DISCRETE VARIABLES        196
 GENERATION TIME      =        0.016 SECONDS      4 MB  30.3.0 rc5da09e WEX-WEI
 
 
-EXECUTION TIME       =        0.016 SECONDS      4 MB  30.3.0 rc5da09e WEX-WEI
-GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 02/16/22 19:00:14 Page 7
+EXECUTION TIME       =        0.031 SECONDS      4 MB  30.3.0 rc5da09e WEX-WEI
+GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 03/14/22 16:22:55 Page 7
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
 Solution Report     SOLVE LOCI Using MIQCP From line 269
 
@@ -1474,7 +1474,7 @@ Solution Report     SOLVE LOCI Using MIQCP From line 269
 **** MODEL STATUS      8 Integer Solution          
 **** OBJECTIVE VALUE           287236.5028
 
- RESOURCE USAGE, LIMIT      32468.219   2000000.000
+ RESOURCE USAGE, LIMIT      36282.094   2000000.000
  ITERATION COUNT, LIMIT 453476504    2000000000
  EVALUATION ERRORS              0             0
 
@@ -1486,10 +1486,10 @@ The search will stop after 800000000 nodes.
 Space for names approximately 0.05 Mb
 Use option 'names no' to turn use of names off
 MIQP status(102): integer optimal, tolerance
-Cplex Time: 32468.17sec (det. 22176823.79 ticks)
+Cplex Time: 36282.06sec (det. 22176823.79 ticks)
 Fixing integer variables, and solving final QP..
 QP status(6): non-optimal
-Cplex Time: 0.02sec (det. 3.13 ticks)
+Cplex Time: 0.01sec (det. 3.13 ticks)
 Final solve did not return an optimal solution.
 Returning a primal only solution to GAMS (marginals all set to NA).
 Solution satisfies tolerances.
@@ -3465,7 +3465,7 @@ south.south          .              .            +INF
                              0  UNBOUNDED
                              0     ERRORS
                            102  PROJECTED
-GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 02/16/22 19:00:14 Page 8
+GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 03/14/22 16:22:55 Page 8
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
 E x e c u t i o n
 
@@ -3639,7 +3639,7 @@ south      21.858
             PARAMETER sum_instrument       =     1019.057  
 
 
-EXECUTION TIME       =        0.031 SECONDS      3 MB  30.3.0 rc5da09e WEX-WEI
+EXECUTION TIME       =        0.016 SECONDS      3 MB  30.3.0 rc5da09e WEX-WEI
 
 
 USER: Small MUD - 5 User License                     S190305:0326AO-WIN

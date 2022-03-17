@@ -1,11 +1,11 @@
-GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 02/14/22 08:27:52 Page 1
+GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 03/14/22 16:11:19 Page 1
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
 C o m p i l a t i o n
 
 
    1  Sets
-   2  all_t       all hours               /1*16/
-   3  t(all_t)    hours                   /1*12/
+   2  all_t       all hours               /1*10/
+   3  t(all_t)    hours                   /1*10/
    4  tec         generators              /base, peak, wind, solar/
    5  con(tec)    conventional generation /base, peak/
    6  all_n       all buses               /north, south/
@@ -17,10 +17,10 @@ C o m p i l a t i o n
   12  alias (all_n,all_m);
   13   
   14  * parameters for supply and demand functions
-  15  Parameter elasticity / -0.15 /;
-  16  Parameter p_ref / 70 /;
+  15  Parameter elasticity / -0.05 /;
+  16  Parameter p_ref / 55 /;
   17  Parameter specific_network_costs /200/;
-  18  Parameter capacity_slope / 0.5 /;
+  18  Parameter capacity_slope / 333 /;
   19  *Source for network costs: EMMA (3400 EUR/MW/km discontiert mit i = 0.07 ueber 40 Jahre)
   20   
   21  Table B(all_n,all_m)        Susceptance of transmission lines
@@ -86,146 +86,205 @@ GDXIN   C:\Users\a.eicke\Documents\Locational-investment-signals\Two node models
   81  o_cap_instr(tec,n)
   82  sum_instrument
   83  network_cost
-  84   
-  85   
-  86  maximum
-  87  threshold
+  84  network_cost_1
+  85  network_cost_2
+  86  network_cost_3
+  87   
   88   
-  89  ;
-  90   
-  91  * Load data
+  89  maximum
+  90  threshold
+  91   
+  92  ;
+  93   
+  94  * Load data
 GDXIN   C:\Users\a.eicke\Documents\Locational-investment-signals\Two node models\in.gdx
 --- LOAD  i_cost = 1:i_cost
-  94   
+  97   
 GDXIN   C:\Users\a.eicke\Documents\Locational-investment-signals\Two node models\load.gdx
 --- LOAD  i_load = 1:i_load
-  97   
+ 100   
 GDXIN   C:\Users\a.eicke\Documents\Locational-investment-signals\Two node models\avail.gdx
 --- LOAD  i_avail = 1:i_avail
- 100   
- 101   
- 102   
- 103  * Data assignment
- 104  load_ref(t,n)               = i_load(t,n) / 1000;
- 105  avail(t,tec,n)              = i_avail(t,tec,n);
- 106  avail(t,con,n)              = 1;
- 107  c_var(tec, n)               = i_cost(tec,"cost_var");
- 108  c_fix(tec, n)               = round(i_cost(tec,"cost_fix") * 1000 * sc);
- 109  cap_lim(tec,n)              = 100;
- 110  grid_cost(n,m)              = round(B(n,m) * specific_network_costs * sc);
- 111   
- 112  *Inverse demand function at each node
- 113  a_nodal(t,n)                = p_ref *(1-1/elasticity);
- 114  s_nodal(t,n)                = p_ref *(1/(elasticity*load_ref(t,n)));
- 115   
- 116  * Inverse demand function of the zonal market (only holds if P(t) < a_nodal(t,n) for all t,n)
- 117  A_zonal(t)                  = sum(n, a_nodal(t,n) / s_nodal(t,n)) / sum(n, 1/ s_nodal(t,n));
- 118  S_zonal(t)                  = 1 / sum(n, 1/ s_nodal(t,n));
- 119   
- 120   
- 121   
- 122  display INSTRUMENT;
+ 103   
+ 104   
+ 105   
+ 106  * Data assignment
+ 107  load_ref(t,n)               = i_load(t,n) / 1000;
+ 108  avail(t,tec,n)              = i_avail(t,tec,n);
+ 109  avail(t,con,n)              = 1;
+ 110  c_var(tec, n)               = i_cost(tec,"cost_var");
+ 111  c_fix(tec, n)               = round(i_cost(tec,"cost_fix") * 1000 * sc);
+ 112  cap_lim(tec,n)              = 100;
+ 113  grid_cost(n,m)              = round(B(n,m) * specific_network_costs * sc);
+ 114   
+ 115  *Inverse demand function at each node
+ 116  a_nodal(t,n)                = p_ref *(1-1/elasticity);
+ 117  s_nodal(t,n)                = p_ref *(1/(elasticity*load_ref(t,n)));
+ 118   
+ 119  * Inverse demand function of the zonal market (only holds if P(t) < a_nodal(t,n) for all t,n)
+ 120  A_zonal(t)                  = sum(n, a_nodal(t,n) / s_nodal(t,n)) / sum(n, 1/ s_nodal(t,n));
+ 121  S_zonal(t)                  = 1 / sum(n, 1/ s_nodal(t,n));
+ 122   
  123   
- 124  display c_var, load_ref, avail, c_fix, a_nodal, s_nodal, A_zonal, S_zonal;
- 125   
- 126  Parameters
- 127  consumer_surplus
- 128  generation_costs
- 129  total_network_cost
- 130  res_share
- 131   
- 132  o_WF
- 133  o_CS
- 134  o_GC
- 135  o_NC
- 136  o_RES_share
- 137   
- 138  o_cap(tec,n)
- 139  o_price(t)
- 140  o_cap_instr(tec,n)
- 141   
- 142  ;
- 143   
+ 124   
+ 125  display INSTRUMENT;
+ 126   
+ 127  display c_var, load_ref, avail, c_fix, a_nodal, s_nodal, A_zonal, S_zonal;
+ 128   
+ 129  Parameters
+ 130  consumer_surplus
+ 131  generation_costs
+ 132  total_network_cost
+ 133  res_share
+ 134   
+ 135  o_WF
+ 136  o_CS
+ 137  o_GC
+ 138  o_NC
+ 139  o_RES_share
+ 140   
+ 141  o_cap(tec,n)
+ 142  o_price(t)
+ 143  o_cap_instr(tec,n)
  144   
- 145  Variables
- 146  GEN(t,tec,n)
- 147  CAP(tec,n)
- 148  LOAD_zonal(t)
- 149  LAMBDA(t)
- 150  RHO(t,tec,n)
- 151  WF
- 152  ;
- 153   
- 154  Positive variables
- 155  mu_G_min(t,tec,n)
- 156  mu_G_max(t,tec,n)
- 157  mu_C_min(tec,n)
- 158  mu_C_max(tec,n)
- 159  mu_D_min(t)
- 160   
- 161  UP(t,tec,n)
- 162  DOWN(t,tec,n)
- 163  SHARE(t,tec)
- 164  ;
- 165   
- 166  Equations
- 167  gen_min, gen_max,
- 168  cap_min, cap_max, demand_min,
- 169  energy_balance,
- 170  KKT_GEN, KKT_CAP, KKT_load;
- 171   
- 172   
- 173  ** Inner problem
- 174  *Primal constraints
- 175  gen_min(t,tec,n)..          0 =g= -GEN(t,tec,n);
- 176  gen_max(t,tec,n)..          0 =g= GEN(t,tec,n) - CAP(tec,n) * avail(t,tec,n);
- 177   
- 178  cap_min(tec,n)..            0 =g= -CAP(tec,n);
- 179  cap_max(tec,n)..            0 =g= CAP(tec,n) - cap_lim(tec,n);
+ 145  ;
+ 146   
+ 147   
+ 148  Variables
+ 149  GEN(t,tec,n)
+ 150  CAP(tec,n)
+ 151  LOAD_zonal(t)
+ 152  LAMBDA(t)
+ 153  RHO(t,tec,n)
+ 154  WF
+ 155  ;
+ 156   
+ 157  Positive variables
+ 158  mu_G_min(t,tec,n)
+ 159  mu_G_max(t,tec,n)
+ 160  mu_C_min(tec,n)
+ 161  mu_C_max(tec,n)
+ 162  mu_D_min(t)
+ 163   
+ 164  UP(t,tec,n)
+ 165  DOWN(t,tec,n)
+ 166  SHARE(t,tec)
+ 167  ;
+ 168   
+ 169  Equations
+ 170  gen_min, gen_max,
+ 171  cap_min, cap_max, demand_min,
+ 172  energy_balance,
+ 173  KKT_GEN, KKT_CAP, KKT_load;
+ 174   
+ 175   
+ 176  ** Inner problem
+ 177  *Primal constraints
+ 178  gen_min(t,tec,n)..          0 =g= -GEN(t,tec,n);
+ 179  gen_max(t,tec,n)..          0 =g= GEN(t,tec,n) - CAP(tec,n) * avail(t,tec,n);
  180   
- 181  demand_min(t)..             0 =g= -LOAD_zonal(t);
- 182   
- 183  energy_balance(t)..         0 =e= sum((tec,n),GEN(t,tec,n)) - LOAD_zonal(t);
- 184   
- 185  *KKT conditions
- 186  KKT_GEN(t,tec,n)..          c_var(tec,n) + mu_G_max(t,tec,n) - mu_G_min(t,tec,n) - LAMBDA(t) =e= 0;
- 187  KKT_CAP(tec,n)..            c_fix(tec,n) + capacity_slope * CAP(tec,n) + INSTRUMENT(tec,n) - sum(t,avail(t,tec,n) * mu_G_max(t,tec,n)) + mu_C_max(tec,n) - mu_C_min(tec,n) =e= 0;
- 188  KKT_load(t)..               -(A_zonal(t) + S_zonal(t) * LOAD_zonal(t)) - mu_D_min(t) + LAMBDA(t) =e= 0;
- 189   
- 190  Model LOCI /
- 191   
- 192  gen_min.mu_G_min
- 193  gen_max.mu_G_max
- 194  cap_min.mu_C_min
- 195  cap_max.mu_C_max
- 196  demand_min.mu_D_min
- 197  energy_balance.LAMBDA
- 198  KKT_GEN
- 199  KKT_CAP
- 200  KKT_load
- 201   
- 202  /;
- 203   
- 204  * Set starting values
- 205  *LOAD_real.L(t,n) =load(t,n);
+ 181  cap_min(tec,n)..            0 =g= -CAP(tec,n);
+ 182  cap_max(tec,n)..            0 =g= CAP(tec,n) - cap_lim(tec,n);
+ 183   
+ 184  demand_min(t)..             0 =g= -LOAD_zonal(t);
+ 185   
+ 186  energy_balance(t)..         0 =e= sum((tec,n),GEN(t,tec,n)) - LOAD_zonal(t);
+ 187   
+ 188  *KKT conditions
+ 189  KKT_GEN(t,tec,n)..          c_var(tec,n) + mu_G_max(t,tec,n) - mu_G_min(t,tec,n) - LAMBDA(t) =e= 0;
+ 190  KKT_CAP(tec,n)..            c_fix(tec,n) + capacity_slope * CAP(tec,n) + INSTRUMENT(tec,n) - sum(t,avail(t,tec,n) * mu_G_max(t,tec,n)) + mu_C_max(tec,n) - mu_C_min(tec,n) =e= 0;
+ 191  KKT_load(t)..               -(A_zonal(t) + S_zonal(t) * LOAD_zonal(t)) - mu_D_min(t) + LAMBDA(t) =e= 0;
+ 192   
+ 193  Model LOCI /
+ 194   
+ 195  gen_min.mu_G_min
+ 196  gen_max.mu_G_max
+ 197  cap_min.mu_C_min
+ 198  cap_max.mu_C_max
+ 199  demand_min.mu_D_min
+ 200  energy_balance.LAMBDA
+ 201  KKT_GEN
+ 202  KKT_CAP
+ 203  KKT_load
+ 204   
+ 205  /;
  206   
- 207  Option optcr = 0.0005;
- 208   
- 209  Solve LOCI using MCP;
- 210   
- 211  price(t) = A_zonal(t) + S_zonal(t) * LOAD_zonal.L(t);
- 212   
- 213  maximum = smax(t,price(t));
- 214  threshold = smin((t,n),a_nodal(t,n));
+ 207  * Set starting values
+ 208  *LOAD_real.L(t,n) =load(t,n);
+ 209   
+ 210  Option optcr = 0.0005;
+ 211   
+ 212  Solve LOCI using MCP;
+ 213   
+ 214  price(t) = A_zonal(t) + S_zonal(t) * LOAD_zonal.L(t);
  215   
- 216  display maximum, threshold;
- 217   
+ 216  maximum = smax(t,price(t));
+ 217  threshold = smin((t,n),a_nodal(t,n));
  218   
- 219  load_deviation(t) = LOAD_zonal.L(t) / sum(n,load_ref(t,n));
- 220   
- 221  Display GEN.L, CAP.L, LOAD_zonal.L, LAMBDA.L, price, load_deviation;
- 222  *,WF.L,  GRID.L, LAMBDA.L, LOAD_real.L, CAP_INSTR.L, UP.L, DOWN.L, RESERVE_CAP.L, FLOW.L;
-GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 02/14/22 08:27:52 Page 2
+ 219  network_cost_1 = sum((n,m),(GRID_CAP.L(n,m) / 2 * grid_cost(n,m)));
+****                                       $140
+**** 140  Unknown symbol
+ 220  network_cost_2 = sum((t,tec,n), (UP.L(t,tec,n) - DOWN.L(t,tec,n)) * c_var(tec,n));
+****                                      $141              $141
+**** 141  Symbol declared but no values have been assigned. Check for missing
+****         data definition, assignment, data loading or implicit assignment
+****         via a solve statement.
+****         A wild shot: You may have spurious commas in the explanatory
+****         text of a declaration. Check symbol reference list.
+ 221  network_cost_3 = sum((t), A_zonal(t) * LOAD_spot.L(t) + 1/2 * S_zonal(t) * LOAD_spot.L(t) * LOAD_spot.L(t))
+****                                                   $140
+**** 140  Unknown symbol
+ 222                  - sum((t,n), a_nodal(t,n) * LOAD_redi.L(t,n) + 1/2 * s_nodal(t,n) * LOAD_redi.L(t,n) * LOAD_redi.L(t,n))
+****                                                        $140
+**** 140  Unknown symbol
+ 223                  ;
+ 224   
+ 225  network_cost = network_cost_1 + network_cost_2 + network_cost_3;
+ 226   
+ 227  consumer_surplus = sum((t), A_zonal(t) * LOAD_spot.L(t) + 1/2 * S_zonal(t) * LOAD_spot.L(t) * LOAD_spot.L(t));
+ 228   
+ 229  generation_costs = (sum((tec,n), CAP.L(tec,n) * c_fix(tec,n) + 0.5 * CAP.L(tec,n) * CAP.L(tec,n) * capacity_slope) + sum((t,tec,n), GEN.L(t,tec,n) * c_var(tec,n)));
+ 230   
+ 231  sum_instrument = sum((tec,n), INSTRUMENT.L * CAP.L(tec,n));
+****                                           $142,148
+**** 142  No suffix allowed here - suffix ignored
+**** 148  Dimension different - The symbol is referenced with more/less
+****         indices as declared
+ 232   
+ 233  load_deviation(t,n) = ((SPOT_PRICE.L(t) - a_nodal(t,n)) / s_nodal(t,n)) - load_ref(t,n);
+****                    $148             $140
+**** 140  Unknown symbol
+**** 148  Dimension different - The symbol is referenced with more/less
+****         indices as declared
+ 234  load_shedding(t,n) = LOAD_spot.L(t) - LOAD_redi.L(t,n);
+****              $140
+**** 140  Unknown symbol
+ 235  res_share = 1 - sum((t,con,n), GEN.L(t,con,n)) / sum((t,tec,n), GEN.L(t,tec,n));
+ 236  o_cap(tec,n) = CAP.L(tec,n);
+ 237  o_gen(t,tec,n) = GEN.L(t,tec,n);
+ 238  real_generation(t,tec,n) = GEN.L(t,tec,n) + UP.L(t,tec,n) - DOWN.L(t,tec,n);
+****                $140
+**** 140  Unknown symbol
+ 239  welfare = WF.L;
+****        $140   $141
+**** 140  Unknown symbol
+**** 141  Symbol declared but no values have been assigned. Check for missing
+****         data definition, assignment, data loading or implicit assignment
+****         via a solve statement.
+****         A wild shot: You may have spurious commas in the explanatory
+****         text of a declaration. Check symbol reference list.
+ 240   
+ 241  display maximum, threshold;
+ 242   
+ 243  Display WF.L, consumer_surplus, generation_costs, network_cost, network_cost_1, network_cost_2, network_cost_3, CAP.L, GEN.L, UP.L, DOWN.L, FLOW.L, price, load_deviation, load_shedding, GRID_CAP.L, LOAD_redi.L, LOAD_spot.L, o_instrument, sum_instrum
+****                                                                                                                                                   $140
+      ent;
+**** 140  Unknown symbol
+ 244   
+ 245  execute_UNLOAD 'Output/without_instrument_MCP.gdx' welfare, consumer_surplus, generation_costs, network_cost, res_share, o_instrument, sum_instrument, o_cap, o_gen, price, c_fix;
+
+**** 14 ERROR(S)   0 WARNING(S)
+GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 03/14/22 16:11:19 Page 2
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
 Include File Summary
 
@@ -234,1440 +293,12 @@ Include File Summary
 
      1        1 INPUT          0       0  C:\Users\a.eicke\Documents\Locational-investment-signals\Two node models\MCP_for_testing.gms
      2       30 GDXIN          1      30  C:\Users\a.eicke\Documents\Locational-investment-signals\Two node models\Output/without_instrument.gdx
-     3       92 GDXIN          1      92  C:\Users\a.eicke\Documents\Locational-investment-signals\Two node models\in.gdx
-     4       95 GDXIN          1      95  C:\Users\a.eicke\Documents\Locational-investment-signals\Two node models\load.gdx
-     5       98 GDXIN          1      98  C:\Users\a.eicke\Documents\Locational-investment-signals\Two node models\avail.gdx
+     3       95 GDXIN          1      95  C:\Users\a.eicke\Documents\Locational-investment-signals\Two node models\in.gdx
+     4       98 GDXIN          1      98  C:\Users\a.eicke\Documents\Locational-investment-signals\Two node models\load.gdx
+     5      101 GDXIN          1     101  C:\Users\a.eicke\Documents\Locational-investment-signals\Two node models\avail.gdx
 
 
 COMPILATION TIME     =        0.000 SECONDS      3 MB  30.3.0 rc5da09e WEX-WEI
-GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 02/14/22 08:27:52 Page 3
-G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
-E x e c u t i o n
-
-
-----    122 PARAMETER INSTRUMENT  
-
-            north       south
-
-base       -3.512      -3.512
-peak       -3.512      -3.512
-wind       -3.512      -3.512
-solar      -3.512      -3.512
-
-
-----    124 PARAMETER c_var  variable costs (EUR per MWh)
-
-           north       south
-
-base      40.000      40.000
-peak      70.000      70.000
-
-
-----    124 PARAMETER load_ref  hourly load in GWh
-
-         north       south
-
-1        5.700      38.740
-2        3.060      42.080
-3        2.730      49.370
-4       21.600      37.740
-5       15.990      46.560
-6       30.390      32.650
-7       28.720      31.930
-8        6.080      53.300
-9       24.150      36.720
-10      12.510      45.550
-11       1.200      51.070
-12       8.390      39.230
-
-
-----    124 PARAMETER avail  availability of wind and solar generation (1)
-
-               north       south
-
-1 .base        1.000       1.000
-1 .peak        1.000       1.000
-1 .wind        0.430       0.310
-2 .base        1.000       1.000
-2 .peak        1.000       1.000
-2 .wind        0.240       0.160
-2 .solar       0.200       0.080
-3 .base        1.000       1.000
-3 .peak        1.000       1.000
-3 .wind        0.200       0.100
-3 .solar       0.360       0.300
-4 .base        1.000       1.000
-4 .peak        1.000       1.000
-4 .wind        0.200       0.150
-4 .solar       0.180       0.100
-5 .base        1.000       1.000
-5 .peak        1.000       1.000
-5 .wind        0.120       0.130
-6 .base        1.000       1.000
-6 .peak        1.000       1.000
-6 .wind        0.060       0.080
-7 .base        1.000       1.000
-7 .peak        1.000       1.000
-7 .wind        0.110       0.080
-7 .solar       0.020       0.020
-8 .base        1.000       1.000
-8 .peak        1.000       1.000
-8 .wind        0.170       0.160
-8 .solar       0.190       0.300
-9 .base        1.000       1.000
-9 .peak        1.000       1.000
-9 .wind        0.240       0.240
-9 .solar       0.320       0.440
-10.base        1.000       1.000
-10.peak        1.000       1.000
-10.wind        0.290       0.320
-10.solar       0.110       0.260
-11.base        1.000       1.000
-11.peak        1.000       1.000
-11.wind        0.220       0.200
-12.base        1.000       1.000
-12.peak        1.000       1.000
-12.wind        0.180       0.130
-
-
-----    124 PARAMETER c_fix  annualized fixed costs (EUR per MW p.a.)
-
-            north       south
-
-base      411.000     411.000
-peak      151.000     151.000
-wind      137.000     137.000
-solar      82.000      82.000
-
-
-----    124 PARAMETER a_nodal  intercept of inverse nodal demand function
-
-         north       south
-
-1      536.667     536.667
-2      536.667     536.667
-3      536.667     536.667
-4      536.667     536.667
-5      536.667     536.667
-6      536.667     536.667
-7      536.667     536.667
-8      536.667     536.667
-9      536.667     536.667
-10     536.667     536.667
-11     536.667     536.667
-12     536.667     536.667
-
-
-----    124 PARAMETER s_nodal  slope of inverse nodal demand function
-
-         north       south
-
-1      -81.871     -12.046
-2     -152.505     -11.090
-3     -170.940      -9.452
-4      -21.605     -12.365
-5      -29.185     -10.023
-6      -15.356     -14.293
-7      -16.249     -14.615
-8      -76.754      -8.755
-9      -19.324     -12.709
-10     -37.303     -10.245
-11    -388.889      -9.138
-12     -55.622     -11.896
-
-
-----    124 PARAMETER A_zonal  intercept of inverse zonal demand function
-
-1  536.667,    2  536.667,    3  536.667,    4  536.667,    5  536.667,    6  536.667,    7  536.667,    8  536.667,    9  536.667,    10 536.667,    11 536.667,    12 536.667
-
-
-----    124 PARAMETER S_zonal  slope of inverse zonal demand function
-
-1  -10.501,    2  -10.338,    3   -8.957,    4   -7.864,    5   -7.461,    6   -7.403,    7   -7.694,    8   -7.859,    9   -7.667,    10  -8.038,    11  -8.928,    12  -9.800
-
-GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 02/14/22 08:27:52 Page 4
-G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
-Equation Listing    SOLVE LOCI Using MCP From line 209
-
-
----- gen_min  =G=  
-
-gen_min(1,base,north)..  GEN(1,base,north) =G= 0 ; (LHS = 0)
-     
-gen_min(1,base,south)..  GEN(1,base,south) =G= 0 ; (LHS = 0)
-     
-gen_min(1,peak,north)..  GEN(1,peak,north) =G= 0 ; (LHS = 0)
-     
-REMAINING 93 ENTRIES SKIPPED
-
-
----- gen_max  =G=  
-
-gen_max(1,base,north)..  - GEN(1,base,north) + CAP(base,north) =G= 0 ; (LHS = 0)
-     
-gen_max(1,base,south)..  - GEN(1,base,south) + CAP(base,south) =G= 0 ; (LHS = 0)
-     
-gen_max(1,peak,north)..  - GEN(1,peak,north) + CAP(peak,north) =G= 0 ; (LHS = 0)
-     
-REMAINING 93 ENTRIES SKIPPED
-
-
----- cap_min  =G=  
-
-cap_min(base,north)..  CAP(base,north) =G= 0 ; (LHS = 0)
-     
-cap_min(base,south)..  CAP(base,south) =G= 0 ; (LHS = 0)
-     
-cap_min(peak,north)..  CAP(peak,north) =G= 0 ; (LHS = 0)
-     
-REMAINING 5 ENTRIES SKIPPED
-
-
----- cap_max  =G=  
-
-cap_max(base,north)..  - CAP(base,north) =G= -100 ; (LHS = 0)
-     
-cap_max(base,south)..  - CAP(base,south) =G= -100 ; (LHS = 0)
-     
-cap_max(peak,north)..  - CAP(peak,north) =G= -100 ; (LHS = 0)
-     
-REMAINING 5 ENTRIES SKIPPED
-
-
----- demand_min  =G=  
-
-demand_min(1)..  LOAD_zonal(1) =G= 0 ; (LHS = 0)
-     
-demand_min(2)..  LOAD_zonal(2) =G= 0 ; (LHS = 0)
-     
-demand_min(3)..  LOAD_zonal(3) =G= 0 ; (LHS = 0)
-     
-REMAINING 9 ENTRIES SKIPPED
-
-
----- energy_balance  =E=  
-
-energy_balance(1)..  - GEN(1,base,north) - GEN(1,base,south) - GEN(1,peak,north) - GEN(1,peak,south) - GEN(1,wind,north) - GEN(1,wind,south) - GEN(1,solar,north) - GEN(1,solar,south) + LOAD_zonal(1) =E= 0 ; (LHS = 0)
-     
-energy_balance(2)..  - GEN(2,base,north) - GEN(2,base,south) - GEN(2,peak,north) - GEN(2,peak,south) - GEN(2,wind,north) - GEN(2,wind,south) - GEN(2,solar,north) - GEN(2,solar,south) + LOAD_zonal(2) =E= 0 ; (LHS = 0)
-     
-energy_balance(3)..  - GEN(3,base,north) - GEN(3,base,south) - GEN(3,peak,north) - GEN(3,peak,south) - GEN(3,wind,north) - GEN(3,wind,south) - GEN(3,solar,north) - GEN(3,solar,south) + LOAD_zonal(3) =E= 0 ; (LHS = 0)
-     
-REMAINING 9 ENTRIES SKIPPED
-
-
----- KKT_GEN  =E=  
-
-KKT_GEN(1,base,north)..  - LAMBDA(1) - mu_G_min(1,base,north) + mu_G_max(1,base,north) =E= -40 ; (LHS = 0, INFES = 40 ****)
-     
-KKT_GEN(1,base,south)..  - LAMBDA(1) - mu_G_min(1,base,south) + mu_G_max(1,base,south) =E= -40 ; (LHS = 0, INFES = 40 ****)
-     
-KKT_GEN(1,peak,north)..  - LAMBDA(1) - mu_G_min(1,peak,north) + mu_G_max(1,peak,north) =E= -70 ; (LHS = 0, INFES = 70 ****)
-     
-REMAINING 93 ENTRIES SKIPPED
-
-
----- KKT_CAP  =E=  
-
-KKT_CAP(base,north)..  0.5*CAP(base,north) - mu_G_max(1,base,north) - mu_G_max(2,base,north) - mu_G_max(3,base,north) - mu_G_max(4,base,north) - mu_G_max(5,base,north) - mu_G_max(6,base,north) - mu_G_max(7,base,north) - mu_G_max(8,base,north)
-     
-      - mu_G_max(9,base,north) - mu_G_max(10,base,north) - mu_G_max(11,base,north) - mu_G_max(12,base,north) - mu_C_min(base,north) + mu_C_max(base,north) =E= -407.488376177454 ; (LHS = 0, INFES = 407.488376177454 ****)
-     
-KKT_CAP(base,south)..  0.5*CAP(base,south) - mu_G_max(1,base,south) - mu_G_max(2,base,south) - mu_G_max(3,base,south) - mu_G_max(4,base,south) - mu_G_max(5,base,south) - mu_G_max(6,base,south) - mu_G_max(7,base,south) - mu_G_max(8,base,south)
-     
-      - mu_G_max(9,base,south) - mu_G_max(10,base,south) - mu_G_max(11,base,south) - mu_G_max(12,base,south) - mu_C_min(base,south) + mu_C_max(base,south) =E= -407.488376177454 ; (LHS = 0, INFES = 407.488376177454 ****)
-     
-KKT_CAP(peak,north)..  0.5*CAP(peak,north) - mu_G_max(1,peak,north) - mu_G_max(2,peak,north) - mu_G_max(3,peak,north) - mu_G_max(4,peak,north) - mu_G_max(5,peak,north) - mu_G_max(6,peak,north) - mu_G_max(7,peak,north) - mu_G_max(8,peak,north)
-     
-      - mu_G_max(9,peak,north) - mu_G_max(10,peak,north) - mu_G_max(11,peak,north) - mu_G_max(12,peak,north) - mu_C_min(peak,north) + mu_C_max(peak,north) =E= -147.488376177454 ; (LHS = 0, INFES = 147.488376177454 ****)
-     
-REMAINING 5 ENTRIES SKIPPED
-
-
----- KKT_load  =E=  
-
-KKT_load(1)..  10.5010501050105*LOAD_zonal(1) + LAMBDA(1) - mu_D_min(1) =E= 536.666666666667 ; (LHS = 0, INFES = 536.666666666667 ****)
-     
-KKT_load(2)..  10.3382070595185*LOAD_zonal(2) + LAMBDA(2) - mu_D_min(2) =E= 536.666666666667 ; (LHS = 0, INFES = 536.666666666667 ****)
-     
-KKT_load(3)..  8.95713371721049*LOAD_zonal(3) + LAMBDA(3) - mu_D_min(3) =E= 536.666666666667 ; (LHS = 0, INFES = 536.666666666667 ****)
-     
-REMAINING 9 ENTRIES SKIPPED
-
-GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 02/14/22 08:27:52 Page 5
-G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
-Column Listing      SOLVE LOCI Using MCP From line 209
-
-
----- GEN  
-
-GEN(1,base,north)
-                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
-        1       gen_min(1,base,north)
-       -1       gen_max(1,base,north)
-       -1       energy_balance(1)
-
-GEN(1,base,south)
-                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
-        1       gen_min(1,base,south)
-       -1       gen_max(1,base,south)
-       -1       energy_balance(1)
-
-GEN(1,peak,north)
-                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
-        1       gen_min(1,peak,north)
-       -1       gen_max(1,peak,north)
-       -1       energy_balance(1)
-
-REMAINING 93 ENTRIES SKIPPED
-
----- CAP  
-
-CAP(base,north)
-                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
-        1       gen_max(1,base,north)
-        1       gen_max(2,base,north)
-        1       gen_max(3,base,north)
-        1       gen_max(4,base,north)
-        1       gen_max(5,base,north)
-        1       gen_max(6,base,north)
-        1       gen_max(7,base,north)
-        1       gen_max(8,base,north)
-        1       gen_max(9,base,north)
-        1       gen_max(10,base,north)
-        1       gen_max(11,base,north)
-        1       gen_max(12,base,north)
-        1       cap_min(base,north)
-       -1       cap_max(base,north)
-        0.5     KKT_CAP(base,north)
-
-CAP(base,south)
-                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
-        1       gen_max(1,base,south)
-        1       gen_max(2,base,south)
-        1       gen_max(3,base,south)
-        1       gen_max(4,base,south)
-        1       gen_max(5,base,south)
-        1       gen_max(6,base,south)
-        1       gen_max(7,base,south)
-        1       gen_max(8,base,south)
-        1       gen_max(9,base,south)
-        1       gen_max(10,base,south)
-        1       gen_max(11,base,south)
-        1       gen_max(12,base,south)
-        1       cap_min(base,south)
-       -1       cap_max(base,south)
-        0.5     KKT_CAP(base,south)
-
-CAP(peak,north)
-                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
-        1       gen_max(1,peak,north)
-        1       gen_max(2,peak,north)
-        1       gen_max(3,peak,north)
-        1       gen_max(4,peak,north)
-        1       gen_max(5,peak,north)
-        1       gen_max(6,peak,north)
-        1       gen_max(7,peak,north)
-        1       gen_max(8,peak,north)
-        1       gen_max(9,peak,north)
-        1       gen_max(10,peak,north)
-        1       gen_max(11,peak,north)
-        1       gen_max(12,peak,north)
-        1       cap_min(peak,north)
-       -1       cap_max(peak,north)
-        0.5     KKT_CAP(peak,north)
-
-REMAINING 5 ENTRIES SKIPPED
-
----- LOAD_zonal  
-
-LOAD_zonal(1)
-                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
-        1       demand_min(1)
-        1       energy_balance(1)
-       10.5011  KKT_load(1)
-
-LOAD_zonal(2)
-                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
-        1       demand_min(2)
-        1       energy_balance(2)
-       10.3382  KKT_load(2)
-
-LOAD_zonal(3)
-                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
-        1       demand_min(3)
-        1       energy_balance(3)
-        8.9571  KKT_load(3)
-
-REMAINING 9 ENTRIES SKIPPED
-
----- LAMBDA  
-
-LAMBDA(1)
-                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
-       -1       KKT_GEN(1,base,north)
-       -1       KKT_GEN(1,base,south)
-       -1       KKT_GEN(1,peak,north)
-       -1       KKT_GEN(1,peak,south)
-       -1       KKT_GEN(1,wind,north)
-       -1       KKT_GEN(1,wind,south)
-       -1       KKT_GEN(1,solar,north)
-       -1       KKT_GEN(1,solar,south)
-        1       KKT_load(1)
-
-LAMBDA(2)
-                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
-       -1       KKT_GEN(2,base,north)
-       -1       KKT_GEN(2,base,south)
-       -1       KKT_GEN(2,peak,north)
-       -1       KKT_GEN(2,peak,south)
-       -1       KKT_GEN(2,wind,north)
-       -1       KKT_GEN(2,wind,south)
-       -1       KKT_GEN(2,solar,north)
-       -1       KKT_GEN(2,solar,south)
-        1       KKT_load(2)
-
-LAMBDA(3)
-                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
-       -1       KKT_GEN(3,base,north)
-       -1       KKT_GEN(3,base,south)
-       -1       KKT_GEN(3,peak,north)
-       -1       KKT_GEN(3,peak,south)
-       -1       KKT_GEN(3,wind,north)
-       -1       KKT_GEN(3,wind,south)
-       -1       KKT_GEN(3,solar,north)
-       -1       KKT_GEN(3,solar,south)
-        1       KKT_load(3)
-
-REMAINING 9 ENTRIES SKIPPED
-
----- mu_G_min  
-
-mu_G_min(1,base,north)
-                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
-       -1       KKT_GEN(1,base,north)
-
-mu_G_min(1,base,south)
-                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
-       -1       KKT_GEN(1,base,south)
-
-mu_G_min(1,peak,north)
-                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
-       -1       KKT_GEN(1,peak,north)
-
-REMAINING 93 ENTRIES SKIPPED
-
----- mu_G_max  
-
-mu_G_max(1,base,north)
-                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
-        1       KKT_GEN(1,base,north)
-       -1       KKT_CAP(base,north)
-
-mu_G_max(1,base,south)
-                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
-        1       KKT_GEN(1,base,south)
-       -1       KKT_CAP(base,south)
-
-mu_G_max(1,peak,north)
-                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
-        1       KKT_GEN(1,peak,north)
-       -1       KKT_CAP(peak,north)
-
-REMAINING 93 ENTRIES SKIPPED
-
----- mu_C_min  
-
-mu_C_min(base,north)
-                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
-       -1       KKT_CAP(base,north)
-
-mu_C_min(base,south)
-                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
-       -1       KKT_CAP(base,south)
-
-mu_C_min(peak,north)
-                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
-       -1       KKT_CAP(peak,north)
-
-REMAINING 5 ENTRIES SKIPPED
-
----- mu_C_max  
-
-mu_C_max(base,north)
-                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
-        1       KKT_CAP(base,north)
-
-mu_C_max(base,south)
-                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
-        1       KKT_CAP(base,south)
-
-mu_C_max(peak,north)
-                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
-        1       KKT_CAP(peak,north)
-
-REMAINING 5 ENTRIES SKIPPED
-
----- mu_D_min  
-
-mu_D_min(1)
-                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
-       -1       KKT_load(1)
-
-mu_D_min(2)
-                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
-       -1       KKT_load(2)
-
-mu_D_min(3)
-                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
-       -1       KKT_load(3)
-
-REMAINING 9 ENTRIES SKIPPED
-GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 02/14/22 08:27:52 Page 6
-G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
-Model Statistics    SOLVE LOCI Using MCP From line 209
-
-
-MODEL STATISTICS
-
-BLOCKS OF EQUATIONS           9     SINGLE EQUATIONS          348
-BLOCKS OF VARIABLES           9     SINGLE VARIABLES          348
-NON ZERO ELEMENTS           848     NON LINEAR N-Z              0
-DERIVATIVE POOL              20     CONSTANT POOL              16
-CODE LENGTH                   0
-
-
-GENERATION TIME      =        0.016 SECONDS      4 MB  30.3.0 rc5da09e WEX-WEI
-
-
-EXECUTION TIME       =        0.016 SECONDS      4 MB  30.3.0 rc5da09e WEX-WEI
-GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 02/14/22 08:27:52 Page 7
-G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
-Solution Report     SOLVE LOCI Using MCP From line 209
-
-
-               S O L V E      S U M M A R Y
-
-     MODEL   LOCI                
-     TYPE    MCP                 
-     SOLVER  PATH                FROM LINE  209
-
-**** SOLVER STATUS     1 Normal Completion         
-**** MODEL STATUS      1 Optimal                   
-
- RESOURCE USAGE, LIMIT          0.109      1000.000
- ITERATION COUNT, LIMIT       964    2000000000
- EVALUATION ERRORS              0             0
-*** This solver runs with a community license.
-348 row/cols, 848 non-zeros, 0.70% dense.
-
-Path 5.0.02 (Fri Mar  6 16:28:13 2020)
-Written by Todd Munson, Steven Dirkse, Youngdae Kim, and Michael Ferris
-
-INITIAL POINT STATISTICS
-Maximum of X. . . . . . . . . .  0.0000e+00 var: (mu_G_max(1,base,north))
-Maximum of F. . . . . . . . . .  5.3667e+02 eqn: (KKT_load(6))
-Maximum of Grad F . . . . . . .  1.0501e+01 eqn: (KKT_load(1))
-                                            var: (LOAD_zonal(1))
-
-INITIAL JACOBIAN NORM STATISTICS
-Maximum Row Norm. . . . . . . .  1.2500e+01 eqn: (KKT_CAP(base,north))
-Minimum Row Norm. . . . . . . .  1.0200e+00 eqn: (gen_max(7,solar,north))
-Maximum Column Norm . . . . . .  1.2500e+01 var: (CAP(base,north))
-Minimum Column Norm . . . . . .  1.0200e+00 var: (mu_G_max(7,solar,north))
-
-FINAL STATISTICS
-Inf-Norm of Complementarity . .  2.7256e-07 eqn: (gen_max(5,wind,south))
-Inf-Norm of Normal Map. . . . .  2.5844e-09 eqn: (energy_balance(7))
-Inf-Norm of Minimum Map . . . .  2.5844e-09 eqn: (energy_balance(7))
-Inf-Norm of Fischer Function. .  2.5844e-09 eqn: (energy_balance(7))
-Inf-Norm of Grad Fischer Fcn. .  5.1688e-09 eqn: (KKT_GEN(7,peak,north))
-Two-Norm of Grad Fischer Fcn. .  1.9069e-08
-
-FINAL POINT STATISTICS
-Maximum of X. . . . . . . . . .  1.4290e+02 var: (mu_G_max(6,wind,south))
-Maximum of F. . . . . . . . . .  3.0000e+01 eqn: (KKT_GEN(1,peak,north))
-Maximum of Grad F . . . . . . .  1.0501e+01 eqn: (KKT_load(1))
-                                            var: (LOAD_zonal(1))
-
-
----- EQU gen_min  
-
-                      LOWER          LEVEL          UPPER         MARGINAL
-
-1 .base .north          .            11.7243        +INF             .          
-1 .base .south          .            11.7243        +INF             .          
-1 .peak .north          .              .            +INF           30.0000      
-1 .peak .south          .              .            +INF           30.0000      
-1 .wind .north          .            20.7389        +INF             .          
-1 .wind .south          .             3.1094        +INF             .          
-1 .solar.north          .              .            +INF             .          
-1 .solar.south          .              .            +INF             .          
-2 .base .north          .            15.9045        +INF             .          
-2 .base .south          .            15.9045        +INF             .          
-2 .peak .north          .              .            +INF           30.0000      
-2 .peak .south          .              .            +INF           30.0000      
-2 .wind .north          .            11.5752        +INF             .          
-2 .wind .south          .             1.6048        +INF             .          
-2 .solar.north          .             0.8583        +INF             .          
-2 .solar.south          .             2.1945        +INF             .          
-3 .base .north          .            17.0864        +INF             .          
-3 .base .south          .            17.0864        +INF             .          
-3 .peak .north          .              .            +INF           22.3600      
-3 .peak .south          .              .            +INF           22.3600      
-3 .wind .north          .             9.6460        +INF             .          
-3 .wind .south          .             1.0030        +INF             .          
-3 .solar.north          .             1.5450        +INF             .          
-3 .solar.south          .             8.2295        +INF             .          
-4 .base .north          .            17.0864        +INF             .          
-4 .base .south          .            17.0864        +INF             .          
-4 .peak .north          .             5.2505        +INF             .          
-4 .peak .south          .             5.2505        +INF             .          
-4 .wind .north          .             9.6460        +INF             .          
-4 .wind .south          .             1.5045        +INF             .          
-4 .solar.north          .             0.7725        +INF             .          
-4 .solar.south          .             2.7432        +INF             .          
-5 .base .north          .            17.0864        +INF             .          
-5 .base .south          .            17.0864        +INF             .          
-5 .peak .north          .             7.6619        +INF             .          
-5 .peak .south          .             7.6619        +INF             .          
-5 .wind .north          .             5.7876        +INF             .          
-5 .wind .south          .             1.3039        +INF             .          
-5 .solar.north          .              .            +INF             .          
-5 .solar.south          .              .            +INF             .          
-6 .base .north          .            17.0864        +INF             .          
-6 .base .south          .            17.0864        +INF             .          
-6 .peak .north          .             7.6619        +INF             .          
-6 .peak .south          .             7.6619        +INF             .          
-6 .wind .north          .             2.8938        +INF             .          
-6 .wind .south          .             0.8024        +INF             .          
-6 .solar.north          .              .            +INF             .          
-6 .solar.south          .              .            +INF             .          
-7 .base .north          .            17.0864        +INF             .          
-7 .base .south          .            17.0864        +INF             .          
-7 .peak .north          .             7.6619        +INF             .          
-7 .peak .south          .             7.6619        +INF             .          
-7 .wind .north          .             5.3053        +INF             .          
-7 .wind .south          .             0.8024        +INF             .          
-7 .solar.north          .             0.0858        +INF             .          
-7 .solar.south          .             0.5486        +INF             .          
-8 .base .north          .            17.0864        +INF             .          
-8 .base .south          .            17.0864        +INF             .          
-8 .peak .north          .             3.1792        +INF             .          
-8 .peak .south          .             3.1792        +INF             .          
-8 .wind .north          .             8.1991        +INF             .          
-8 .wind .south          .             1.6048        +INF             .          
-8 .solar.north          .             0.8154        +INF             .          
-8 .solar.south          .             8.2295        +INF             .          
-9 .base .north          .            17.0864        +INF             .          
-9 .base .south          .            17.0864        +INF             .          
-9 .peak .north          .              .            +INF            5.5855      
-9 .peak .south          .              .            +INF            5.5855      
-9 .wind .north          .            11.5752        +INF             .          
-9 .wind .south          .             2.4073        +INF             .          
-9 .solar.north          .             1.3734        +INF             .          
-9 .solar.south          .            12.0700        +INF             .          
-10.base .north          .            17.0864        +INF             .          
-10.base .south          .            17.0864        +INF             .          
-10.peak .north          .              .            +INF            7.3423      
-10.peak .south          .              .            +INF            7.3423      
-10.wind .north          .            13.9867        +INF             .          
-10.wind .south          .             3.2097        +INF             .          
-10.solar.north          .             0.4721        +INF             .          
-10.solar.south          .             7.1323        +INF             .          
-11.base .north          .            17.0864        +INF             .          
-11.base .south          .            17.0864        +INF             .          
-11.peak .north          .             2.7403        +INF             .          
-11.peak .south          .             2.7403        +INF             .          
-11.wind .north          .            10.6106        +INF             .          
-11.wind .south          .             2.0061        +INF             .          
-11.solar.north          .              .            +INF             .          
-11.solar.south          .              .            +INF             .          
-12.base .north          .            17.0864        +INF             .          
-12.base .south          .            17.0864        +INF             .          
-12.peak .north          .             1.7310        +INF             .          
-12.peak .south          .             1.7310        +INF             .          
-12.wind .north          .             8.6814        +INF             .          
-12.wind .south          .             1.3039        +INF             .          
-12.solar.north          .              .            +INF             .          
-12.solar.south          .              .            +INF             .          
-
----- EQU gen_max  
-
-                      LOWER          LEVEL          UPPER         MARGINAL
-
-1 .base .north          .             5.3621        +INF             .          
-1 .base .south          .             5.3621        +INF             .          
-1 .peak .north          .             7.6619        +INF             .          
-1 .peak .south          .             7.6619        +INF             .          
-1 .wind .north          .              .            +INF           40.0000      
-1 .wind .south          .              .            +INF           40.0000      
-1 .solar.north          .              .            +INF           40.0000      
-1 .solar.south          .              .            +INF           40.0000      
-2 .base .north          .             1.1819        +INF             .          
-2 .base .south          .             1.1819        +INF             .          
-2 .peak .north          .             7.6619        +INF             .          
-2 .peak .south          .             7.6619        +INF             .          
-2 .wind .north          .              .            +INF           40.0000      
-2 .wind .south          .              .            +INF           40.0000      
-2 .solar.north          .              .            +INF           40.0000      
-2 .solar.south          .              .            +INF           40.0000      
-3 .base .north          .              .            +INF            7.6400      
-3 .base .south          .              .            +INF            7.6400      
-3 .peak .north          .             7.6619        +INF             .          
-3 .peak .south          .             7.6619        +INF             .          
-3 .wind .north          .              .            +INF           47.6400      
-3 .wind .south          .              .            +INF           47.6400      
-3 .solar.north          .              .            +INF           47.6400      
-3 .solar.south          .              .            +INF           47.6400      
-4 .base .north          .              .            +INF           30.0000      
-4 .base .south          .              .            +INF           30.0000      
-4 .peak .north          .             2.4114        +INF             .          
-4 .peak .south          .             2.4114        +INF             .          
-4 .wind .north          .              .            +INF           70.0000      
-4 .wind .south          .              .            +INF           70.0000      
-4 .solar.north          .              .            +INF           70.0000      
-4 .solar.south          .              .            +INF           70.0000      
-5 .base .north          .              .            +INF           74.4804      
-5 .base .south          .              .            +INF           74.4804      
-5 .peak .north          .              .            +INF           44.4804      
-5 .peak .south          .              .            +INF           44.4804      
-5 .wind .north          .              .            +INF          114.4804      
-5 .wind .south          .              .            +INF          114.4804      
-5 .solar.north          .              .            +INF          114.4804      
-5 .solar.south          .              .            +INF          114.4804      
-6 .base .north          .              .            +INF          102.8965      
-6 .base .south          .              .            +INF          102.8965      
-6 .peak .north          .              .            +INF           72.8965      
-6 .peak .south          .              .            +INF           72.8965      
-6 .wind .north          .              .            +INF          142.8965      
-6 .wind .south          .              .            +INF          142.8965      
-6 .solar.north          .              .            +INF          142.8965      
-6 .solar.south          .              .            +INF          142.8965      
-7 .base .north          .              .            +INF           63.9424      
-7 .base .south          .              .            +INF           63.9424      
-7 .peak .north          .              .            +INF           33.9424      
-7 .peak .south          .              .            +INF           33.9424      
-7 .wind .north          .              .            +INF          103.9424      
-7 .wind .south          .              .            +INF          103.9424      
-7 .solar.north          .              .            +INF          103.9424      
-7 .solar.south          .              .            +INF          103.9424      
-8 .base .north          .              .            +INF           30.0000      
-8 .base .south          .              .            +INF           30.0000      
-8 .peak .north          .             4.4827        +INF             .          
-8 .peak .south          .             4.4827        +INF             .          
-8 .wind .north          .              .            +INF           70.0000      
-8 .wind .south          .              .            +INF           70.0000      
-8 .solar.north          .              .            +INF           70.0000      
-8 .solar.south          .              .            +INF           70.0000      
-9 .base .north          .              .            +INF           24.4145      
-9 .base .south          .              .            +INF           24.4145      
-9 .peak .north          .             7.6619        +INF             .          
-9 .peak .south          .             7.6619        +INF             .          
-9 .wind .north          .              .            +INF           64.4145      
-9 .wind .south          .              .            +INF           64.4145      
-9 .solar.north          .              .            +INF           64.4145      
-9 .solar.south          .              .            +INF           64.4145      
-10.base .north          .              .            +INF           22.6577      
-10.base .south          .              .            +INF           22.6577      
-10.peak .north          .             7.6619        +INF             .          
-10.peak .south          .             7.6619        +INF             .          
-10.wind .north          .              .            +INF           62.6577      
-10.wind .south          .              .            +INF           62.6577      
-10.solar.north          .              .            +INF           62.6577      
-10.solar.south          .              .            +INF           62.6577      
-11.base .north          .              .            +INF           30.0000      
-11.base .south          .              .            +INF           30.0000      
-11.peak .north          .             4.9216        +INF             .          
-11.peak .south          .             4.9216        +INF             .          
-11.wind .north          .              .            +INF           70.0000      
-11.wind .south          .              .            +INF           70.0000      
-11.solar.north          .              .            +INF           70.0000      
-11.solar.south          .              .            +INF           70.0000      
-12.base .north          .              .            +INF           30.0000      
-12.base .south          .              .            +INF           30.0000      
-12.peak .north          .             5.9309        +INF             .          
-12.peak .south          .             5.9309        +INF             .          
-12.wind .north          .              .            +INF           70.0000      
-12.wind .south          .              .            +INF           70.0000      
-12.solar.north          .              .            +INF           70.0000      
-12.solar.south          .              .            +INF           70.0000      
-
----- EQU cap_min  
-
-                   LOWER          LEVEL          UPPER         MARGINAL
-
-base .north          .            17.0864        +INF             .          
-base .south          .            17.0864        +INF             .          
-peak .north          .             7.6619        +INF             .          
-peak .south          .             7.6619        +INF             .          
-wind .north          .            48.2299        +INF             .          
-wind .south          .            10.0303        +INF             .          
-solar.north          .             4.2917        +INF             .          
-solar.south          .            27.4317        +INF             .          
-
----- EQU cap_max  
-
-                   LOWER          LEVEL          UPPER         MARGINAL
-
-base .north      -100.0000       -17.0864        +INF             .          
-base .south      -100.0000       -17.0864        +INF             .          
-peak .north      -100.0000        -7.6619        +INF             .          
-peak .south      -100.0000        -7.6619        +INF             .          
-wind .north      -100.0000       -48.2299        +INF             .          
-wind .south      -100.0000       -10.0303        +INF             .          
-solar.north      -100.0000        -4.2917        +INF             .          
-solar.south      -100.0000       -27.4317        +INF             .          
-
----- EQU demand_min  
-
-          LOWER          LEVEL          UPPER         MARGINAL
-
-1           .            47.2969        +INF             .          
-2           .            48.0419        +INF             .          
-3           .            54.5963        +INF             .          
-4           .            59.3400        +INF             .          
-5           .            56.5880        +INF             .          
-6           .            53.1927        +INF             .          
-7           .            56.2387        +INF             .          
-8           .            59.3800        +INF             .          
-9           .            61.5985        +INF             .          
-10          .            58.9735        +INF             .          
-11          .            52.2700        +INF             .          
-12          .            47.6200        +INF             .          
-
----- EQU energy_balance  
-
-          LOWER          LEVEL          UPPER         MARGINAL
-
-1           .              .              .            40.0000      
-2           .              .              .            40.0000      
-3           .              .              .            47.6400      
-4           .              .              .            70.0000      
-5           .              .              .           114.4804      
-6           .              .              .           142.8965      
-7           .              .              .           103.9424      
-8           .              .              .            70.0000      
-9           .              .              .            64.4145      
-10          .              .              .            62.6577      
-11          .              .              .            70.0000      
-12          .              .              .            70.0000      
-
----- EQU KKT_GEN  
-
-                      LOWER          LEVEL          UPPER         MARGINAL
-
-1 .base .north       -40.0000       -40.0000       -40.0000        11.7243      
-1 .base .south       -40.0000       -40.0000       -40.0000        11.7243      
-1 .peak .north       -70.0000       -70.0000       -70.0000          .          
-1 .peak .south       -70.0000       -70.0000       -70.0000          .          
-1 .wind .north          .              .              .            20.7389      
-1 .wind .south          .              .              .             3.1094      
-1 .solar.north          .              .              .              .          
-1 .solar.south          .              .              .              .          
-2 .base .north       -40.0000       -40.0000       -40.0000        15.9045      
-2 .base .south       -40.0000       -40.0000       -40.0000        15.9045      
-2 .peak .north       -70.0000       -70.0000       -70.0000          .          
-2 .peak .south       -70.0000       -70.0000       -70.0000          .          
-2 .wind .north          .              .              .            11.5752      
-2 .wind .south          .              .              .             1.6048      
-2 .solar.north          .              .              .             0.8583      
-2 .solar.south          .              .              .             2.1945      
-3 .base .north       -40.0000       -40.0000       -40.0000        17.0864      
-3 .base .south       -40.0000       -40.0000       -40.0000        17.0864      
-3 .peak .north       -70.0000       -70.0000       -70.0000          .          
-3 .peak .south       -70.0000       -70.0000       -70.0000          .          
-3 .wind .north          .              .              .             9.6460      
-3 .wind .south          .              .              .             1.0030      
-3 .solar.north          .              .              .             1.5450      
-3 .solar.south          .              .              .             8.2295      
-4 .base .north       -40.0000       -40.0000       -40.0000        17.0864      
-4 .base .south       -40.0000       -40.0000       -40.0000        17.0864      
-4 .peak .north       -70.0000       -70.0000       -70.0000         5.2505      
-4 .peak .south       -70.0000       -70.0000       -70.0000         5.2505      
-4 .wind .north          .              .              .             9.6460      
-4 .wind .south          .              .              .             1.5045      
-4 .solar.north          .              .              .             0.7725      
-4 .solar.south          .              .              .             2.7432      
-5 .base .north       -40.0000       -40.0000       -40.0000        17.0864      
-5 .base .south       -40.0000       -40.0000       -40.0000        17.0864      
-5 .peak .north       -70.0000       -70.0000       -70.0000         7.6619      
-5 .peak .south       -70.0000       -70.0000       -70.0000         7.6619      
-5 .wind .north          .              .              .             5.7876      
-5 .wind .south          .              .              .             1.3039      
-5 .solar.north          .              .              .              .          
-5 .solar.south          .              .              .              .          
-6 .base .north       -40.0000       -40.0000       -40.0000        17.0864      
-6 .base .south       -40.0000       -40.0000       -40.0000        17.0864      
-6 .peak .north       -70.0000       -70.0000       -70.0000         7.6619      
-6 .peak .south       -70.0000       -70.0000       -70.0000         7.6619      
-6 .wind .north          .              .              .             2.8938      
-6 .wind .south          .              .              .             0.8024      
-6 .solar.north          .              .              .              .          
-6 .solar.south          .              .              .              .          
-7 .base .north       -40.0000       -40.0000       -40.0000        17.0864      
-7 .base .south       -40.0000       -40.0000       -40.0000        17.0864      
-7 .peak .north       -70.0000       -70.0000       -70.0000         7.6619      
-7 .peak .south       -70.0000       -70.0000       -70.0000         7.6619      
-7 .wind .north          .              .              .             5.3053      
-7 .wind .south          .              .              .             0.8024      
-7 .solar.north          .              .              .             0.0858      
-7 .solar.south          .              .              .             0.5486      
-8 .base .north       -40.0000       -40.0000       -40.0000        17.0864      
-8 .base .south       -40.0000       -40.0000       -40.0000        17.0864      
-8 .peak .north       -70.0000       -70.0000       -70.0000         3.1792      
-8 .peak .south       -70.0000       -70.0000       -70.0000         3.1792      
-8 .wind .north          .              .              .             8.1991      
-8 .wind .south          .              .              .             1.6048      
-8 .solar.north          .              .              .             0.8154      
-8 .solar.south          .              .              .             8.2295      
-9 .base .north       -40.0000       -40.0000       -40.0000        17.0864      
-9 .base .south       -40.0000       -40.0000       -40.0000        17.0864      
-9 .peak .north       -70.0000       -70.0000       -70.0000          .          
-9 .peak .south       -70.0000       -70.0000       -70.0000          .          
-9 .wind .north          .              .              .            11.5752      
-9 .wind .south          .              .              .             2.4073      
-9 .solar.north          .              .              .             1.3734      
-9 .solar.south          .              .              .            12.0700      
-10.base .north       -40.0000       -40.0000       -40.0000        17.0864      
-10.base .south       -40.0000       -40.0000       -40.0000        17.0864      
-10.peak .north       -70.0000       -70.0000       -70.0000          .          
-10.peak .south       -70.0000       -70.0000       -70.0000          .          
-10.wind .north          .              .              .            13.9867      
-10.wind .south          .              .              .             3.2097      
-10.solar.north          .              .              .             0.4721      
-10.solar.south          .              .              .             7.1323      
-11.base .north       -40.0000       -40.0000       -40.0000        17.0864      
-11.base .south       -40.0000       -40.0000       -40.0000        17.0864      
-11.peak .north       -70.0000       -70.0000       -70.0000         2.7403      
-11.peak .south       -70.0000       -70.0000       -70.0000         2.7403      
-11.wind .north          .              .              .            10.6106      
-11.wind .south          .              .              .             2.0061      
-11.solar.north          .              .              .              .          
-11.solar.south          .              .              .              .          
-12.base .north       -40.0000       -40.0000       -40.0000        17.0864      
-12.base .south       -40.0000       -40.0000       -40.0000        17.0864      
-12.peak .north       -70.0000       -70.0000       -70.0000         1.7310      
-12.peak .south       -70.0000       -70.0000       -70.0000         1.7310      
-12.wind .north          .              .              .             8.6814      
-12.wind .south          .              .              .             1.3039      
-12.solar.north          .              .              .              .          
-12.solar.south          .              .              .              .          
-
----- EQU KKT_CAP  
-
-                   LOWER          LEVEL          UPPER         MARGINAL
-
-base .north      -407.4884      -407.4884      -407.4884        17.0864      
-base .south      -407.4884      -407.4884      -407.4884        17.0864      
-peak .north      -147.4884      -147.4884      -147.4884         7.6619      
-peak .south      -147.4884      -147.4884      -147.4884         7.6619      
-wind .north      -133.4884      -133.4884      -133.4884        48.2299      
-wind .south      -133.4884      -133.4884      -133.4884        10.0303      
-solar.north       -78.4884       -78.4884       -78.4884         4.2917      
-solar.south       -78.4884       -78.4884       -78.4884        27.4317      
-
----- EQU KKT_load  
-
-          LOWER          LEVEL          UPPER         MARGINAL
-
-1        536.6667       536.6667       536.6667        47.2969      
-2        536.6667       536.6667       536.6667        48.0419      
-3        536.6667       536.6667       536.6667        54.5963      
-4        536.6667       536.6667       536.6667        59.3400      
-5        536.6667       536.6667       536.6667        56.5880      
-6        536.6667       536.6667       536.6667        53.1927      
-7        536.6667       536.6667       536.6667        56.2387      
-8        536.6667       536.6667       536.6667        59.3800      
-9        536.6667       536.6667       536.6667        61.5985      
-10       536.6667       536.6667       536.6667        58.9735      
-11       536.6667       536.6667       536.6667        52.2700      
-12       536.6667       536.6667       536.6667        47.6200      
-
----- VAR GEN  
-
-                      LOWER          LEVEL          UPPER         MARGINAL
-
-1 .base .north        -INF           11.7243        +INF             .          
-1 .base .south        -INF           11.7243        +INF             .          
-1 .peak .north        -INF             .            +INF             .          
-1 .peak .south        -INF             .            +INF             .          
-1 .wind .north        -INF           20.7389        +INF             .          
-1 .wind .south        -INF            3.1094        +INF             .          
-1 .solar.north        -INF             .            +INF             .          
-1 .solar.south        -INF             .            +INF             .          
-2 .base .north        -INF           15.9045        +INF             .          
-2 .base .south        -INF           15.9045        +INF             .          
-2 .peak .north        -INF             .            +INF             .          
-2 .peak .south        -INF             .            +INF             .          
-2 .wind .north        -INF           11.5752        +INF             .          
-2 .wind .south        -INF            1.6048        +INF             .          
-2 .solar.north        -INF            0.8583        +INF             .          
-2 .solar.south        -INF            2.1945        +INF             .          
-3 .base .north        -INF           17.0864        +INF             .          
-3 .base .south        -INF           17.0864        +INF             .          
-3 .peak .north        -INF             .            +INF             .          
-3 .peak .south        -INF             .            +INF             .          
-3 .wind .north        -INF            9.6460        +INF             .          
-3 .wind .south        -INF            1.0030        +INF             .          
-3 .solar.north        -INF            1.5450        +INF             .          
-3 .solar.south        -INF            8.2295        +INF             .          
-4 .base .north        -INF           17.0864        +INF             .          
-4 .base .south        -INF           17.0864        +INF             .          
-4 .peak .north        -INF            5.2505        +INF             .          
-4 .peak .south        -INF            5.2505        +INF             .          
-4 .wind .north        -INF            9.6460        +INF             .          
-4 .wind .south        -INF            1.5045        +INF             .          
-4 .solar.north        -INF            0.7725        +INF             .          
-4 .solar.south        -INF            2.7432        +INF             .          
-5 .base .north        -INF           17.0864        +INF             .          
-5 .base .south        -INF           17.0864        +INF             .          
-5 .peak .north        -INF            7.6619        +INF             .          
-5 .peak .south        -INF            7.6619        +INF             .          
-5 .wind .north        -INF            5.7876        +INF             .          
-5 .wind .south        -INF            1.3039        +INF             .          
-5 .solar.north        -INF             .            +INF             .          
-5 .solar.south        -INF             .            +INF             .          
-6 .base .north        -INF           17.0864        +INF             .          
-6 .base .south        -INF           17.0864        +INF             .          
-6 .peak .north        -INF            7.6619        +INF             .          
-6 .peak .south        -INF            7.6619        +INF             .          
-6 .wind .north        -INF            2.8938        +INF             .          
-6 .wind .south        -INF            0.8024        +INF             .          
-6 .solar.north        -INF             .            +INF             .          
-6 .solar.south        -INF             .            +INF             .          
-7 .base .north        -INF           17.0864        +INF             .          
-7 .base .south        -INF           17.0864        +INF             .          
-7 .peak .north        -INF            7.6619        +INF             .          
-7 .peak .south        -INF            7.6619        +INF             .          
-7 .wind .north        -INF            5.3053        +INF             .          
-7 .wind .south        -INF            0.8024        +INF             .          
-7 .solar.north        -INF            0.0858        +INF             .          
-7 .solar.south        -INF            0.5486        +INF             .          
-8 .base .north        -INF           17.0864        +INF             .          
-8 .base .south        -INF           17.0864        +INF             .          
-8 .peak .north        -INF            3.1792        +INF             .          
-8 .peak .south        -INF            3.1792        +INF             .          
-8 .wind .north        -INF            8.1991        +INF             .          
-8 .wind .south        -INF            1.6048        +INF             .          
-8 .solar.north        -INF            0.8154        +INF             .          
-8 .solar.south        -INF            8.2295        +INF             .          
-9 .base .north        -INF           17.0864        +INF             .          
-9 .base .south        -INF           17.0864        +INF             .          
-9 .peak .north        -INF             .            +INF             .          
-9 .peak .south        -INF             .            +INF             .          
-9 .wind .north        -INF           11.5752        +INF             .          
-9 .wind .south        -INF            2.4073        +INF             .          
-9 .solar.north        -INF            1.3734        +INF             .          
-9 .solar.south        -INF           12.0700        +INF             .          
-10.base .north        -INF           17.0864        +INF             .          
-10.base .south        -INF           17.0864        +INF             .          
-10.peak .north        -INF             .            +INF             .          
-10.peak .south        -INF             .            +INF             .          
-10.wind .north        -INF           13.9867        +INF             .          
-10.wind .south        -INF            3.2097        +INF             .          
-10.solar.north        -INF            0.4721        +INF             .          
-10.solar.south        -INF            7.1323        +INF             .          
-11.base .north        -INF           17.0864        +INF             .          
-11.base .south        -INF           17.0864        +INF             .          
-11.peak .north        -INF            2.7403        +INF             .          
-11.peak .south        -INF            2.7403        +INF             .          
-11.wind .north        -INF           10.6106        +INF             .          
-11.wind .south        -INF            2.0061        +INF             .          
-11.solar.north        -INF             .            +INF             .          
-11.solar.south        -INF             .            +INF             .          
-12.base .north        -INF           17.0864        +INF             .          
-12.base .south        -INF           17.0864        +INF             .          
-12.peak .north        -INF            1.7310        +INF             .          
-12.peak .south        -INF            1.7310        +INF             .          
-12.wind .north        -INF            8.6814        +INF             .          
-12.wind .south        -INF            1.3039        +INF             .          
-12.solar.north        -INF             .            +INF             .          
-12.solar.south        -INF             .            +INF             .          
-
----- VAR CAP  
-
-                   LOWER          LEVEL          UPPER         MARGINAL
-
-base .north        -INF           17.0864        +INF             .          
-base .south        -INF           17.0864        +INF             .          
-peak .north        -INF            7.6619        +INF             .          
-peak .south        -INF            7.6619        +INF             .          
-wind .north        -INF           48.2299        +INF             .          
-wind .south        -INF           10.0303        +INF             .          
-solar.north        -INF            4.2917        +INF             .          
-solar.south        -INF           27.4317        +INF             .          
-
----- VAR LOAD_zonal  
-
-          LOWER          LEVEL          UPPER         MARGINAL
-
-1         -INF           47.2969        +INF             .          
-2         -INF           48.0419        +INF             .          
-3         -INF           54.5963        +INF             .          
-4         -INF           59.3400        +INF             .          
-5         -INF           56.5880        +INF             .          
-6         -INF           53.1927        +INF             .          
-7         -INF           56.2387        +INF             .          
-8         -INF           59.3800        +INF             .          
-9         -INF           61.5985        +INF             .          
-10        -INF           58.9735        +INF             .          
-11        -INF           52.2700        +INF             .          
-12        -INF           47.6200        +INF             .          
-
----- VAR LAMBDA  
-
-          LOWER          LEVEL          UPPER         MARGINAL
-
-1         -INF           40.0000        +INF             .          
-2         -INF           40.0000        +INF             .          
-3         -INF           47.6400        +INF             .          
-4         -INF           70.0000        +INF             .          
-5         -INF          114.4804        +INF             .          
-6         -INF          142.8965        +INF             .          
-7         -INF          103.9424        +INF             .          
-8         -INF           70.0000        +INF             .          
-9         -INF           64.4145        +INF             .          
-10        -INF           62.6577        +INF             .          
-11        -INF           70.0000        +INF             .          
-12        -INF           70.0000        +INF             .          
-
----- VAR mu_G_min  
-
-                      LOWER          LEVEL          UPPER         MARGINAL
-
-1 .base .north          .              .            +INF           11.7243      
-1 .base .south          .              .            +INF           11.7243      
-1 .peak .north          .            30.0000        +INF             .          
-1 .peak .south          .            30.0000        +INF             .          
-1 .wind .north          .              .            +INF           20.7389      
-1 .wind .south          .              .            +INF            3.1094      
-1 .solar.north          .              .            +INF             .          
-1 .solar.south          .              .            +INF             .          
-2 .base .north          .              .            +INF           15.9045      
-2 .base .south          .              .            +INF           15.9045      
-2 .peak .north          .            30.0000        +INF             .          
-2 .peak .south          .            30.0000        +INF             .          
-2 .wind .north          .              .            +INF           11.5752      
-2 .wind .south          .              .            +INF            1.6048      
-2 .solar.north          .              .            +INF            0.8583      
-2 .solar.south          .              .            +INF            2.1945      
-3 .base .north          .              .            +INF           17.0864      
-3 .base .south          .              .            +INF           17.0864      
-3 .peak .north          .            22.3600        +INF             .          
-3 .peak .south          .            22.3600        +INF             .          
-3 .wind .north          .              .            +INF            9.6460      
-3 .wind .south          .              .            +INF            1.0030      
-3 .solar.north          .              .            +INF            1.5450      
-3 .solar.south          .              .            +INF            8.2295      
-4 .base .north          .              .            +INF           17.0864      
-4 .base .south          .              .            +INF           17.0864      
-4 .peak .north          .              .            +INF            5.2505      
-4 .peak .south          .              .            +INF            5.2505      
-4 .wind .north          .              .            +INF            9.6460      
-4 .wind .south          .              .            +INF            1.5045      
-4 .solar.north          .              .            +INF            0.7725      
-4 .solar.south          .              .            +INF            2.7432      
-5 .base .north          .              .            +INF           17.0864      
-5 .base .south          .              .            +INF           17.0864      
-5 .peak .north          .              .            +INF            7.6619      
-5 .peak .south          .              .            +INF            7.6619      
-5 .wind .north          .              .            +INF            5.7876      
-5 .wind .south          .              .            +INF            1.3039      
-5 .solar.north          .              .            +INF             .          
-5 .solar.south          .              .            +INF             .          
-6 .base .north          .              .            +INF           17.0864      
-6 .base .south          .              .            +INF           17.0864      
-6 .peak .north          .              .            +INF            7.6619      
-6 .peak .south          .              .            +INF            7.6619      
-6 .wind .north          .              .            +INF            2.8938      
-6 .wind .south          .              .            +INF            0.8024      
-6 .solar.north          .              .            +INF             .          
-6 .solar.south          .              .            +INF             .          
-7 .base .north          .              .            +INF           17.0864      
-7 .base .south          .              .            +INF           17.0864      
-7 .peak .north          .              .            +INF            7.6619      
-7 .peak .south          .              .            +INF            7.6619      
-7 .wind .north          .              .            +INF            5.3053      
-7 .wind .south          .              .            +INF            0.8024      
-7 .solar.north          .              .            +INF            0.0858      
-7 .solar.south          .              .            +INF            0.5486      
-8 .base .north          .              .            +INF           17.0864      
-8 .base .south          .              .            +INF           17.0864      
-8 .peak .north          .              .            +INF            3.1792      
-8 .peak .south          .              .            +INF            3.1792      
-8 .wind .north          .              .            +INF            8.1991      
-8 .wind .south          .              .            +INF            1.6048      
-8 .solar.north          .              .            +INF            0.8154      
-8 .solar.south          .              .            +INF            8.2295      
-9 .base .north          .              .            +INF           17.0864      
-9 .base .south          .              .            +INF           17.0864      
-9 .peak .north          .             5.5855        +INF             .          
-9 .peak .south          .             5.5855        +INF             .          
-9 .wind .north          .              .            +INF           11.5752      
-9 .wind .south          .              .            +INF            2.4073      
-9 .solar.north          .              .            +INF            1.3734      
-9 .solar.south          .              .            +INF           12.0700      
-10.base .north          .              .            +INF           17.0864      
-10.base .south          .              .            +INF           17.0864      
-10.peak .north          .             7.3423        +INF             .          
-10.peak .south          .             7.3423        +INF             .          
-10.wind .north          .              .            +INF           13.9867      
-10.wind .south          .              .            +INF            3.2097      
-10.solar.north          .              .            +INF            0.4721      
-10.solar.south          .              .            +INF            7.1323      
-11.base .north          .              .            +INF           17.0864      
-11.base .south          .              .            +INF           17.0864      
-11.peak .north          .              .            +INF            2.7403      
-11.peak .south          .              .            +INF            2.7403      
-11.wind .north          .              .            +INF           10.6106      
-11.wind .south          .              .            +INF            2.0061      
-11.solar.north          .              .            +INF             .          
-11.solar.south          .              .            +INF             .          
-12.base .north          .              .            +INF           17.0864      
-12.base .south          .              .            +INF           17.0864      
-12.peak .north          .              .            +INF            1.7310      
-12.peak .south          .              .            +INF            1.7310      
-12.wind .north          .              .            +INF            8.6814      
-12.wind .south          .              .            +INF            1.3039      
-12.solar.north          .              .            +INF             .          
-12.solar.south          .              .            +INF             .          
-
----- VAR mu_G_max  
-
-                      LOWER          LEVEL          UPPER         MARGINAL
-
-1 .base .north          .              .            +INF            5.3621      
-1 .base .south          .              .            +INF            5.3621      
-1 .peak .north          .              .            +INF            7.6619      
-1 .peak .south          .              .            +INF            7.6619      
-1 .wind .north          .            40.0000        +INF             .          
-1 .wind .south          .            40.0000        +INF             .          
-1 .solar.north          .            40.0000        +INF             .          
-1 .solar.south          .            40.0000        +INF             .          
-2 .base .north          .              .            +INF            1.1819      
-2 .base .south          .              .            +INF            1.1819      
-2 .peak .north          .              .            +INF            7.6619      
-2 .peak .south          .              .            +INF            7.6619      
-2 .wind .north          .            40.0000        +INF             .          
-2 .wind .south          .            40.0000        +INF             .          
-2 .solar.north          .            40.0000        +INF             .          
-2 .solar.south          .            40.0000        +INF             .          
-3 .base .north          .             7.6400        +INF             .          
-3 .base .south          .             7.6400        +INF             .          
-3 .peak .north          .              .            +INF            7.6619      
-3 .peak .south          .              .            +INF            7.6619      
-3 .wind .north          .            47.6400        +INF             .          
-3 .wind .south          .            47.6400        +INF             .          
-3 .solar.north          .            47.6400        +INF             .          
-3 .solar.south          .            47.6400        +INF             .          
-4 .base .north          .            30.0000        +INF             .          
-4 .base .south          .            30.0000        +INF             .          
-4 .peak .north          .              .            +INF            2.4114      
-4 .peak .south          .              .            +INF            2.4114      
-4 .wind .north          .            70.0000        +INF             .          
-4 .wind .south          .            70.0000        +INF             .          
-4 .solar.north          .            70.0000        +INF             .          
-4 .solar.south          .            70.0000        +INF             .          
-5 .base .north          .            74.4804        +INF             .          
-5 .base .south          .            74.4804        +INF             .          
-5 .peak .north          .            44.4804        +INF             .          
-5 .peak .south          .            44.4804        +INF             .          
-5 .wind .north          .           114.4804        +INF             .          
-5 .wind .south          .           114.4804        +INF             .          
-5 .solar.north          .           114.4804        +INF             .          
-5 .solar.south          .           114.4804        +INF             .          
-6 .base .north          .           102.8965        +INF             .          
-6 .base .south          .           102.8965        +INF             .          
-6 .peak .north          .            72.8965        +INF             .          
-6 .peak .south          .            72.8965        +INF             .          
-6 .wind .north          .           142.8965        +INF             .          
-6 .wind .south          .           142.8965        +INF             .          
-6 .solar.north          .           142.8965        +INF             .          
-6 .solar.south          .           142.8965        +INF             .          
-7 .base .north          .            63.9424        +INF             .          
-7 .base .south          .            63.9424        +INF             .          
-7 .peak .north          .            33.9424        +INF             .          
-7 .peak .south          .            33.9424        +INF             .          
-7 .wind .north          .           103.9424        +INF             .          
-7 .wind .south          .           103.9424        +INF             .          
-7 .solar.north          .           103.9424        +INF             .          
-7 .solar.south          .           103.9424        +INF             .          
-8 .base .north          .            30.0000        +INF             .          
-8 .base .south          .            30.0000        +INF             .          
-8 .peak .north          .              .            +INF            4.4827      
-8 .peak .south          .              .            +INF            4.4827      
-8 .wind .north          .            70.0000        +INF             .          
-8 .wind .south          .            70.0000        +INF             .          
-8 .solar.north          .            70.0000        +INF             .          
-8 .solar.south          .            70.0000        +INF             .          
-9 .base .north          .            24.4145        +INF             .          
-9 .base .south          .            24.4145        +INF             .          
-9 .peak .north          .              .            +INF            7.6619      
-9 .peak .south          .              .            +INF            7.6619      
-9 .wind .north          .            64.4145        +INF             .          
-9 .wind .south          .            64.4145        +INF             .          
-9 .solar.north          .            64.4145        +INF             .          
-9 .solar.south          .            64.4145        +INF             .          
-10.base .north          .            22.6577        +INF             .          
-10.base .south          .            22.6577        +INF             .          
-10.peak .north          .              .            +INF            7.6619      
-10.peak .south          .              .            +INF            7.6619      
-10.wind .north          .            62.6577        +INF             .          
-10.wind .south          .            62.6577        +INF             .          
-10.solar.north          .            62.6577        +INF             .          
-10.solar.south          .            62.6577        +INF             .          
-11.base .north          .            30.0000        +INF             .          
-11.base .south          .            30.0000        +INF             .          
-11.peak .north          .              .            +INF            4.9216      
-11.peak .south          .              .            +INF            4.9216      
-11.wind .north          .            70.0000        +INF             .          
-11.wind .south          .            70.0000        +INF             .          
-11.solar.north          .            70.0000        +INF             .          
-11.solar.south          .            70.0000        +INF             .          
-12.base .north          .            30.0000        +INF             .          
-12.base .south          .            30.0000        +INF             .          
-12.peak .north          .              .            +INF            5.9309      
-12.peak .south          .              .            +INF            5.9309      
-12.wind .north          .            70.0000        +INF             .          
-12.wind .south          .            70.0000        +INF             .          
-12.solar.north          .            70.0000        +INF             .          
-12.solar.south          .            70.0000        +INF             .          
-
----- VAR mu_C_min  
-
-                   LOWER          LEVEL          UPPER         MARGINAL
-
-base .north          .              .            +INF           17.0864      
-base .south          .              .            +INF           17.0864      
-peak .north          .              .            +INF            7.6619      
-peak .south          .              .            +INF            7.6619      
-wind .north          .              .            +INF           48.2299      
-wind .south          .              .            +INF           10.0303      
-solar.north          .              .            +INF            4.2917      
-solar.south          .              .            +INF           27.4317      
-
----- VAR mu_C_max  
-
-                   LOWER          LEVEL          UPPER         MARGINAL
-
-base .north          .              .            +INF           82.9136      
-base .south          .              .            +INF           82.9136      
-peak .north          .              .            +INF           92.3381      
-peak .south          .              .            +INF           92.3381      
-wind .north          .              .            +INF           51.7701      
-wind .south          .              .            +INF           89.9697      
-solar.north          .              .            +INF           95.7083      
-solar.south          .              .            +INF           72.5683      
-
----- VAR mu_D_min  
-
-          LOWER          LEVEL          UPPER         MARGINAL
-
-1           .              .            +INF           47.2969      
-2           .              .            +INF           48.0419      
-3           .              .            +INF           54.5963      
-4           .              .            +INF           59.3400      
-5           .              .            +INF           56.5880      
-6           .              .            +INF           53.1927      
-7           .              .            +INF           56.2387      
-8           .              .            +INF           59.3800      
-9           .              .            +INF           61.5985      
-10          .              .            +INF           58.9735      
-11          .              .            +INF           52.2700      
-12          .              .            +INF           47.6200      
-
-
-**** REPORT SUMMARY :        0     NONOPT
-                             0 INFEASIBLE
-                             0  UNBOUNDED
-                             0  REDEFINED
-                             0     ERRORS
-                           168  PROJECTED
-GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 02/14/22 08:27:52 Page 8
-G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
-E x e c u t i o n
-
-
-----    216 PARAMETER maximum              =      142.896  
-            PARAMETER threshold            =      536.667  
-
-----    221 VARIABLE GEN.L  
-
-               north       south
-
-1 .base       11.724      11.724
-1 .wind       20.739       3.109
-2 .base       15.904      15.904
-2 .wind       11.575       1.605
-2 .solar       0.858       2.195
-3 .base       17.086      17.086
-3 .wind        9.646       1.003
-3 .solar       1.545       8.230
-4 .base       17.086      17.086
-4 .peak        5.251       5.251
-4 .wind        9.646       1.505
-4 .solar       0.773       2.743
-5 .base       17.086      17.086
-5 .peak        7.662       7.662
-5 .wind        5.788       1.304
-6 .base       17.086      17.086
-6 .peak        7.662       7.662
-6 .wind        2.894       0.802
-7 .base       17.086      17.086
-7 .peak        7.662       7.662
-7 .wind        5.305       0.802
-7 .solar       0.086       0.549
-8 .base       17.086      17.086
-8 .peak        3.179       3.179
-8 .wind        8.199       1.605
-8 .solar       0.815       8.230
-9 .base       17.086      17.086
-9 .wind       11.575       2.407
-9 .solar       1.373      12.070
-10.base       17.086      17.086
-10.wind       13.987       3.210
-10.solar       0.472       7.132
-11.base       17.086      17.086
-11.peak        2.740       2.740
-11.wind       10.611       2.006
-12.base       17.086      17.086
-12.peak        1.731       1.731
-12.wind        8.681       1.304
-
-
-----    221 VARIABLE CAP.L  
-
-            north       south
-
-base       17.086      17.086
-peak        7.662       7.662
-wind       48.230      10.030
-solar       4.292      27.432
-
-
-----    221 VARIABLE LOAD_zonal.L  
-
-1  47.297,    2  48.042,    3  54.596,    4  59.340,    5  56.588,    6  53.193,    7  56.239,    8  59.380,    9  61.599,    10 58.973,    11 52.270,    12 47.620
-
-
-----    221 VARIABLE LAMBDA.L  
-
-1   40.000,    2   40.000,    3   47.640,    4   70.000,    5  114.480,    6  142.896,    7  103.942,    8   70.000,    9   64.415,    10  62.658,    11  70.000,    12  70.000
-
-
-----    221 PARAMETER price  
-
-1   40.000,    2   40.000,    3   47.640,    4   70.000,    5  114.480,    6  142.896,    7  103.942,    8   70.000,    9   64.415,    10  62.658,    11  70.000,    12  70.000
-
-
-----    221 PARAMETER load_deviation  
-
-1  1.064,    2  1.064,    3  1.048,    4  1.000,    5  0.905,    6  0.844,    7  0.927,    8  1.000,    9  1.012,    10 1.016,    11 1.000,    12 1.000
-
-
-
-EXECUTION TIME       =        0.016 SECONDS      3 MB  30.3.0 rc5da09e WEX-WEI
 
 
 USER: Small MUD - 5 User License                     S190305:0326AO-WIN
@@ -1679,3 +310,5 @@ USER: Small MUD - 5 User License                     S190305:0326AO-WIN
 
 Input      C:\Users\a.eicke\Documents\Locational-investment-signals\Two node models\MCP_for_testing.gms
 Output     C:\Users\a.eicke\Documents\Locational-investment-signals\Two node models\MCP_for_testing.lst
+
+**** USER ERROR(S) ENCOUNTERED

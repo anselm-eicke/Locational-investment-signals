@@ -298,4 +298,4 @@ redispatch(t,tec,n) = UP.L(t,tec,n) - DOWN.L(t,tec,n);
 
 Display WF.L, consumer_surplus, generation_costs, network_cost, network_cost_1, network_cost_2, network_cost_3, CAP.L, GEN.L, UP.L, DOWN.L, redispatch, FLOW.L, price, load_deviation, load_shedding, GRID_CAP.L, LOAD_redi.L, LOAD_spot.L, INSTRUMENT.L, o_instrument, sum_instrument;
 
-execute_UNLOAD 'Output/with_instrument_redispatch.gdx' welfare, consumer_surplus, generation_costs, network_cost, res_share, o_instrument, sum_instrument, o_cap, o_gen, price, c_fix;
+execute_UNLOAD 'Output/with_instrument_redispatch.gdx' welfare, consumer_surplus, generation_costs, network_cost, network_cost_1, network_cost_2, network_cost_3, res_share, o_instrument, sum_instrument, o_cap, o_gen, price, c_fix;
