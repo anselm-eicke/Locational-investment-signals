@@ -1,0 +1,118 @@
+GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 03/24/22 11:21:16 Page 1
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+C o m p i l a t i o n
+
+
+   1  Sets
+   2  all_t       all hours               /1*10/
+   3  t(all_t)    hours                   /1*10/
+   4  tec         generators              /base, peak, wind, solar/
+   5  con(tec)    conventional generation /base, peak/
+   6  all_n       all buses               /north, south, east/
+   7  n(all_n)    selected buses          /north, south, east/
+   8  ;
+   9   
+  10   
+  11  alias (n,m);
+  12  alias (all_n,all_m);
+  13   
+  14  * parameters for supply and demand functions
+  15  Parameter elasticity / -0.05 /;
+  16  Parameter p_ref / 55 /;
+  17  Parameter specific_network_costs /200/;
+  18  Parameter capacity_slope / 333 /;
+  19  *Source for network costs: EMMA (3400 EUR/MW/km discontiert mit i = 0.07 ueber 40 Jahre)
+  20   
+  21  Table B(all_n,all_m)        Susceptance of transmission lines
+  22           north  south   east
+  23  north        1     700   350
+  24  south      700       1   400
+  25  east       350     400     1
+  26  ;
+  27   
+  28  Parameters
+  29  * Input Parameters
+  30  i_cost(*,*)                 cost data to be loaded from sheet "cost"
+  31  i_load(all_t,all_n)         load data to be loaded from sheet "time series" in MWh
+  32  i_avail(all_t,tec,all_n)    availability data
+  33   
+  34  * Model Parameters
+  35  load_ref(t,n)               hourly load in GWh
+  36  avail(t,tec,n)              availability of wind and solar generation (1)
+  37  c_var(tec,n)                variable costs (EUR per MWh)
+  38  c_fix(tec,n)                annualized fixed costs (EUR per MW p.a.)
+  39  cap_lim(tec,n)              capacity limit of generation in each node
+  40  grid_cost(n,m)
+  41  sc                          scaling factor
+  42  a_nodal(t,n)                intercept of inverse nodal demand function
+  43  s_nodal(t,n)                slope of inverse nodal demand function
+  44   
+  45  A_zonal(t)                  intercept of inverse zonal demand function
+  46  S_zonal(t)                  slope of inverse zonal demand function
+  47   
+  48  * Output Parameters
+  49  welfare,
+  50  consumer_surplus
+  51  generation_costs
+  52  load_deviation(t,n)
+  53  load_shedding(t,n)
+  54  network_cost
+  55  network_cost_1
+  56  network_cost_2
+  57  network_cost_3
+  58   
+  59  res_share
+  60  real_generation(t,tec,n)
+  61   
+  62  o_RES_share
+  63  o_load(t,n)
+  64  o_cap(tec,n)
+  65  o_gen(t,tec,n)
+  66  price(t)
+  67  o_instrument(tec,n)
+  68  sum_instrument
+  69  redispatch(t,tec,n)
+  70  ;
+  71   
+  75   
+  77   
+  78  display i_load
+****               $141
+**** 141  Symbol declared but no values have been assigned. Check for missing
+****         data definition, assignment, data loading or implicit assignment
+****         via a solve statement.
+****         A wild shot: You may have spurious commas in the explanatory
+****         text of a declaration. Check symbol reference list.
+  79   
+EXIT C:\Users\a.eicke\Documents\Locational-investment-signals\Three node model\with_locational_instrument.gms
+
+**** LIST OF STRAY NAMES - CHECK DECLARATIONS FOR SPURIOUS COMMAS
+**** STRAY NAME consumer_surplus OF TYPE PARAM
+
+**** 1 ERROR(S)   0 WARNING(S)
+GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 03/24/22 11:21:16 Page 2
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Include File Summary
+
+
+   SEQ   GLOBAL TYPE      PARENT   LOCAL  FILENAME
+
+     1        1 INPUT          0       0  C:\Users\a.eicke\Documents\Locational-investment-signals\Three node model\with_locational_instrument.gms
+     2       76 CALL           1      76  GDXXRW load.xlsx  @task.txt
+     3       80 EXIT           1      80  C:\Users\a.eicke\Documents\Locational-investment-signals\Three node model\with_locational_instrument.gms
+
+
+COMPILATION TIME     =        1.625 SECONDS      3 MB  30.3.0 rc5da09e WEX-WEI
+
+
+USER: Small MUD - 5 User License                     S190305:0326AO-WIN
+      Hertie School of Governance GmbH, Governance of DigitalizaDC14808
+      License for teaching and research at degree granting institutions
+
+
+**** FILE SUMMARY
+
+Input      C:\Users\a.eicke\Documents\Locational-investment-signals\Three node model\with_locational_instrument.gms
+Output     C:\Users\a.eicke\Documents\Locational-investment-signals\Three node model\with_locational_instrument.lst
+
+**** USER ERROR(S) ENCOUNTERED
