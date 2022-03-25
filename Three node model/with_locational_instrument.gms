@@ -70,21 +70,14 @@ redispatch(t,tec,n)
 ;
 
 
-$GDXIN load.gdx
-$LOADdc i_load
-
-display i_load
-
-$exit
-
 * Load data
-$GDXIN "in.xlsx"
+$GDXIN "Input/in.gdx"
 $LOADdc i_cost
 
-$GDXIN "load.xlsx"
+$GDXIN "Input/load.gdx"
 $LOADdc i_load
 
-$GDXIN "avail.xlsx"
+$GDXIN "Input/avail.gdx"
 $LOADdc i_avail
  
 

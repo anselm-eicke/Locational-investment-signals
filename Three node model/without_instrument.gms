@@ -3,8 +3,8 @@ all_t       all hours               /1*10/
 t(all_t)    hours                   /1*10/
 tec         generators              /base, peak, wind, solar/
 con(tec)    conventional generation /base, peak/
-all_n       all buses               /north, south, east/
-n(all_n)    selected buses          /north, south, east/
+all_n       all buses               /north, south/
+n(all_n)    selected buses          /north, south/
 ;
 
 
@@ -19,11 +19,11 @@ Parameter capacity_slope / 333 /;
 *Source for network costs: EMMA (3400 EUR/MW/km discontiert mit i = 0.07 ueber 40 Jahre)
 
 Table B(all_n,all_m)        Susceptance of transmission lines
-         north  south   east
-north        1     700   350
-south      700       1   400
-east       350     400     1
+         north  south
+north        1     700  
+south      700       1
 ;
+
 
 Parameters
 * Input Parameters
@@ -78,9 +78,6 @@ $LOADdc i_load
 $GDXIN "Input/avail.gdx"
 $LOADdc i_avail
  
-display i_cost, i_load, i_avail;
-
-
 
 * Data assignment
 sc = card(t) / 8760;

@@ -1,4 +1,5 @@
---- Job with_locational_instrument.gms Start 03/25/22 07:48:09 35.2.0 r33388c4 WEX-WEI x86 64bit/MS Windows
+
+--- Job with_locational_instrument.gms Start 03/25/22 07:57:48 35.2.0 r33388c4 WEX-WEI x86 64bit/MS Windows
 --- Applying:
     C:\Program Files\GAMS-35\gmsprmNT.txt
 --- GAMS Parameters defined
@@ -18,20 +19,268 @@ Licensee: GAMS Community License for Anselm Eicke        G210709|0002AO-GEN
           Community license for demonstration and instructional purposes only
 GAMS 35.2.0   Copyright (C) 1987-2021 GAMS Development. All rights reserved
 --- Starting compilation
---- with_locational_instrument.gms(72) 3 Mb
---- $echo File C:\GitHub\Locational-investment-signals\Three node model\task.txt
---- with_locational_instrument.gms(76) 3 Mb
---- call GDXXRW.exe load.xlsx  @task.txt
+--- with_locational_instrument.gms(74) 3 Mb
+--- GDXin=C:\GitHub\Locational-investment-signals\Three node model\Input/in.gdx
+--- GDX File ($gdxIn) C:\GitHub\Locational-investment-signals\Three node model\Input/in.gdx
+--- with_locational_instrument.gms(77) 3 Mb
+--- GDXin=C:\GitHub\Locational-investment-signals\Three node model\Input/load.gdx
+--- GDX File ($gdxIn) C:\GitHub\Locational-investment-signals\Three node model\Input/load.gdx
+--- with_locational_instrument.gms(80) 3 Mb
+--- GDXin=C:\GitHub\Locational-investment-signals\Three node model\Input/avail.gdx
+--- GDX File ($gdxIn) C:\GitHub\Locational-investment-signals\Three node model\Input/avail.gdx
+--- with_locational_instrument.gms(303) 3 Mb
+--- Starting execution: elapsed 0:00:00.015
+--- with_locational_instrument.gms(268) 4 Mb
+--- Generating MIQCP model LOCI
+--- with_locational_instrument.gms(271) 6 Mb
+---   1,481 rows  1,122 columns  4,159 non-zeroes
+---   266 nl-code  42 nl-non-zeroes
+---   284 discrete-columns
+--- with_locational_instrument.gms(271) 4 Mb
+--- Executing CPLEX (Solvelink=2): elapsed 0:00:00.064
 
-GDXXRW           35.2.0 r33388c4 Released Jun 02, 2021 WEI x86 64bit/MS Window
-Input file : C:\GitHub\Locational-investment-signals\Three node model\load.xlsx
-Output file: C:\GitHub\Locational-investment-signals\Three node model\load.gdx
-Total time = 1656 Ms
---- with_locational_instrument.gms(78) 3 Mb
---- GDXin=C:\GitHub\Locational-investment-signals\Three node model\load.gdx
---- GDX File ($gdxIn) C:\GitHub\Locational-investment-signals\Three node model\load.gdx
---- with_locational_instrument.gms(83) 3 Mb
---- Starting execution: elapsed 0:00:02.042
---- with_locational_instrument.gms(81) 4 Mb
-*** Status: Normal completion
---- Job with_locational_instrument.gms Stop 03/25/22 07:48:11 elapsed 0:00:02.051
+IBM ILOG CPLEX   35.2.0 r33388c4 Released Jun 02, 2021 WEI x86 64bit/MS Window
+
+--- *** This solver runs with a community license. No commercial use.
+--- The search will stop after 65000000 nodes.
+--- Space for names approximately 0.08 Mb
+--- Use option 'names no' to turn use of names off
+--- GMO memory 0.93 Mb (peak 0.94 Mb)
+--- Dictionary memory 0.00 Mb
+--- Cplex 20.1.0.1 link memory 0.04 Mb (peak 0.19 Mb)
+--- Starting Cplex
+
+Version identifier: 20.1.0.1 | 2021-04-07 | 3a818710c
+CPXPARAM_Advance                                 0
+CPXPARAM_Threads                                 1
+CPXPARAM_MIP_Display                             4
+CPXPARAM_MIP_Limits_Nodes                        65000000
+CPXPARAM_TimeLimit                               150000
+CPXPARAM_MIP_Tolerances_AbsMIPGap                0
+CPXPARAM_MIP_Tolerances_MIPGap                   1e-08
+Generic callback                                 0x50
+Tried aggregator 2 times.
+MIQP Presolve eliminated 457 rows and 118 columns.
+MIQP Presolve modified 384 coefficients.
+Aggregator did 73 substitutions.
+Reduced MIQP has 950 rows, 925 columns, and 2954 nonzeros.
+Reduced MIQP has 254 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Reduced MIQP objective Q matrix has 42 nonzeros.
+Presolve time = 0.02 sec. (2.54 ticks)
+Probing fixed 10 vars, tightened 53 bounds.
+Probing time = 0.00 sec. (1.17 ticks)
+Tried aggregator 1 time.
+MIQP Presolve eliminated 20 rows and 20 columns.
+MIQP Presolve modified 24 coefficients.
+Reduced MIQP has 930 rows, 905 columns, and 2804 nonzeros.
+Reduced MIQP has 244 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Reduced MIQP objective Q matrix has 42 nonzeros.
+Presolve time = 0.00 sec. (1.14 ticks)
+Classifier predicts products in MIQP should be linearized.
+Probing fixed 6 vars, tightened 320 bounds.
+Probing time = 0.00 sec. (1.20 ticks)
+Clique table members: 185.
+MIP emphasis: balance optimality and feasibility.
+MIP search method: dynamic search.
+Parallel mode: none, using 1 thread.
+Tried aggregator 1 time.
+QP Presolve eliminated 126 rows and 126 columns.
+Aggregator did 178 substitutions.
+Reduced QP has 626 rows, 601 columns, and 2130 nonzeros.
+Reduced QP objective Q matrix has 42 nonzeros.
+Presolve time = 0.00 sec. (0.75 ticks)
+Parallel mode: none, using 1 thread for barrier
+
+***NOTE: Found 9 dense columns.
+
+Number of nonzeros in lower triangle of A*A' = 3524
+Using Approximate Minimum Degree ordering
+Total time for automatic ordering = 0.00 sec. (0.32 ticks)
+Summary statistics for Cholesky factor:
+  Rows in Factor            = 635
+  Integer space required    = 2114
+  Total non-zeros in factor = 12325
+  Total FP ops to factor    = 436397
+ Itn      Primal Obj        Dual Obj  Prim Inf Upper Inf  Dual Inf          
+   0  -2.1797614e+14   2.3617685e+14  4.18e+05  3.17e+05  9.93e+11
+   1  -1.6040959e+13   2.1857117e+13  1.13e+05  8.60e+04  2.73e+11
+   2  -3.7399590e+11   1.7134741e+12  1.73e+04  1.31e+04  4.16e+10
+   3  -1.0023632e+10   2.9688634e+11  2.78e+03  2.11e+03  6.70e+09
+   4  -1.7953283e+08   3.6653951e+10  2.05e+02  1.54e+02  4.89e+08
+   5  -6.6740484e+07   1.4396034e+09  7.54e+00  4.98e+00  1.58e+07
+   6  -4.6371565e+06   4.1791283e+07  2.18e-01  1.44e-01  4.58e+05
+   7  -7.1400336e+04   3.4979130e+06  9.59e-03  6.33e-03  2.01e+04
+   8   2.7075320e+05   1.4944400e+06  2.35e-03  1.55e-03  4.92e+03
+   9   3.8814971e+05   6.3247757e+05  4.10e-04  2.64e-04  8.36e+02
+  10   4.0639763e+05   5.6295040e+05  2.70e-04  1.37e-04  4.35e+02
+  11   4.2338231e+05   4.9562382e+05  2.05e-04  4.20e-05  1.33e+02
+  12   4.2924398e+05   4.7214322e+05  2.24e-04  1.93e-05  6.13e+01
+  13   4.3253701e+05   4.5673354e+05  2.81e-04  8.90e-06  2.82e+01
+  14   4.3505004e+05   4.4451265e+05  1.60e-03  1.69e-06  5.36e+00
+  15   4.3601893e+05   4.3987829e+05  1.80e-03  2.03e-07  6.33e-01
+  16   4.3649305e+05   4.3835770e+05  7.01e-03  6.77e-08  2.06e-01
+  17   4.3720134e+05   4.3729679e+05  1.79e-02  2.15e-08  5.97e-02
+  18   4.3745882e+05   4.3702113e+05  3.29e-02  1.19e-08  3.00e-02
+  19   4.3770372e+05   4.3683927e+05  3.42e-02  6.02e-09  1.06e-02
+  20   4.3768888e+05   4.3681166e+05  4.15e-02  5.06e-09  7.55e-03
+  21   4.3770296e+05   4.3675926e+05  4.15e-02  3.31e-09  1.99e-03
+  22   4.3772783e+05   4.3675308e+05  4.51e-02  3.33e-09  1.32e-03
+  23   4.3789092e+05   4.3674322e+05  6.73e-02  2.64e-09  2.51e-04
+  24   4.3781040e+05   4.3674131e+05  5.27e-02  2.93e-09  5.72e-05
+  25   4.3764851e+05   4.3674081e+05  7.57e-02  3.38e-09  3.85e-06
+  26   4.3764906e+05   4.3674090e+05  1.01e-01  2.56e-09  1.23e-06
+  27   4.3772576e+05   4.3674094e+05  7.47e-02  2.80e-09  1.18e-06
+  28   4.3801949e+05   4.3674087e+05  9.83e-02  3.38e-09  1.04e-06
+  *    4.3253701e+05   4.5673354e+05  2.81e-04  8.90e-06  2.82e+01
+Barrier time = 0.05 sec. (20.35 ticks)
+
+QP crossover.
+  Primal and Dual:  Fixing 1117 variables.
+Markowitz threshold set to 0.1
+  Primal:  Pushed 292, exchanged 606.
+  Dual  :  Pushed 393, exchanged 557.
+
+Iteration log . . .
+Iteration:     1    Objective     =       -278316.494808
+Iteration:   109    Objective     =        325288.744394
+Iteration:   203    Objective     =        360314.216437
+Iteration:   223    Objective     =        376109.141154
+Iteration:   327    Objective     =        395462.894535
+Iteration:   426    Objective     =        412054.307484
+Iteration:   445    Objective     =        415423.323890
+Iteration:   535    Objective     =        420727.887714
+Iteration:   633    Objective     =        425454.314242
+Iteration:   667    Objective     =        426371.652713
+Iteration:   782    Objective     =        428646.058294
+Iteration:   889    Objective     =        431352.084628
+Iteration:   956    Objective     =        432521.758033
+Iteration:  1048    Objective     =        433482.432171
+Iteration:  1112    Objective     =        434066.928708
+Iteration:  1191    Objective     =        434512.093036
+Iteration:  1198    Objective     =        434699.365362
+Iteration:  1200    Objective     =        434743.076530
+Iteration:  1252    Objective     =        435197.628533
+Iteration:  1266    Objective     =        435304.391826
+Iteration:  1305    Objective     =        435475.386238
+Iteration:  1319    Objective     =        435503.045662
+Iteration:  1338    Objective     =        435722.400345
+Iteration:  1347    Objective     =        435759.983415
+Iteration:  1427    Objective     =        436399.641387
+Iteration:  1437    Objective     =        436423.383418
+Iteration:  1442    Objective     =        436435.534045
+Iteration:  1451    Objective     =        436454.350991
+Iteration:  1458    Objective     =        436471.455553
+Iteration:  1461    Objective     =        436480.910559
+Iteration:  1483    Objective     =        436578.674600
+Iteration:  1509    Objective     =        436627.225990
+Iteration:  1518    Objective     =        436653.226816
+Iteration:  1526    Objective     =        436658.792377
+Iteration:  1552    Objective     =        436693.784614
+Iteration:  1562    Objective     =        436699.768386
+Removing shift (25).
+Iteration:  1563    Phase I obj   =        436691.240988
+Iteration:  1585    Phase I obj   =        436668.128696
+Iteration:  1588    Objective     =        436667.986330
+Total crossover time = 0.16 sec. (116.51 ticks)
+
+Total time on 1 threads = 0.22 sec. (137.67 ticks)
+Root relaxation solution time = 0.22 sec. (137.68 ticks)
+
+        Nodes                                         Cuts/
+   Node  Left     Objective  IInf  Best Integer    Best Bound    ItCnt     Gap
+
+      0     0   436667.9863   140                 436667.9863     1617         
+      0     0   436667.9863   117                   Cuts: 332     2436         
+      0     0   436667.9863   144                   Cuts: 271     3113         
+      0     0   436667.9863   119                   Cuts: 236     3539         
+      0     0   436667.9863   101                   Cuts: 153     4034         
+      0     0   436667.9863    90                   Cuts: 137     4261         
+      0     0   436667.9863    90                    Cuts: 68     4299         
+*     0+    0                       435888.5978   436667.9863             0.18%
+Found incumbent of value 435888.597814 after 0.53 sec. (362.04 ticks)
+      0     2   436667.9863    90   435888.5978   436667.9863     4299    0.18%
+Elapsed time = 0.55 sec. (368.42 ticks, tree = 0.01 MB, solutions = 1)
+    110    50   436023.2895    52   435888.5978   436667.9863     7874    0.18%
+                                                 Impl Bds: 16                  
+    246   138   436254.9323    58   435888.5978   436667.9863    11752    0.18%
+                                                     Cuts: 13                  
+*   294   105      integral     0   435908.8022   436667.9863    12201    0.17%
+Found incumbent of value 435908.802231 after 1.33 sec. (894.69 ticks)
+*   390   104      integral     0   436152.4267   436667.9863    14275    0.12%
+Found incumbent of value 436152.426741 after 1.48 sec. (1018.45 ticks)
+    418   117   436247.3566    33   436152.4267   436667.9863    15550    0.12%
+                                                  Impl Bds: 6                  
+*   490+   30                       436436.2137   436667.9863             0.05%
+                                                 Impl Bds: 12                  
+Found incumbent of value 436436.213686 after 1.91 sec. (1341.59 ticks)
+*   490+   18                       436645.0530   436667.9863             0.01%
+Found incumbent of value 436645.052990 after 1.97 sec. (1423.38 ticks)
+    490    18        cutoff         436645.0530   436667.9863    19045    0.01%
+*   560+    1                       436667.9863   436667.9863             0.00%
+Found incumbent of value 436667.986330 after 2.06 sec. (1512.33 ticks)
+
+Clique cuts applied:  36
+Implied bound cuts applied:  132
+Flow cuts applied:  147
+Mixed integer rounding cuts applied:  54
+
+Root node processing (before b&c):
+  Real time             =    0.55 sec. (364.20 ticks)
+Sequential b&c:
+  Real time             =    1.52 sec. (1148.34 ticks)
+                          ------------
+Total (root+branch&cut) =    2.06 sec. (1512.54 ticks)
+
+--- MIQP status (101): integer optimal solution.
+--- Cplex Time: 2.06sec (det. 1512.55 ticks)
+
+--- Fixing integer variables and solving final QP...
+--- The search will stop after 65000000 nodes.
+
+Version identifier: 20.1.0.1 | 2021-04-07 | 3a818710c
+CPXPARAM_Advance                                 2
+CPXPARAM_Threads                                 1
+CPXPARAM_MIP_Display                             4
+CPXPARAM_MIP_Limits_Nodes                        65000000
+CPXPARAM_TimeLimit                               150000
+CPXPARAM_MIP_Tolerances_AbsMIPGap                0
+CPXPARAM_MIP_Tolerances_MIPGap                   1e-08
+Tried aggregator 1 time.
+QP Presolve eliminated 1057 rows and 737 columns.
+Aggregator did 183 substitutions.
+Reduced QP has 240 rows, 202 columns, and 853 nonzeros.
+Reduced QP objective Q matrix has 42 nonzeros.
+Presolve time = 0.00 sec. (0.97 ticks)
+
+Iteration log . . .
+Iteration:     1    Objective     =        740718.313250
+Iteration:   121    Objective     =        478175.407728
+Iteration:   198    Objective     =        462089.890021
+Iteration:   241    Objective     =        453303.465593
+Iteration:   305    Objective     =        441621.978454
+Iteration:   362    Objective     =        437829.797907
+Iteration:   442    Objective     =        437122.912728
+Iteration:   481    Objective     =        436806.028294
+Iteration:   565    Objective     =        436668.069275
+Markowitz threshold set to 0.1
+
+--- Fixed MIQP status (1): optimal.
+--- Cplex Time: 0.02sec (det. 8.79 ticks)
+
+
+Proven optimal solution
+MIP Solution:       436667.986330    (20023 iterations, 560 nodes)
+Final Solve:        436667.986330    (567 iterations)
+
+Best possible:      436667.986330
+Absolute gap:            0.000000
+Relative gap:            0.000000
+
+--- Reading solution for model LOCI
+--- Executing after solve: elapsed 0:00:02.378
+--- with_locational_instrument.gms(303) 4 Mb
+*** GDXopenWrite failed C:\GitHub\Locational-investment-signals\Three node model\Output/with_instrument.gdx
+*** Msg: No such file or directory
+--- with_locational_instrument.gms(303) 4 Mb 2 Errors
+*** Status: Execution error(s)
+--- Job with_locational_instrument.gms Stop 03/25/22 07:57:50 elapsed 0:00:02.378

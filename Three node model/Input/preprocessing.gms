@@ -1,5 +1,5 @@
 
-$onecho > cost.txt
+$onecho > task.txt
 par=i_cost                       rng=cost!b4:h13
 $offecho
 
@@ -21,7 +21,7 @@ $call GDXXRW.exe load.xlsx  @task.txt
 * ---
 
 $Onecho > task.txt
-par=avail     rng=Sheet1!A1:G13    rdim=1  cdim=2
+par=i_avail     rng=Sheet1!A1:G13    rdim=1  cdim=2
 $Offecho
 
 $call GDXXRW.exe avail.xlsx  @task.txt

@@ -69,13 +69,13 @@ redispatch(t,tec,n)
 ;
 
 * Load data
-$GDXIN "in.gdx"
+$GDXIN "Input/in.gdx"
 $LOADdc i_cost
 
-$GDXIN "load.gdx"
+$GDXIN "Input/load.gdx"
 $LOADdc i_load
 
-$GDXIN "avail.gdx"
+$GDXIN "Input/avail.gdx"
 $LOADdc i_avail
  
 
