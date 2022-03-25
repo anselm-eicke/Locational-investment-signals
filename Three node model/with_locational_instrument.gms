@@ -69,11 +69,9 @@ sum_instrument
 redispatch(t,tec,n) 
 ;
 
-$Onecho > task.txt
-par=i_load     rng=Sheet1!A1:D11    rdim=1  cdim=1
-$Offecho
 
-$call GDXXRW load.xlsx  @task.txt
+$GDXIN load.gdx
+$LOADdc i_load
 
 display i_load
 

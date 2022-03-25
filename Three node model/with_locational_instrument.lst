@@ -1,4 +1,4 @@
-GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 03/24/22 11:21:16 Page 1
+GAMS 35.2.0  r33388c4 Released Jun  2, 2021 WEX-WEI x86 64bit/MS Windows - 03/25/22 07:48:09 Page 1
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
 C o m p i l a t i o n
 
@@ -76,43 +76,60 @@ C o m p i l a t i o n
   71   
   75   
   77   
-  78  display i_load
-****               $141
-**** 141  Symbol declared but no values have been assigned. Check for missing
-****         data definition, assignment, data loading or implicit assignment
-****         via a solve statement.
-****         A wild shot: You may have spurious commas in the explanatory
-****         text of a declaration. Check symbol reference list.
-  79   
-EXIT C:\Users\a.eicke\Documents\Locational-investment-signals\Three node model\with_locational_instrument.gms
+GDXIN   C:\GitHub\Locational-investment-signals\Three node model\load.gdx
+--- LOAD  i_load = 1:i_load
+  80   
+  81  display i_load
+  82   
+EXIT C:\GitHub\Locational-investment-signals\Three node model\with_locational_instrument.gms
 
 **** LIST OF STRAY NAMES - CHECK DECLARATIONS FOR SPURIOUS COMMAS
 **** STRAY NAME consumer_surplus OF TYPE PARAM
-
-**** 1 ERROR(S)   0 WARNING(S)
-GAMS 30.3.0  rc5da09e Released Mar  6, 2020 WEX-WEI x86 64bit/MS Windows - 03/24/22 11:21:16 Page 2
+GAMS 35.2.0  r33388c4 Released Jun  2, 2021 WEX-WEI x86 64bit/MS Windows - 03/25/22 07:48:09 Page 2
 G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
 Include File Summary
 
 
    SEQ   GLOBAL TYPE      PARENT   LOCAL  FILENAME
 
-     1        1 INPUT          0       0  C:\Users\a.eicke\Documents\Locational-investment-signals\Three node model\with_locational_instrument.gms
-     2       76 CALL           1      76  GDXXRW load.xlsx  @task.txt
-     3       80 EXIT           1      80  C:\Users\a.eicke\Documents\Locational-investment-signals\Three node model\with_locational_instrument.gms
+     1        1 INPUT          0       0  C:\GitHub\Locational-investment-signals\Three node model\with_locational_instrument.gms
+     2       76 CALL           1      76  GDXXRW.exe load.xlsx  @task.txt
+     3       78 GDXIN          1      78  C:\GitHub\Locational-investment-signals\Three node model\load.gdx
+     4       83 EXIT           1      83  C:\GitHub\Locational-investment-signals\Three node model\with_locational_instrument.gms
 
 
-COMPILATION TIME     =        1.625 SECONDS      3 MB  30.3.0 rc5da09e WEX-WEI
+COMPILATION TIME     =        2.015 SECONDS      3 MB  35.2.0 r33388c4 WEX-WEI
+GAMS 35.2.0  r33388c4 Released Jun  2, 2021 WEX-WEI x86 64bit/MS Windows - 03/25/22 07:48:09 Page 3
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+E x e c u t i o n
 
 
-USER: Small MUD - 5 User License                     S190305:0326AO-WIN
-      Hertie School of Governance GmbH, Governance of DigitalizaDC14808
+----     81 PARAMETER i_load  load data to be loaded from sheet "time series" in MWh
+
+         north       south        east
+
+1     5700.000   38740.000   21400.000
+2     3060.000   42080.000   23319.000
+3     2840.000   51310.000   26979.000
+4    22260.000   38900.000   29976.000
+5    16130.000   46970.000   32153.000
+6    29240.000   31410.000   29835.000
+7    28340.000   31500.000   29923.000
+8     6170.000   54070.000   30477.000
+9    21310.000   32410.000   26913.000
+10   10260.000   37370.000   22971.000
+
+
+
+EXECUTION TIME       =        0.016 SECONDS      4 MB  35.2.0 r33388c4 WEX-WEI
+
+
+USER: GAMS Community License for Anselm Eicke        G210709|0002AO-GEN
+      Hertie School of Governance GmbH                           CL1515
       License for teaching and research at degree granting institutions
 
 
 **** FILE SUMMARY
 
-Input      C:\Users\a.eicke\Documents\Locational-investment-signals\Three node model\with_locational_instrument.gms
-Output     C:\Users\a.eicke\Documents\Locational-investment-signals\Three node model\with_locational_instrument.lst
-
-**** USER ERROR(S) ENCOUNTERED
+Input      C:\GitHub\Locational-investment-signals\Three node model\with_locational_instrument.gms
+Output     C:\GitHub\Locational-investment-signals\Three node model\with_locational_instrument.lst
